@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Challenges — Futbol Training Lab</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="nav"></div>
+  <div class="dashboard">
+    <div id="sidebar"></div>
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Challenges</h1>
+        <p>Push your limits and earn bonus XP with monthly skill challenges</p>
+      </div>
+
+      <div class="grid grid-2" id="challenges-grid"></div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { renderNav, renderSidebar } from '/js/components/ui.js';
+    import '/js/app.js';
+
+    const state = TrainingLab.requireAuth('player');
+    if (!state) throw new Error('Auth required');
+
+    document.getElementById('nav').innerHTML = renderNav();
+    document.getElementById('sidebar').innerHTML = renderSidebar('player', 'challenges');
+
+    function renderChallenges() {
+      const current = TrainingLab.loadState();
+      document.getElementById('challenges-grid').innerHTML = TrainingLab.CHALLENGES.map(c => {
+        const joined = current.activeChallenges.includes(c.id);
+        const progress = current.challengeProgress[c.id] || 0;
+        const pct = Math.min(100, Math.round((progress / c.targetCount) * 100));
+
+        return `
+          <div class="challenge-card">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+              <div>
+                <span style="font-size: 2rem;">${c.icon}</span>
+                <h3 class="card-title" style="margin-top: 0.5rem;">${c.name}</h3>
+              </div>
+              <span class="badge badge-gold">+${c.xpReward} XP</span>
+            </div>
+            <p style="color: var(--slate-400); margin: 0.75rem 0; font-size: 0.9rem;">${c.description}</p>
+            <p style="font-size: 0.8rem; color: var(--slate-500);">${c.duration} days · Target: ${c.targetCount} ${c.unit}</p>
+            ${joined ? `
+              <div class="challenge-progress">
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.5rem;">
+                  <span>${progress}/${c.targetCount} ${c.unit}</span>
+                  <span>${pct}%</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width: ${pct}%"></div></div>
+                <button class="btn btn-secondary btn-sm btn-block" style="margin-top: 0.75rem;" onclick="logProgress('${c.id}', ${c.targetCount})">
+                  Log Progress (+1)
+                </button>
+              </div>
+            ` : `
+              <button class="btn btn-primary btn-block" style="margin-top: 1rem;" onclick="joinChallenge('${c.id}')">
+                Join Challenge
+              </button>
+            `}
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.joinChallenge = async (id) => {
+      await TrainingLab.ready();
+      await TrainingLab.joinChallenge(id);
+      TrainingLab.showToast('Challenge joined!');
+      renderChallenges();
+    };
+
+    window.logProgress = async (id, target) => {
+      await TrainingLab.ready();
+      await TrainingLab.updateChallengeProgress(id, 1);
+      const current = TrainingLab.loadState();
+      const progress = (current.challengeProgress[id] || 0);
+
+      if (progress >= target) {
+        const challenge = TrainingLab.CHALLENGES.find(c => c.id === id);
+        if (!TrainingLab.isApiMode()) {
+          const s = TrainingLab.loadState();
+          TrainingLab.saveState({
+            ...s,
+            progress: { ...s.progress, xp: s.progress.xp + challenge.xpReward },
+          });
+        }
+        TrainingLab.showToast(`Challenge complete! +${challenge.xpReward} XP`);
+      } else {
+        TrainingLab.showToast('Progress logged!');
+      }
+      TrainingLab.checkAchievements(TrainingLab.loadState());
+      renderChallenges();
+    };
+
+    renderChallenges();
+  </script>
+</body>
+</html>

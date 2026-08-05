@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Report Cards — Futbol Training Lab</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="nav"></div>
+  <div class="dashboard">
+    <div id="sidebar"></div>
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Monthly Report Cards</h1>
+        <p>Detailed monthly evaluations of your player's development</p>
+      </div>
+      <div id="report-cards" class="grid grid-2"></div>
+    </main>
+  </div>
+  <script type="module">
+    import { renderNav, renderSidebar } from '/js/components/ui.js';
+    import '/js/app.js';
+
+    TrainingLab.requireAuth('parent');
+    document.getElementById('nav').innerHTML = renderNav();
+    document.getElementById('sidebar').innerHTML = renderSidebar('parent', 'reports');
+
+    const months = ['August 2026', 'July 2026', 'June 2026'];
+    document.getElementById('report-cards').innerHTML = months.map((m, i) => `
+      <div class="card">
+        <h3 class="card-title">${m} Report Card</h3>
+        <p style="font-size: 2rem; font-weight: 800; color: var(--green-400); margin: 1rem 0;">${8 - i}/10</p>
+        <ul style="color: var(--slate-400); font-size: 0.9rem; padding-left: 1.25rem;">
+          <li>Training consistency: ${i === 0 ? 'Excellent' : 'Good'}</li>
+          <li>Skills completed: ${42 - i * 5}</li>
+          <li>Challenges finished: ${2 - i}</li>
+          <li>Coach feedback: ${i === 0 ? 'Available (Elite)' : 'N/A'}</li>
+        </ul>
+        <button class="btn btn-secondary btn-sm" style="margin-top: 1rem;">Download PDF</button>
+      </div>
+    `).join('');
+  </script>
+</body>
+</html>

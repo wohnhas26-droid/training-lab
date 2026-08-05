@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Futbol Training Lab</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="nav"></div>
+  <div class="dashboard">
+    <div id="sidebar"></div>
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Welcome back, <span id="user-name"></span> 👋</h1>
+        <p id="today-focus"></p>
+      </div>
+
+      <div class="grid grid-4" style="margin-bottom: 2rem;" id="stats-grid"></div>
+
+      <div class="grid grid-2" style="margin-bottom: 2rem;">
+        <div class="card">
+          <h3 class="card-title">Today's Training</h3>
+          <div id="today-session" style="margin-top: 1rem;"></div>
+          <a href="/player/training.html" class="btn btn-primary btn-block" style="margin-top: 1rem;">Start Session</a>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Your Level</h3>
+          <div id="level-info" style="margin-top: 1rem;"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">Weekly Schedule</h3>
+        <div class="grid grid-4" id="weekly-schedule" style="margin-top: 1rem;"></div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { renderNav, renderSidebar, getCategoryName } from '/js/components/ui.js';
+    import '/js/app.js';
+    import { getDayName } from '/js/services/storage.js';
+    import { WEEKLY_SCHEDULE } from '/js/data/exercises.js';
+
+    const state = TrainingLab.requireAuth('player');
+    if (!state) throw new Error('Auth required');
+
+    document.getElementById('nav').innerHTML = renderNav();
+    document.getElementById('sidebar').innerHTML = renderSidebar('player', 'dashboard');
+    document.getElementById('user-name').textContent = state.user.name.split(' ')[0];
+
+    const summary = TrainingLab.getProgressSummary();
+    const session = TrainingLab.getTodaySession(state.weeklyPlan);
+    const today = getDayName();
+
+    document.getElementById('today-focus').textContent =
+      session.focus ? `Today: ${session.focus.join(' · ')}` : 'Rest day — focus on recovery';
+
+    document.getElementById('stats-grid').innerHTML = `
+      <div class="stat-card"><div class="stat-value">${summary.streak}</div><div class="stat-label">Day Streak</div></div>
+      <div class="stat-card"><div class="stat-value">${summary.xp}</div><div class="stat-label">Total XP</div></div>
+      <div class="stat-card"><div class="stat-value">${summary.minutesTrained}</div><div class="stat-label">Minutes Trained</div></div>
+      <div class="stat-card"><div class="stat-value">${summary.achievementsUnlocked}/${summary.totalAchievements}</div><div class="stat-label">Achievements</div></div>
+    `;
+
+    const exercises = session.exercises || [];
+    document.getElementById('today-session').innerHTML = exercises.length
+      ? `<p style="color: var(--slate-400); margin-bottom: 0.75rem;">${exercises.length} exercises · ~${session.estimatedMinutes || 0} min</p>` +
+        exercises.slice(0, 3).map(e => `<div style="padding: 0.5rem 0; border-bottom: 1px solid var(--slate-800);">${e.name}</div>`).join('') +
+        (exercises.length > 3 ? `<p style="color: var(--slate-500); margin-top: 0.5rem; font-size: 0.85rem;">+${exercises.length - 3} more</p>` : '')
+      : '<p style="color: var(--slate-400);">Rest and recovery day. Light mobility work recommended.</p>';
+
+    document.getElementById('level-info').innerHTML = `
+      <div class="level-badge" style="margin-bottom: 1rem;">${summary.level.icon} ${summary.level.name}</div>
+      <div class="progress-bar" style="margin-bottom: 0.5rem;"><div class="progress-fill" style="width: ${summary.levelProgress}%"></div></div>
+      <p style="font-size: 0.85rem; color: var(--slate-400);">
+        ${summary.nextLevel ? `${Math.round(summary.levelProgress)}% to ${summary.nextLevel.name}` : 'Max level reached!'}
+      </p>
+    `;
+
+    document.getElementById('weekly-schedule').innerHTML = Object.entries(WEEKLY_SCHEDULE).map(([day, sched]) => `
+      <div class="day-card ${day === today ? 'today' : ''}">
+        <div class="day-name">${day.charAt(0).toUpperCase() + day.slice(1)}</div>
+        <div class="day-focus">${sched.focus.slice(0, 2).join(', ')}</div>
+      </div>
+    `).join('');
+  </script>
+</body>
+</html>

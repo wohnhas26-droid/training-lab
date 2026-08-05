@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subscription Active — Futbol Training Lab</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="nav"></div>
+
+  <section class="section container" style="max-width: 560px; text-align: center;">
+    <div class="card" id="success-card">
+      <div style="font-size: 3rem; margin-bottom: 1rem;">🎉</div>
+      <h1 style="font-size: 1.75rem; margin-bottom: 0.5rem;">Welcome to Futbol Training Lab!</h1>
+      <p id="status-text" style="color: var(--slate-400); margin-bottom: 1.5rem;">Confirming your subscription...</p>
+      <div id="plan-badge" class="level-badge" style="margin-bottom: 1.5rem; display: none;"></div>
+      <a href="/player/dashboard.html" class="btn btn-primary btn-lg btn-block" id="continue-btn" style="display: none;">
+        Go to Dashboard
+      </a>
+    </div>
+  </section>
+
+  <script type="module">
+    import { renderNav } from '/js/components/ui.js';
+    import '/js/app.js';
+    import { SUBSCRIPTION_PLANS } from '/js/data/subscriptions.js';
+
+    document.getElementById('nav').innerHTML = renderNav();
+
+    const params = new URLSearchParams(window.location.search);
+    const planId = params.get('plan');
+    const sessionId = params.get('session_id');
+    const plan = SUBSCRIPTION_PLANS.find(p => p.id === planId);
+
+    async function init() {
+      await TrainingLab.ready();
+      const state = TrainingLab.loadState();
+
+      if (!state.user) {
+        document.getElementById('status-text').textContent = 'Please log in to view your subscription.';
+        document.getElementById('continue-btn').href = '/login.html';
+        document.getElementById('continue-btn').textContent = 'Log In';
+        document.getElementById('continue-btn').style.display = 'block';
+        return;
+      }
+
+      const roleRoutes = {
+        player: '/player/dashboard.html',
+        coach: '/coach/dashboard.html',
+        parent: '/parent/dashboard.html',
+      };
+      document.getElementById('continue-btn').href = roleRoutes[state.user.role] || roleRoutes.player;
+
+      if (sessionId && TrainingLab.isApiMode()) {
+        try {
+          await TrainingLab.verifyCheckoutSession(sessionId);
+        } catch (err) {
+          console.warn('Session verify:', err.message);
+        }
+      }
+
+      if (plan) {
+        document.getElementById('plan-badge').textContent = plan.name;
+        document.getElementById('plan-badge').style.display = 'inline-flex';
+      }
+
+      document.getElementById('status-text').textContent =
+        plan
+          ? `Your ${plan.name} is active. Your 7-day free trial has started.`
+          : 'Your subscription is active. Start training today!';
+      document.getElementById('continue-btn').style.display = 'block';
+    }
+
+    init();
+  </script>
+</body>
+</html>

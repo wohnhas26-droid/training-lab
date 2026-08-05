@@ -1,0 +1,22 @@
+{
+  "name": "training-lab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Futbol Training Lab — Train Smarter. Play Faster.",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "powershell -ExecutionPolicy Bypass -File ./serve.ps1",
+    "dev:backend": "npm run dev --prefix backend",
+    "setup": "npm run setup --prefix backend",
+    "start": "npm run start --prefix backend",
+    "stripe:setup": "npm run stripe:setup --prefix backend",
+    "stripe:webhooks": "npm run stripe:webhooks --prefix backend",
+    "db:studio": "npm run db:studio --prefix backend",
+    "setup:git": "powershell -ExecutionPolicy Bypass -File ./scripts/setup-git.ps1",
+    "setup:webhooks": "powershell -ExecutionPolicy Bypass -File ./scripts/setup-webhooks-local.ps1",
+    "deploy:docker": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy-docker.ps1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

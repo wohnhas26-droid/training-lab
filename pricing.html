@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pricing — Futbol Training Lab</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="nav"></div>
+
+  <section class="hero" style="padding: 3rem 1.5rem 2rem;">
+    <h1>Choose Your Plan</h1>
+    <p>Flexible subscriptions for every level — from individual players to full academies.</p>
+    <p id="stripe-notice" style="margin-top: 1rem; font-size: 0.9rem; color: var(--slate-500); display: none;"></p>
+  </section>
+
+  <section class="section container" id="canceled-banner" style="display: none;">
+    <div class="card" style="border-color: var(--gold); text-align: center;">
+      <p style="color: var(--slate-300);">Checkout was canceled. Pick a plan when you're ready — your 7-day trial starts at signup.</p>
+    </div>
+  </section>
+
+  <section class="section container">
+    <div class="grid grid-3" id="pricing-grid" style="max-width: 1100px; margin: 0 auto;"></div>
+  </section>
+
+  <footer class="footer">
+    <p>&copy; 2026 Futbol Training Lab. All plans include a 7-day free trial.</p>
+  </footer>
+
+  <script type="module">
+    import { renderNav, formatPrice } from '/js/components/ui.js';
+    import { SUBSCRIPTION_PLANS } from '/js/data/subscriptions.js';
+    import { getToken } from '/js/services/api.js';
+    import '/js/app.js';
+
+    document.getElementById('nav').innerHTML = renderNav('pricing');
+
+    if (new URLSearchParams(window.location.search).get('canceled') === 'true') {
+      document.getElementById('canceled-banner').style.display = 'block';
+    }
+
+    function renderPlan(plan) {
+      const priceDisplay = plan.priceMax
+        ? `$${plan.price}–$${plan.priceMax}`
+        : formatPrice(plan.price);
+
+      return `
+        <div class="pricing-card ${plan.featured ? 'featured' : ''}">
+          ${plan.featured ? '<span class="badge badge-green" style="position:absolute;top:1rem;right:1rem;">Most Popular</span>' : ''}
+          <div class="plan-name">${plan.name}</div>
+          <p style="color: var(--slate-400); font-size: 0.9rem; margin-top: 0.5rem;">${plan.description}</p>
+          <div class="plan-price">${priceDisplay}<span>/${plan.period}</span></div>
+          <ul class="feature-list">
+            ${plan.features.map(f => `<li>${f}</li>`).join('')}
+          </ul>
+          <button type="button" class="btn ${plan.featured ? 'btn-primary' : 'btn-secondary'} btn-block checkout-btn" data-plan="${plan.id}">
+            ${getToken() ? 'Subscribe' : 'Get Started'}
+          </button>
+        </div>
+      `;
+    }
+
+    document.getElementById('pricing-grid').innerHTML =
+      SUBSCRIPTION_PLANS.map(renderPlan).join('');
+
+    async function handleCheckout(plan) {
+      await TrainingLab.ready();
+
+      if (!getToken()) {
+        window.location.href = `/onboarding.html?plan=${plan}`;
+        return;
+      }
+
+      const btn = document.querySelector(`.checkout-btn[data-plan="${plan}"]`);
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Redirecting...';
+      }
+
+      try {
+        const result = await TrainingLab.createCheckout(plan);
+        if (result.url) {
+          window.location.href = result.url;
+        } else {
+          throw new Error(result.message || 'Checkout unavailable');
+        }
+      } catch (err) {
+        TrainingLab.showToast(err.message || 'Checkout failed');
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Subscribe';
+        }
+      }
+    }
+
+    document.querySelectorAll('.checkout-btn').forEach(btn => {
+      btn.addEventListener('click', () => handleCheckout(btn.dataset.plan));
+    });
+
+    await TrainingLab.ready();
+    const stripeConfig = await TrainingLab.getStripeConfig();
+    if (!stripeConfig.configured) {
+      const notice = document.getElementById('stripe-notice');
+      notice.textContent = 'Demo mode — Stripe not configured. Subscriptions will simulate locally.';
+      notice.style.display = 'block';
+    }
+  </script>
+</body>
+</html>

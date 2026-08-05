@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Futbol Training Lab — Train Smarter. Play Faster.</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="nav"></div>
+
+  <section class="hero">
+    <div class="hero-badge">⚽ Soccer Training Platform</div>
+    <h1>Train Smarter.<br>Play Faster.</h1>
+    <p>Personalized development plans, structured daily training, progress tracking, and accountability for players, parents, coaches, and clubs.</p>
+    <div class="hero-actions">
+      <a href="/onboarding.html" class="btn btn-primary btn-lg">Start Free Trial</a>
+      <a href="/pricing.html" class="btn btn-secondary btn-lg">View Plans</a>
+    </div>
+  </section>
+
+  <section class="section container">
+    <h2 class="section-title">Everything You Need to Develop</h2>
+    <p class="section-subtitle">Structured training across every aspect of the beautiful game</p>
+    <div class="grid grid-3" id="categories-grid"></div>
+  </section>
+
+  <section class="section container" style="background: var(--slate-900); border-radius: var(--radius); padding: 3rem; margin: 2rem auto; max-width: 1200px;">
+    <h2 class="section-title">How It Works</h2>
+    <p class="section-subtitle">From signup to match day in three steps</p>
+    <div class="grid grid-3">
+      <div class="card">
+        <div style="font-size: 2.5rem; margin-bottom: 1rem;">1️⃣</div>
+        <h3 class="card-title">Build Your Profile</h3>
+        <p class="card-subtitle" style="margin-top: 0.5rem;">Tell us your position, skill level, goals, and available equipment. Our AI builds your personalized plan.</p>
+      </div>
+      <div class="card">
+        <div style="font-size: 2.5rem; margin-bottom: 1rem;">2️⃣</div>
+        <h3 class="card-title">Train Daily</h3>
+        <p class="card-subtitle" style="margin-top: 0.5rem;">Open the app each day for a structured session tailored to your development goals and weekly schedule.</p>
+      </div>
+      <div class="card">
+        <div style="font-size: 2.5rem; margin-bottom: 1rem;">3️⃣</div>
+        <h3 class="card-title">Track & Level Up</h3>
+        <p class="card-subtitle" style="margin-top: 0.5rem;">Earn XP, unlock achievements, climb leaderboards, and watch your skills progress from Rookie to Professional.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section container">
+    <h2 class="section-title">Built for Everyone</h2>
+    <p class="section-subtitle">Players, parents, and coaches</p>
+    <div class="grid grid-3">
+      <div class="card card-interactive">
+        <span class="badge badge-green">Players</span>
+        <h3 class="card-title" style="margin-top: 1rem;">Daily Guided Training</h3>
+        <p class="card-subtitle" style="margin-top: 0.5rem;">Position-specific plans, ball mastery, finishing, speed work, and recovery — all in one app.</p>
+      </div>
+      <div class="card card-interactive">
+        <span class="badge badge-blue">Parents</span>
+        <h3 class="card-title" style="margin-top: 1rem;">Stay Informed</h3>
+        <p class="card-subtitle" style="margin-top: 0.5rem;">Weekly completion reports, attendance, skill progression, and monthly report cards.</p>
+      </div>
+      <div class="card card-interactive">
+        <span class="badge badge-gold">Coaches</span>
+        <h3 class="card-title" style="margin-top: 1rem;">Team Management</h3>
+        <p class="card-subtitle" style="margin-top: 0.5rem;">Assign workouts, track completion, review videos, and monitor player progress.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section container" style="text-align: center;">
+    <h2 class="section-title">Ready to Elevate Your Game?</h2>
+    <p class="section-subtitle">Join thousands of players training smarter every day</p>
+    <a href="/onboarding.html" class="btn btn-primary btn-lg">Get Started — $29.99/mo</a>
+  </section>
+
+  <footer class="footer">
+    <p>&copy; 2026 Futbol Training Lab. Train Smarter. Play Faster.</p>
+  </footer>
+
+  <script type="module">
+    import { renderNav } from '/js/components/ui.js';
+    import { TRAINING_CATEGORIES } from '/js/data/exercises.js';
+
+    document.getElementById('nav').innerHTML = renderNav('home');
+
+    document.getElementById('categories-grid').innerHTML = Object.values(TRAINING_CATEGORIES).map(cat => `
+      <div class="card">
+        <div style="font-size: 2rem; margin-bottom: 0.75rem;">${cat.icon}</div>
+        <h3 class="card-title">${cat.name}</h3>
+        <p class="card-subtitle" style="margin-top: 0.5rem;">
+          ${Object.values(cat.subcategories).flat().slice(0, 4).join(' · ')}...
+        </p>
+      </div>
+    `).join('');
+  </script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player Progress — Futbol Training Lab</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="nav"></div>
+  <div class="dashboard">
+    <div id="sidebar"></div>
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Player Progress Reports</h1>
+        <p>Monitor individual player development and training consistency</p>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Player</th><th>Position</th><th>XP</th><th>Streak</th><th>Completion</th><th>Last Active</th><th>Action</th></tr>
+            </thead>
+            <tbody id="players-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script type="module">
+    import { renderNav, renderSidebar } from '/js/components/ui.js';
+    import '/js/app.js';
+    TrainingLab.requireAuth('coach');
+    document.getElementById('nav').innerHTML = renderNav();
+    document.getElementById('sidebar').innerHTML = renderSidebar('coach', 'players');
+    document.getElementById('players-table').innerHTML = TrainingLab.getCoachTeamData().map(p => `
+      <tr>
+        <td><strong>${p.name}</strong></td>
+        <td>${p.position}</td>
+        <td>${p.xp.toLocaleString()}</td>
+        <td>${p.streak} days</td>
+        <td><div class="progress-bar" style="width: 80px; display: inline-block; vertical-align: middle;"><div class="progress-fill" style="width: ${p.completion}%"></div></div> ${p.completion}%</td>
+        <td>${p.lastActive}</td>
+        <td><button class="btn btn-ghost btn-sm" onclick="alert('Progress report for ${p.name} would download as PDF.')">Report</button></td>
+      </tr>
+    `).join('');
+  </script>
+</body>
+</html>

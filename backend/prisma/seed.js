@@ -1,0 +1,114 @@
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+import '../src/loadEnv.js';
+import { generatePersonalizedPlan } from '../src/services/trainingPlanner.js';
+
+const prisma = new PrismaClient();
+
+async function main() {
+  console.log('Seeding database...');
+
+  const passwordHash = await bcrypt.hash('demo1234', 12);
+
+  const coach = await prisma.user.upsert({
+    where: { email: 'coach@traininglab.com' },
+    update: {},
+    create: {
+      email: 'coach@traininglab.com',
+      passwordHash,
+      name: 'Coach Martinez',
+      role: 'coach',
+      subscription: { create: { plan: 'team', status: 'active' } },
+      progress: { create: {} },
+    },
+  });
+
+  const playerProfile = {
+    age: 15,
+    position: 'midfielder',
+    skillLevel: 'intermediate',
+    goals: ['passing', 'first touch'],
+    improvementAreas: ['ball_mastery', 'passing'],
+    trainingDays: 5,
+    equipment: ['ball', 'cones', 'wall'],
+  };
+
+  const player = await prisma.user.upsert({
+    where: { email: 'player@traininglab.com' },
+    update: {},
+    create: {
+      email: 'player@traininglab.com',
+      passwordHash,
+      name: 'Alex Rivera',
+      role: 'player',
+      profile: {
+        create: {
+          age: playerProfile.age,
+          position: playerProfile.position,
+          skillLevel: playerProfile.skillLevel,
+          goals: JSON.stringify(playerProfile.goals),
+          improvementAreas: JSON.stringify(playerProfile.improvementAreas),
+          trainingDays: playerProfile.trainingDays,
+          equipment: JSON.stringify(playerProfile.equipment),
+        },
+      },
+      subscription: { create: { plan: 'elite', status: 'active' } },
+      progress: { create: { xp: 1200, streak: 5, skillsCompleted: 42, minutesTrained: 340, lastTrainingDate: new Date().toISOString().split('T')[0] } },
+    },
+  });
+
+  const parent = await prisma.user.upsert({
+    where: { email: 'parent@traininglab.com' },
+    update: {},
+    create: {
+      email: 'parent@traininglab.com',
+      passwordHash,
+      name: 'Maria Rivera',
+      role: 'parent',
+      subscription: { create: { plan: 'player', status: 'active' } },
+      progress: { create: {} },
+    },
+  });
+
+  await prisma.parentLink.upsert({
+    where: { parentId_childId: { parentId: parent.id, childId: player.id } },
+    update: {},
+    create: { parentId: parent.id, childId: player.id },
+  });
+
+  const team = await prisma.team.upsert({
+    where: { id: 'seed-team' },
+    update: {},
+    create: { id: 'seed-team', name: 'U16 Elite', coachId: coach.id },
+  });
+
+  await prisma.teamMember.upsert({
+    where: { teamId_userId: { teamId: team.id, userId: player.id } },
+    update: {},
+    create: { teamId: team.id, userId: player.id },
+  });
+
+  const plan = generatePersonalizedPlan(playerProfile);
+  await prisma.weeklyPlan.create({
+    data: { userId: player.id, plan: JSON.stringify(plan), active: true },
+  });
+
+  for (const achievementId of ['first_session', 'streak_7']) {
+    await prisma.userAchievement.upsert({
+      where: { userId_achievementId: { userId: player.id, achievementId } },
+      update: {},
+      create: { userId: player.id, achievementId },
+    });
+  }
+
+  console.log('Seed complete!');
+  console.log('');
+  console.log('Demo accounts (password: demo1234):');
+  console.log('  Player:  player@traininglab.com');
+  console.log('  Coach:   coach@traininglab.com');
+  console.log('  Parent:  parent@traininglab.com');
+}
+
+main()
+  .catch(console.error)
+  .finally(() => prisma.$disconnect());

@@ -1,0 +1,31 @@
+{
+  "name": "training-lab-api",
+  "version": "1.0.0",
+  "description": "Futbol Training Lab backend API",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "node prisma/seed.js",
+    "db:studio": "prisma studio",
+    "setup": "npm run db:generate && npm run db:push && npm run db:seed",
+    "stripe:setup": "node scripts/stripe-setup.js",
+    "stripe:webhooks": "node scripts/stripe-webhook-setup.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.5.0",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "stripe": "^17.7.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.5.0"
+  }
+}

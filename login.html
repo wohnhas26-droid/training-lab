@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log In — Futbol Training Lab</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="nav"></div>
+
+  <section class="section container" style="max-width: 440px;">
+    <div class="page-header" style="text-align: center;">
+      <h1>Welcome Back</h1>
+      <p>Log in to continue your training</p>
+    </div>
+
+    <form id="login-form" class="card">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" name="email" required placeholder="you@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-input" name="password" required placeholder="Your password">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block btn-lg">Log In</button>
+      <p style="text-align: center; margin-top: 1rem; color: var(--slate-400); font-size: 0.9rem;">
+        No account? <a href="/onboarding.html">Sign up</a>
+      </p>
+    </form>
+
+    <div class="card" style="margin-top: 1.5rem; border-color: var(--slate-700);">
+      <p style="font-size: 0.85rem; color: var(--slate-400); margin-bottom: 0.75rem;">Demo accounts (when API is running):</p>
+      <div style="font-size: 0.85rem; color: var(--slate-300); line-height: 1.8;">
+        player@traininglab.com<br>
+        coach@traininglab.com<br>
+        parent@traininglab.com<br>
+        <span style="color: var(--slate-500);">Password: demo1234</span>
+      </div>
+    </div>
+  </section>
+
+  <script type="module">
+    import { renderNav } from '/js/components/ui.js';
+    import '/js/app.js';
+
+    document.getElementById('nav').innerHTML = renderNav();
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await TrainingLab.ready();
+      const fd = new FormData(e.target);
+
+      try {
+        const state = await TrainingLab.loginWithCredentials(fd.get('email'), fd.get('password'));
+        TrainingLab.showToast('Welcome back!');
+        const routes = { player: '/player/dashboard.html', coach: '/coach/dashboard.html', parent: '/parent/dashboard.html' };
+        setTimeout(() => window.location.href = routes[state.user.role] || routes.player, 500);
+      } catch (err) {
+        TrainingLab.showToast(err.message || 'Login failed');
+      }
+    });
+  </script>
+</body>
+</html>

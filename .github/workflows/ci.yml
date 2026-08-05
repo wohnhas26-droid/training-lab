@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Push schema
+        run: npx prisma db push
+        env:
+          DATABASE_URL: file:./test.db
+
+      - name: Seed database
+        run: node prisma/seed.js
+        env:
+          DATABASE_URL: file:./test.db
+
+      - name: Verify API starts
+        run: |
+          node src/index.js &
+          sleep 3
+          curl -f http://localhost:3001/api/health
+        env:
+          DATABASE_URL: file:./test.db
+          JWT_SECRET: ci-test-secret

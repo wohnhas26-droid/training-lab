@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coach Dashboard — Futbol Training Lab</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="nav"></div>
+  <div class="dashboard">
+    <div id="sidebar"></div>
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Coach Dashboard</h1>
+        <p>Manage your team, assign training, and track player development</p>
+      </div>
+
+      <div class="grid grid-4" style="margin-bottom: 2rem;" id="coach-stats"></div>
+
+      <div class="grid grid-2" style="margin-bottom: 2rem;">
+        <div class="card">
+          <h3 class="card-title">Team Leaderboard</h3>
+          <div class="table-wrap" style="margin-top: 1rem;">
+            <table id="leaderboard-table">
+              <thead><tr><th>Rank</th><th>Player</th><th>XP</th><th>Streak</th><th>Completion</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Quick Actions</h3>
+          <div style="display: grid; gap: 0.75rem; margin-top: 1rem;">
+            <a href="/coach/assign.html" class="btn btn-primary btn-block">Assign Training Session</a>
+            <a href="/coach/players.html" class="btn btn-secondary btn-block">View Player Progress</a>
+            <a href="/coach/feedback.html" class="btn btn-secondary btn-block">Review Player Videos</a>
+            <a href="/coach/leaderboard.html" class="btn btn-secondary btn-block">Full Leaderboard</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">Recent Activity</h3>
+        <div id="recent-activity" style="margin-top: 1rem;"></div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { renderNav, renderSidebar } from '/js/components/ui.js';
+    import '/js/app.js';
+
+    TrainingLab.requireAuth('coach');
+    document.getElementById('nav').innerHTML = renderNav();
+    document.getElementById('sidebar').innerHTML = renderSidebar('coach', 'dashboard');
+
+    await TrainingLab.ready();
+    const players = await TrainingLab.getCoachTeamData();
+    const avgCompletion = Math.round(players.reduce((s, p) => s + p.completion, 0) / players.length);
+    const activeToday = players.filter(p => p.lastActive === 'Today').length;
+
+    document.getElementById('coach-stats').innerHTML = `
+      <div class="stat-card"><div class="stat-value">${players.length}</div><div class="stat-label">Players</div></div>
+      <div class="stat-card"><div class="stat-value">${activeToday}</div><div class="stat-label">Active Today</div></div>
+      <div class="stat-card"><div class="stat-value">${avgCompletion}%</div><div class="stat-label">Avg Completion</div></div>
+      <div class="stat-card"><div class="stat-value">${players[0]?.streak || 0}</div><div class="stat-label">Top Streak</div></div>
+    `;
+
+    document.querySelector('#leaderboard-table tbody').innerHTML = players.slice(0, 5).map((p, i) => `
+      <tr>
+        <td><span class="leaderboard-rank rank-${i < 3 ? i + 1 : 'other'}">${i + 1}</span></td>
+        <td><strong>${p.name}</strong><br><span style="font-size: 0.8rem; color: var(--slate-500);">${p.position}</span></td>
+        <td>${p.xp.toLocaleString()}</td>
+        <td>${p.streak} days</td>
+        <td>${p.completion}%</td>
+      </tr>
+    `).join('');
+
+    document.getElementById('recent-activity').innerHTML = players.slice(0, 4).map(p => `
+      <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--slate-800);">
+        <span>${p.name} completed training</span>
+        <span style="color: var(--slate-500); font-size: 0.85rem;">${p.lastActive}</span>
+      </div>
+    `).join('');
+  </script>
+</body>
+</html>

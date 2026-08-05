@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Training Library — Futbol Training Lab</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="nav"></div>
+  <div class="dashboard">
+    <div id="sidebar"></div>
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Training Library</h1>
+        <p>Browse all exercises by category — <span id="exercise-count"></span> drills available</p>
+      </div>
+
+      <div class="form-group" style="max-width: 300px; margin-bottom: 1.5rem;">
+        <select class="form-select" id="category-filter">
+          <option value="all">All Categories</option>
+        </select>
+      </div>
+
+      <div id="library-grid" class="grid grid-2"></div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { renderNav, renderSidebar, getCategoryName, difficultyBadge } from '/js/components/ui.js';
+    import '/js/app.js';
+    import { TRAINING_CATEGORIES } from '/js/data/exercises.js';
+
+    TrainingLab.requireAuth('player');
+    document.getElementById('nav').innerHTML = renderNav();
+    document.getElementById('sidebar').innerHTML = renderSidebar('player', 'library');
+
+    const filter = document.getElementById('category-filter');
+    Object.values(TRAINING_CATEGORIES).forEach(cat => {
+      filter.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+    });
+
+    document.getElementById('exercise-count').textContent = TrainingLab.EXERCISES.length;
+
+    function renderLibrary(category = 'all') {
+      const exercises = category === 'all'
+        ? TrainingLab.EXERCISES
+        : TrainingLab.EXERCISES.filter(e => e.category === category);
+
+      document.getElementById('library-grid').innerHTML = exercises.map(ex => `
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: start;">
+            <h3 class="card-title">${ex.name}</h3>
+            ${difficultyBadge(ex.difficulty)}
+          </div>
+          <p class="card-subtitle" style="margin: 0.5rem 0;">${getCategoryName(ex.category)} · ${ex.reps} · ${ex.duration} min · +${ex.xp} XP</p>
+          <p style="font-size: 0.9rem; color: var(--slate-400);">${ex.description}</p>
+          <p style="font-size: 0.8rem; color: var(--slate-500); margin-top: 0.5rem;">Equipment: ${ex.equipment.join(', ')}</p>
+        </div>
+      `).join('');
+    }
+
+    filter.addEventListener('change', () => renderLibrary(filter.value));
+    renderLibrary();
+  </script>
+</body>
+</html>

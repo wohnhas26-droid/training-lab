@@ -1,0 +1,239 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  player
+  coach
+  parent
+  admin
+}
+
+enum SubscriptionPlan {
+  player
+  elite
+  team
+  academy
+}
+
+enum SubscriptionStatus {
+  active
+  canceled
+  past_due
+  trialing
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         Role     @default(player)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  profile          Profile?
+  subscription     Subscription?
+  progress         Progress?
+  completedSessions CompletedSession[]
+  completedExercises CompletedExercise[]
+  achievements     UserAchievement[]
+  challengeEnrollments ChallengeEnrollment[]
+  weeklyPlans      WeeklyPlan[]
+  coachedTeams     Team[]           @relation("CoachTeams")
+  teamMemberships  TeamMember[]
+  assignmentsCreated Assignment[]   @relation("AssignmentCreator")
+  feedbackGiven    CoachFeedback[]  @relation("FeedbackCoach")
+  feedbackReceived CoachFeedback[]  @relation("FeedbackPlayer")
+  videoSubmissions VideoSubmission[]
+  parentLinks      ParentLink[]     @relation("ParentUser")
+  childLinks       ParentLink[]     @relation("ChildUser")
+}
+
+model Profile {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  age              Int?
+  position         String?
+  skillLevel       String   @default("intermediate")
+  goals            String   @default("[]")
+  improvementAreas String   @default("[]")
+  trainingDays     Int      @default(5)
+  equipment        String   @default("[\"ball\"]")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  plan                 SubscriptionPlan   @default(player)
+  status               SubscriptionStatus @default(trialing)
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Progress {
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  xp               Int       @default(0)
+  streak           Int       @default(0)
+  lastTrainingDate String?
+  minutesTrained   Int       @default(0)
+  skillsCompleted  Int       @default(0)
+  weeklyConsistency Int      @default(0)
+  personalBests    String    @default("{}")
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CompletedSession {
+  id        String   @id @default(cuid())
+  userId    String
+  sessionId String
+  date      String
+  exercises String   @default("[]")
+  xp        Int      @default(0)
+  minutes   Int      @default(0)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+}
+
+model CompletedExercise {
+  id         String   @id @default(cuid())
+  userId     String
+  exerciseId String
+  completedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, exerciseId])
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+}
+
+model ChallengeEnrollment {
+  id          String   @id @default(cuid())
+  userId      String
+  challengeId String
+  progress    Int      @default(0)
+  completed   Boolean  @default(false)
+  joinedAt    DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, challengeId])
+}
+
+model WeeklyPlan {
+  id          String   @id @default(cuid())
+  userId      String
+  plan        String
+  generatedAt DateTime @default(now())
+  active      Boolean  @default(true)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, active])
+}
+
+model Team {
+  id        String   @id @default(cuid())
+  name      String
+  coachId   String
+  createdAt DateTime @default(now())
+
+  coach       User         @relation("CoachTeams", fields: [coachId], references: [id])
+  members     TeamMember[]
+  assignments Assignment[]
+}
+
+model TeamMember {
+  id       String   @id @default(cuid())
+  teamId   String
+  userId   String
+  joinedAt DateTime @default(now())
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+}
+
+model Assignment {
+  id        String   @id @default(cuid())
+  teamId    String
+  coachId   String
+  title     String
+  category  String
+  dueDate   String
+  notes     String?
+  assignTo  String   @default("all")
+  createdAt DateTime @default(now())
+
+  team  Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  coach User @relation("AssignmentCreator", fields: [coachId], references: [id])
+}
+
+model CoachFeedback {
+  id       String   @id @default(cuid())
+  coachId  String
+  playerId String
+  feedback String
+  rating   Int
+  date     String
+  createdAt DateTime @default(now())
+
+  coach  User @relation("FeedbackCoach", fields: [coachId], references: [id])
+  player User @relation("FeedbackPlayer", fields: [playerId], references: [id])
+}
+
+model VideoSubmission {
+  id        String   @id @default(cuid())
+  playerId  String
+  skill     String
+  url       String?
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+
+  player User @relation(fields: [playerId], references: [id], onDelete: Cascade)
+}
+
+model ParentLink {
+  id       String   @id @default(cuid())
+  parentId String
+  childId  String
+  createdAt DateTime @default(now())
+
+  parent User @relation("ParentUser", fields: [parentId], references: [id], onDelete: Cascade)
+  child  User @relation("ChildUser", fields: [childId], references: [id], onDelete: Cascade)
+
+  @@unique([parentId, childId])
+}

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Today's Training — Futbol Training Lab</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="nav"></div>
+  <div class="dashboard">
+    <div id="sidebar"></div>
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Today's Training Session</h1>
+        <p id="session-meta"></p>
+      </div>
+
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <div>
+            <span class="badge badge-green" id="session-progress-badge">0% Complete</span>
+          </div>
+          <div id="session-timer" style="font-size: 1.5rem; font-weight: 700; color: var(--green-400);">00:00</div>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="session-progress-bar" style="width: 0%"></div></div>
+      </div>
+
+      <div id="exercise-list"></div>
+
+      <button id="complete-session-btn" class="btn btn-primary btn-lg btn-block" style="margin-top: 1.5rem; display: none;">
+        Complete Session 🎉
+      </button>
+    </main>
+  </div>
+
+  <script type="module">
+    import { renderNav, renderSidebar, difficultyBadge, getCategoryName } from '/js/components/ui.js';
+    import '/js/app.js';
+
+    const state = TrainingLab.requireAuth('player');
+    if (!state) throw new Error('Auth required');
+
+    document.getElementById('nav').innerHTML = renderNav();
+    document.getElementById('sidebar').innerHTML = renderSidebar('player', 'training');
+
+    const session = TrainingLab.getTodaySession(state.weeklyPlan);
+    const completed = new Set(
+      state.completedSessions
+        .filter(s => s.date === new Date().toISOString().split('T')[0])
+        .flatMap(s => s.exercises)
+    );
+
+    let doneCount = 0;
+    const totalExercises = session.exercises?.length || 0;
+    let timerSeconds = 0;
+    let timerInterval = null;
+
+    document.getElementById('session-meta').textContent =
+      session.focus
+        ? `${session.focus.join(' · ')} — ~${session.estimatedMinutes || 0} minutes`
+        : 'Recovery day';
+
+    function updateProgress() {
+      const pct = totalExercises ? Math.round((doneCount / totalExercises) * 100) : 0;
+      document.getElementById('session-progress-badge').textContent = `${pct}% Complete`;
+      document.getElementById('session-progress-bar').style.width = `${pct}%`;
+      document.getElementById('complete-session-btn').style.display =
+        doneCount === totalExercises && totalExercises > 0 ? 'block' : 'none';
+    }
+
+    function formatTime(s) {
+      return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+    }
+
+    function renderExercises() {
+      const list = document.getElementById('exercise-list');
+      if (!session.exercises?.length) {
+        list.innerHTML = '<div class="card"><p style="color: var(--slate-400);">No exercises scheduled today. Enjoy your rest day or browse the <a href="/player/library.html">Training Library</a>.</p></div>';
+        return;
+      }
+
+      list.innerHTML = session.exercises.map((ex, i) => {
+        const isDone = completed.has(ex.id);
+        if (isDone) doneCount++;
+        return `
+          <div class="exercise-item ${isDone ? 'completed' : ''}" data-id="${ex.id}" data-xp="${ex.xp}" data-duration="${ex.duration}">
+            <div class="exercise-check">${isDone ? '✓' : ''}</div>
+            <div class="exercise-info">
+              <div class="exercise-name">${i + 1}. ${ex.name}</div>
+              <div class="exercise-meta">${getCategoryName(ex.category)} · ${ex.reps} · ${ex.duration} min · +${ex.xp} XP ${difficultyBadge(ex.difficulty)}</div>
+              <p style="font-size: 0.85rem; color: var(--slate-500); margin-top: 0.25rem;">${ex.description}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      updateProgress();
+
+      if (!timerInterval && totalExercises > 0) {
+        timerInterval = setInterval(() => {
+          timerSeconds++;
+          document.getElementById('session-timer').textContent = formatTime(timerSeconds);
+        }, 1000);
+      }
+
+      list.querySelectorAll('.exercise-item:not(.completed)').forEach(item => {
+        item.addEventListener('click', () => {
+          item.classList.add('completed');
+          item.querySelector('.exercise-check').textContent = '✓';
+          doneCount++;
+          updateProgress();
+        });
+      });
+    }
+
+    renderExercises();
+
+    document.getElementById('complete-session-btn').addEventListener('click', async () => {
+      const exerciseIds = session.exercises.map(e => e.id);
+      const totalXp = session.exercises.reduce((s, e) => s + e.xp, 0);
+      const minutes = session.exercises.reduce((s, e) => s + e.duration, 0);
+
+      await TrainingLab.ready();
+      await TrainingLab.completeSession(`session-${Date.now()}`, exerciseIds, totalXp, minutes);
+      const newState = TrainingLab.loadState();
+      const unlocked = TrainingLab.checkAchievements(newState);
+
+      clearInterval(timerInterval);
+      TrainingLab.showToast(`Session complete! +${totalXp} XP earned`);
+
+      if (unlocked.length) {
+        setTimeout(() => TrainingLab.showToast(`Achievement unlocked: ${unlocked[0].name}!`), 1500);
+      }
+
+      setTimeout(() => window.location.href = '/player/dashboard.html', 2000);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assign Training — Futbol Training Lab</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="nav"></div>
+  <div class="dashboard">
+    <div id="sidebar"></div>
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Assign Training</h1>
+        <p>Create and assign custom training sessions to your team</p>
+      </div>
+
+      <form id="assign-form" class="card" style="max-width: 600px;">
+        <div class="form-group">
+          <label class="form-label">Session Title</label>
+          <input type="text" class="form-input" name="title" required placeholder="e.g. Pre-Match Passing Drill">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Assign To</label>
+          <select class="form-select" name="assignTo" id="player-select"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category Focus</label>
+          <select class="form-select" name="category" id="category-select"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Due Date</label>
+          <input type="date" class="form-input" name="dueDate" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes for Player</label>
+          <textarea class="form-textarea" name="notes" placeholder="Focus on first touch under pressure..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Assign Session</button>
+      </form>
+
+      <div class="card" style="margin-top: 2rem;">
+        <h3 class="card-title">Assigned Sessions</h3>
+        <div id="assignments-list" style="margin-top: 1rem;"></div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { renderNav, renderSidebar, getCategoryName } from '/js/components/ui.js';
+    import '/js/app.js';
+    import { TRAINING_CATEGORIES } from '/js/data/exercises.js';
+
+    TrainingLab.requireAuth('coach');
+    document.getElementById('nav').innerHTML = renderNav();
+    document.getElementById('sidebar').innerHTML = renderSidebar('coach', 'assign');
+
+    const players = TrainingLab.getCoachTeamData();
+    document.getElementById('player-select').innerHTML =
+      '<option value="all">Entire Team</option>' +
+      players.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+
+    document.getElementById('category-select').innerHTML =
+      Object.values(TRAINING_CATEGORIES).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+    document.querySelector('[name="dueDate"]').value = new Date().toISOString().split('T')[0];
+
+    let assignments = JSON.parse(localStorage.getItem('coach_assignments') || '[]');
+
+    function renderAssignments() {
+      document.getElementById('assignments-list').innerHTML = assignments.length
+        ? assignments.map(a => `
+            <div style="padding: 1rem; background: var(--slate-800); border-radius: 8px; margin-bottom: 0.75rem;">
+              <strong>${a.title}</strong>
+              <p style="font-size: 0.85rem; color: var(--slate-400); margin-top: 0.25rem;">
+                ${getCategoryName(a.category)} · Due ${a.dueDate} · Assigned to ${a.assignTo}
+              </p>
+            </div>
+          `).join('')
+        : '<p style="color: var(--slate-500);">No assignments yet.</p>';
+    }
+
+    document.getElementById('assign-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      assignments.push({
+        title: fd.get('title'),
+        assignTo: fd.get('assignTo') === 'all' ? 'Entire Team' : players.find(p => p.id == fd.get('assignTo'))?.name,
+        category: fd.get('category'),
+        dueDate: fd.get('dueDate'),
+        notes: fd.get('notes'),
+      });
+      localStorage.setItem('coach_assignments', JSON.stringify(assignments));
+      TrainingLab.showToast('Training assigned!');
+      e.target.reset();
+      document.querySelector('[name="dueDate"]').value = new Date().toISOString().split('T')[0];
+      renderAssignments();
+    });
+
+    renderAssignments();
+  </script>
+</body>
+</html>

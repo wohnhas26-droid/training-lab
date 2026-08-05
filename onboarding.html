@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Get Started — Futbol Training Lab</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="nav"></div>
+
+  <section class="section container" style="max-width: 640px;">
+    <div class="page-header" style="text-align: center;">
+      <h1>Create Your Account</h1>
+      <p>Tell us about yourself so we can build your personalized training plan.</p>
+    </div>
+
+    <form id="onboarding-form" class="card">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" class="form-input" name="name" required placeholder="Your name">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" name="email" required placeholder="you@example.com">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-input" name="password" required minlength="6" placeholder="At least 6 characters">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">I am a...</label>
+        <select class="form-select" name="role" id="role-select">
+          <option value="player">Player</option>
+          <option value="parent">Parent</option>
+          <option value="coach">Coach</option>
+        </select>
+      </div>
+
+      <div id="player-fields">
+        <div class="form-group">
+          <label class="form-label">Age</label>
+          <input type="number" class="form-input" name="age" min="6" max="99" value="14">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Position</label>
+          <select class="form-select" name="position">
+            <option value="goalkeeper">Goalkeeper</option>
+            <option value="defender">Defender</option>
+            <option value="midfielder" selected>Midfielder</option>
+            <option value="winger">Winger</option>
+            <option value="striker">Striker</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Skill Level</label>
+          <select class="form-select" name="skillLevel">
+            <option value="beginner">Beginner</option>
+            <option value="intermediate" selected>Intermediate</option>
+            <option value="advanced">Advanced</option>
+            <option value="elite">Elite</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Primary Goals</label>
+          <div class="checkbox-group" id="goals-group"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Areas for Improvement</label>
+          <div class="checkbox-group" id="improvement-group"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Training Days Per Week</label>
+          <select class="form-select" name="trainingDays">
+            <option value="3">3 days</option>
+            <option value="4">4 days</option>
+            <option value="5" selected>5 days</option>
+            <option value="6">6 days</option>
+            <option value="7">7 days</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Available Equipment</label>
+          <div class="checkbox-group" id="equipment-group"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Subscription Plan</label>
+        <select class="form-select" name="plan" id="plan-select">
+          <option value="player">Player — $29.99/mo</option>
+          <option value="elite">Elite — $59.99/mo</option>
+          <option value="team">Team — $199/mo</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg">Create Account & Build My Plan</button>
+      <p style="text-align: center; margin-top: 1rem; color: var(--slate-400); font-size: 0.9rem;">
+        Already have an account? <a href="/login.html">Log in</a>
+      </p>
+    </form>
+  </section>
+
+  <script type="module">
+    import { renderNav } from '/js/components/ui.js';
+    import '/js/app.js';
+
+    document.getElementById('nav').innerHTML = renderNav();
+
+    function renderPills(containerId, items, field, preselect = false) {
+      document.getElementById(containerId).innerHTML = items.map(({ value, label }) =>
+        `<span class="checkbox-pill${preselect ? ' selected' : ''}" data-field="${field}" data-value="${value}">${label}</span>`
+      ).join('');
+    }
+
+    renderPills('goals-group', [
+      { value: 'ball mastery', label: 'Ball mastery' },
+      { value: 'dribbling', label: 'Dribbling' },
+      { value: 'first touch', label: 'First touch' },
+      { value: 'passing', label: 'Passing' },
+      { value: 'finishing', label: 'Finishing' },
+      { value: 'speed', label: 'Speed' },
+      { value: 'agility', label: 'Agility' },
+      { value: 'weak foot', label: 'Weak foot' },
+    ], 'goals');
+
+    renderPills('improvement-group', [
+      { value: 'ball_mastery', label: 'Ball mastery' },
+      { value: 'dribbling', label: 'Dribbling' },
+      { value: 'first_touch', label: 'First touch' },
+      { value: 'passing', label: 'Passing' },
+      { value: 'finishing', label: 'Finishing' },
+      { value: 'speed', label: 'Speed' },
+    ], 'improvementAreas');
+
+    renderPills('equipment-group', [
+      { value: 'ball', label: 'ball' },
+      { value: 'cones', label: 'cones' },
+      { value: 'wall', label: 'wall' },
+      { value: 'goal', label: 'goal' },
+      { value: 'partner', label: 'partner' },
+      { value: 'agility ladder', label: 'agility ladder' },
+      { value: 'resistance band', label: 'resistance band' },
+      { value: 'foam roller', label: 'foam roller' },
+    ], 'equipment', true);
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('plan')) {
+      document.getElementById('plan-select').value = params.get('plan');
+    }
+
+    document.querySelectorAll('.checkbox-pill').forEach(pill => {
+      pill.addEventListener('click', () => pill.classList.toggle('selected'));
+    });
+
+    document.getElementById('role-select').addEventListener('change', (e) => {
+      const isPlayer = e.target.value === 'player';
+      document.getElementById('player-fields').style.display = isPlayer ? 'block' : 'none';
+    });
+
+    function getSelectedValues(field) {
+      return [...document.querySelectorAll(`.checkbox-pill[data-field="${field}"].selected`)]
+        .map(el => el.dataset.value);
+    }
+
+    document.getElementById('onboarding-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      TrainingLab.initOnboarding({
+        name: fd.get('name'),
+        email: fd.get('email'),
+        password: fd.get('password'),
+        role: fd.get('role'),
+        age: fd.get('age'),
+        position: fd.get('position'),
+        skillLevel: fd.get('skillLevel'),
+        goals: getSelectedValues('goals'),
+        improvementAreas: getSelectedValues('improvementAreas'),
+        trainingDays: fd.get('trainingDays'),
+        equipment: getSelectedValues('equipment'),
+        plan: fd.get('plan'),
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parent Dashboard — Futbol Training Lab</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="nav"></div>
+  <div class="dashboard">
+    <div id="sidebar"></div>
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Parent Dashboard</h1>
+        <p>Monitor your player's training progress and development</p>
+      </div>
+
+      <div class="grid grid-4" style="margin-bottom: 2rem;" id="parent-stats"></div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <h3 class="card-title">Weekly Training Summary</h3>
+          <div id="weekly-summary" style="margin-top: 1rem;"></div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Skill Progression</h3>
+          <div id="skill-progress" style="margin-top: 1rem;"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 1.5rem;">
+        <h3 class="card-title">Goals Achieved</h3>
+        <div id="goals-achieved" style="margin-top: 1rem;"></div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { renderNav, renderSidebar } from '/js/components/ui.js';
+    import '/js/app.js';
+    import { ACHIEVEMENTS } from '/js/data/levels.js';
+
+    const state = TrainingLab.requireAuth('parent');
+    if (!state) throw new Error('Auth required');
+
+    document.getElementById('nav').innerHTML = renderNav();
+    document.getElementById('sidebar').innerHTML = renderSidebar('parent', 'dashboard');
+
+    const playerData = TrainingLab.loadState();
+    playerData.user = { name: 'Alex Rivera', role: 'player' };
+    playerData.profile = playerData.profile || { position: 'midfielder' };
+    playerData.progress = playerData.progress.xp ? playerData.progress : {
+      xp: 1200, streak: 5, minutesTrained: 340, skillsCompleted: 42,
+    };
+    playerData.achievements = playerData.achievements.length ? playerData.achievements : ['first_session', 'streak_7'];
+    playerData.completedSessions = playerData.completedSessions.length ? playerData.completedSessions : [
+      { date: new Date().toISOString().split('T')[0] },
+      { date: new Date(Date.now() - 86400000).toISOString().split('T')[0] },
+      { date: new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0] },
+    ];
+
+    const report = TrainingLab.getParentReport(playerData);
+
+    document.getElementById('parent-stats').innerHTML = `
+      <div class="stat-card"><div class="stat-value">${report.weeklyCompletion.split('/')[0]}</div><div class="stat-label">Sessions This Week</div></div>
+      <div class="stat-card"><div class="stat-value">${report.streak}</div><div class="stat-label">Day Streak</div></div>
+      <div class="stat-card"><div class="stat-value">${report.consistency}</div><div class="stat-label">Consistency</div></div>
+      <div class="stat-card"><div class="stat-value">${report.goalsAchieved}</div><div class="stat-label">Achievements</div></div>
+    `;
+
+    document.getElementById('weekly-summary').innerHTML = `
+      <p style="margin-bottom: 1rem; color: var(--slate-300);">Training completion: <strong>${report.weeklyCompletion}</strong></p>
+      <p style="color: var(--slate-400);">Minutes trained this week: <strong>${report.minutesThisWeek || 0}</strong></p>
+      <div class="progress-bar" style="margin-top: 1rem;"><div class="progress-fill" style="width: ${(parseInt(report.weeklyCompletion) / 7) * 100}%"></div></div>
+    `;
+
+    document.getElementById('skill-progress').innerHTML = `
+      <div class="level-badge" style="margin-bottom: 1rem;">${report.skillProgression}</div>
+      <p style="color: var(--slate-400); font-size: 0.9rem;">Your player is making steady progress. Keep encouraging daily training!</p>
+    `;
+
+    document.getElementById('goals-achieved').innerHTML = playerData.achievements.map(id => {
+      const a = ACHIEVEMENTS.find(x => x.id === id);
+      return a ? `<span class="badge badge-green" style="margin: 0.25rem;">${a.icon} ${a.name}</span>` : '';
+    }).join('') || '<p style="color: var(--slate-500);">No achievements yet.</p>';
+  </script>
+</body>
+</html>

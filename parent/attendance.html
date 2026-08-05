@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance — Futbol Training Lab</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="nav"></div>
+  <div class="dashboard">
+    <div id="sidebar"></div>
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Training Attendance</h1>
+        <p>Track which days your player completed training</p>
+      </div>
+      <div class="card">
+        <div class="grid grid-4" id="attendance-grid"></div>
+      </div>
+    </main>
+  </div>
+  <script type="module">
+    import { renderNav, renderSidebar } from '/js/components/ui.js';
+    import '/js/app.js';
+
+    TrainingLab.requireAuth('parent');
+    document.getElementById('nav').innerHTML = renderNav();
+    document.getElementById('sidebar').innerHTML = renderSidebar('parent', 'attendance');
+
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const attended = [true, true, false, true, true, false, false];
+
+    document.getElementById('attendance-grid').innerHTML = days.map((d, i) => `
+      <div style="text-align: center; padding: 1rem;">
+        <div style="width: 48px; height: 48px; border-radius: 50%; margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
+          background: ${attended[i] ? 'rgba(16,185,129,0.2)' : 'var(--slate-800)'};
+          border: 2px solid ${attended[i] ? 'var(--green-500)' : 'var(--slate-700)'};">
+          ${attended[i] ? '✓' : '—'}
+        </div>
+        <div style="font-weight: 600;">${d}</div>
+      </div>
+    `).join('');
+  </script>
+</body>
+</html>

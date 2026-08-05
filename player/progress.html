@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Progress — Futbol Training Lab</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="nav"></div>
+  <div class="dashboard">
+    <div id="sidebar"></div>
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Your Progress</h1>
+        <p>Track your development from Rookie to Professional</p>
+      </div>
+
+      <div class="card" style="margin-bottom: 2rem;">
+        <h3 class="card-title">Progression Level</h3>
+        <div id="level-track" style="margin-top: 1.5rem;"></div>
+      </div>
+
+      <div class="grid grid-4" style="margin-bottom: 2rem;" id="progress-stats"></div>
+
+      <div class="card" style="margin-bottom: 2rem;">
+        <h3 class="card-title">Achievements</h3>
+        <div class="grid grid-4" id="achievements-grid" style="margin-top: 1rem;"></div>
+      </div>
+
+      <div class="card" id="evaluation-card" style="display: none;">
+        <h3 class="card-title">Monthly Evaluation <span class="badge badge-gold">Elite</span></h3>
+        <div id="evaluation-content" style="margin-top: 1rem;"></div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { renderNav, renderSidebar } from '/js/components/ui.js';
+    import '/js/app.js';
+    import { PROGRESSION_LEVELS } from '/js/data/levels.js';
+
+    const state = TrainingLab.requireAuth('player');
+    if (!state) throw new Error('Auth required');
+
+    document.getElementById('nav').innerHTML = renderNav();
+    document.getElementById('sidebar').innerHTML = renderSidebar('player', 'progress');
+
+    const summary = TrainingLab.getProgressSummary();
+
+    document.getElementById('level-track').innerHTML = PROGRESSION_LEVELS.map(level => {
+      const reached = summary.xp >= level.minXp;
+      return `
+        <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem 0; border-bottom: 1px solid var(--slate-800); opacity: ${reached ? 1 : 0.4};">
+          <span style="font-size: 1.5rem;">${level.icon}</span>
+          <div style="flex: 1;">
+            <div style="font-weight: 700; color: ${reached ? 'var(--green-400)' : 'var(--slate-400)'};">${level.name}</div>
+            <div style="font-size: 0.8rem; color: var(--slate-500);">${level.minXp} XP required</div>
+          </div>
+          ${reached ? '<span class="badge badge-green">Unlocked</span>' : ''}
+        </div>
+      `;
+    }).join('');
+
+    document.getElementById('progress-stats').innerHTML = `
+      <div class="stat-card"><div class="stat-value">${summary.streak}</div><div class="stat-label">Current Streak</div></div>
+      <div class="stat-card"><div class="stat-value">${summary.skillsCompleted}</div><div class="stat-label">Skills Completed</div></div>
+      <div class="stat-card"><div class="stat-value">${summary.weeklySessions}</div><div class="stat-label">Sessions This Week</div></div>
+      <div class="stat-card"><div class="stat-value">${summary.minutesTrained}</div><div class="stat-label">Total Minutes</div></div>
+    `;
+
+    document.getElementById('achievements-grid').innerHTML = TrainingLab.ACHIEVEMENTS.map(a => {
+      const unlocked = state.achievements.includes(a.id);
+      return `
+        <div class="achievement ${unlocked ? 'unlocked' : ''}">
+          <div class="achievement-icon">${a.icon}</div>
+          <div class="achievement-name">${a.name}</div>
+          <div style="font-size: 0.7rem; color: var(--slate-500); margin-top: 0.25rem;">${a.description}</div>
+        </div>
+      `;
+    }).join('');
+
+    if (state.subscription === 'elite') {
+      const evaluation = TrainingLab.generateEvaluation(state.profile || {}, state.progress);
+      document.getElementById('evaluation-card').style.display = 'block';
+      document.getElementById('evaluation-content').innerHTML = `
+        <p style="font-size: 2rem; font-weight: 800; color: var(--green-400);">${evaluation.overallRating}/10</p>
+        <p style="margin: 1rem 0; color: var(--slate-300);">${evaluation.recommendation}</p>
+        <div class="grid grid-2" style="margin-top: 1rem;">
+          <div><strong style="color: var(--green-400);">Strengths</strong><ul style="margin-top: 0.5rem; padding-left: 1.25rem; color: var(--slate-400);">${evaluation.strengths.map(s => `<li>${s}</li>`).join('')}</ul></div>
+          <div><strong style="color: var(--gold);">Improve</strong><ul style="margin-top: 0.5rem; padding-left: 1.25rem; color: var(--slate-400);">${evaluation.improvements.map(s => `<li>${s}</li>`).join('')}</ul></div>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

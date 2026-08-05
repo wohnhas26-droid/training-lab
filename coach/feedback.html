@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Review — Futbol Training Lab</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="nav"></div>
+  <div class="dashboard">
+    <div id="sidebar"></div>
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Video Skill Review</h1>
+        <p>Review uploaded player videos and leave personalized feedback</p>
+      </div>
+      <div class="grid grid-2" id="video-queue"></div>
+      <div class="card" style="margin-top: 1.5rem;">
+        <h3 class="card-title">Leave Feedback</h3>
+        <form id="feedback-form" style="margin-top: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Player</label>
+            <select class="form-select" name="player" id="feedback-player"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Feedback</label>
+            <textarea class="form-textarea" name="feedback" required placeholder="Great first touch, work on scanning before receiving..."></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Rating (1-10)</label>
+            <input type="number" class="form-input" name="rating" min="1" max="10" value="7" style="max-width: 100px;">
+          </div>
+          <button type="submit" class="btn btn-primary">Submit Feedback</button>
+        </form>
+      </div>
+    </main>
+  </div>
+  <script type="module">
+    import { renderNav, renderSidebar } from '/js/components/ui.js';
+    import '/js/app.js';
+    import { addCoachFeedback } from '/js/services/storage.js';
+
+    TrainingLab.requireAuth('coach');
+    document.getElementById('nav').innerHTML = renderNav();
+    document.getElementById('sidebar').innerHTML = renderSidebar('coach', 'feedback');
+
+    const players = TrainingLab.getCoachTeamData();
+    document.getElementById('feedback-player').innerHTML = players.map(p => `<option>${p.name}</option>`).join('');
+
+    const demoVideos = [
+      { player: 'Alex Rivera', skill: 'First Touch', date: 'Today', status: 'Pending Review' },
+      { player: 'Jordan Lee', skill: 'Finishing', date: 'Yesterday', status: 'Pending Review' },
+      { player: 'Taylor Kim', skill: 'Distribution', date: '2 days ago', status: 'Reviewed' },
+    ];
+
+    document.getElementById('video-queue').innerHTML = demoVideos.map(v => `
+      <div class="card">
+        <span class="badge ${v.status === 'Pending Review' ? 'badge-gold' : 'badge-green'}">${v.status}</span>
+        <h3 class="card-title" style="margin-top: 0.75rem;">${v.player}</h3>
+        <p class="card-subtitle">${v.skill} assessment · ${v.date}</p>
+        <div style="background: var(--slate-800); height: 120px; border-radius: 8px; margin-top: 1rem; display: flex; align-items: center; justify-content: center; color: var(--slate-500);">
+          ▶ Video Preview
+        </div>
+      </div>
+    `).join('');
+
+    document.getElementById('feedback-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      addCoachFeedback({ player: fd.get('player'), feedback: fd.get('feedback'), rating: fd.get('rating') });
+      TrainingLab.showToast('Feedback submitted!');
+      e.target.reset();
+    });
+  </script>
+</body>
+</html>

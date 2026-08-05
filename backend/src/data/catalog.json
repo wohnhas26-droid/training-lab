@@ -1,0 +1,216 @@
+{
+  "exercises": [
+    { "id": "bm_toe_taps", "category": "ball_mastery", "name": "Toe Taps", "duration": 3, "reps": "60 sec", "difficulty": "beginner", "xp": 25, "equipment": ["ball"], "description": "Quick toe taps on top of the ball, alternating feet." },
+    { "id": "bm_pull_push", "category": "ball_mastery", "name": "Pull-Push", "duration": 3, "reps": "3x10 each foot", "difficulty": "beginner", "xp": 25, "equipment": ["ball"], "description": "Pull the ball back with sole, push forward with laces." },
+    { "id": "bm_v_cuts", "category": "ball_mastery", "name": "V-Cuts", "duration": 4, "reps": "3x8 each foot", "difficulty": "intermediate", "xp": 30, "equipment": ["ball"], "description": "Pull ball back and push at 45° angle with inside of foot." },
+    { "id": "bm_l_turns", "category": "ball_mastery", "name": "L-Turns", "duration": 4, "reps": "3x8 each foot", "difficulty": "intermediate", "xp": 30, "equipment": ["ball"], "description": "Sole drag back, then push with inside foot at 90°." },
+    { "id": "bm_cruyff", "category": "ball_mastery", "name": "Cruyff Turns", "duration": 5, "reps": "3x6 each foot", "difficulty": "advanced", "xp": 40, "equipment": ["ball"], "description": "Fake pass behind standing leg, turn with inside foot." },
+    { "id": "bm_sole_rolls", "category": "ball_mastery", "name": "Sole Rolls", "duration": 3, "reps": "60 sec", "difficulty": "beginner", "xp": 25, "equipment": ["ball"], "description": "Roll ball across body using sole of foot." },
+    { "id": "bm_inside_outside", "category": "ball_mastery", "name": "Inside/Outside Touches", "duration": 4, "reps": "3x12 each foot", "difficulty": "intermediate", "xp": 30, "equipment": ["ball"], "description": "Alternate inside and outside foot touches in place." },
+    { "id": "dr_1v1", "category": "dribbling", "name": "1v1 Moves", "duration": 10, "reps": "5 attempts each move", "difficulty": "intermediate", "xp": 45, "equipment": ["ball", "cones"], "description": "Practice step-over, scissors, and body feint against a cone defender." },
+    { "id": "dr_cod", "category": "dribbling", "name": "Change of Direction", "duration": 8, "reps": "4x30 sec", "difficulty": "intermediate", "xp": 40, "equipment": ["ball", "cones"], "description": "Slalom dribbling through cones at varying speeds." },
+    { "id": "dr_speed", "category": "dribbling", "name": "Speed Dribbling", "duration": 8, "reps": "6x20 yards", "difficulty": "intermediate", "xp": 40, "equipment": ["ball", "cones"], "description": "Dribble at full speed maintaining close control." },
+    { "id": "dr_shielding", "category": "dribbling", "name": "Shielding", "duration": 6, "reps": "3x45 sec", "difficulty": "intermediate", "xp": 35, "equipment": ["ball"], "description": "Protect the ball using body position against pressure." },
+    { "id": "dr_tight_space", "category": "dribbling", "name": "Tight-Space Control", "duration": 8, "reps": "4x60 sec", "difficulty": "advanced", "xp": 45, "equipment": ["ball", "cones"], "description": "Dribble in a 5x5 yard box without leaving the area." },
+    { "id": "dr_first_step", "category": "dribbling", "name": "Explosive First Step", "duration": 6, "reps": "8x10 yards", "difficulty": "intermediate", "xp": 35, "equipment": ["ball", "cones"], "description": "First touch into space and accelerate past defender cone." },
+    { "id": "ft_ground", "category": "first_touch", "name": "Ground Control", "duration": 6, "reps": "3x10 each foot", "difficulty": "beginner", "xp": 30, "equipment": ["ball", "wall"], "description": "Receive driven passes off wall, cushion with inside foot." },
+    { "id": "ft_lofted", "category": "first_touch", "name": "Lofted Ball Control", "duration": 8, "reps": "3x8", "difficulty": "intermediate", "xp": 40, "equipment": ["ball", "partner"], "description": "Control aerial balls with various body parts." },
+    { "id": "ft_half_volley", "category": "first_touch", "name": "Half Volley Control", "duration": 6, "reps": "3x8 each foot", "difficulty": "advanced", "xp": 45, "equipment": ["ball", "wall"], "description": "Control bouncing balls before second bounce." },
+    { "id": "ft_chest", "category": "first_touch", "name": "Chest Control", "duration": 5, "reps": "3x8", "difficulty": "intermediate", "xp": 35, "equipment": ["ball", "partner"], "description": "Cushion aerial balls to feet using chest." },
+    { "id": "ft_directional", "category": "first_touch", "name": "Directional First Touch", "duration": 8, "reps": "4x8 each direction", "difficulty": "intermediate", "xp": 40, "equipment": ["ball", "cones"], "description": "First touch into open space toward target cone." },
+    { "id": "pa_one_touch", "category": "passing", "name": "One-Touch Passing", "duration": 8, "reps": "3x15", "difficulty": "intermediate", "xp": 40, "equipment": ["ball", "wall"], "description": "One-touch wall passes with both feet." },
+    { "id": "pa_two_touch", "category": "passing", "name": "Two-Touch Passing", "duration": 8, "reps": "3x12", "difficulty": "beginner", "xp": 30, "equipment": ["ball", "wall"], "description": "Control and pass in two touches off wall." },
+    { "id": "pa_long", "category": "passing", "name": "Long Passing", "duration": 10, "reps": "3x8", "difficulty": "advanced", "xp": 50, "equipment": ["ball", "cones"], "description": "Driven long passes to target 30+ yards away." },
+    { "id": "pa_combination", "category": "passing", "name": "Combination Play", "duration": 12, "reps": "4 sequences", "difficulty": "advanced", "xp": 55, "equipment": ["ball", "cones", "partner"], "description": "Give-and-go and overlap passing patterns." },
+    { "id": "pa_pressure", "category": "passing", "name": "Passing Under Pressure", "duration": 10, "reps": "3x60 sec", "difficulty": "advanced", "xp": 50, "equipment": ["ball", "cones"], "description": "Quick passing in tight spaces with time constraint." },
+    { "id": "fi_one_touch", "category": "finishing", "name": "One-Touch Finishing", "duration": 10, "reps": "3x8", "difficulty": "intermediate", "xp": 45, "equipment": ["ball", "goal"], "description": "Finish first-time from crosses and through balls." },
+    { "id": "fi_inside", "category": "finishing", "name": "Inside-Foot Finishing", "duration": 8, "reps": "3x10 each foot", "difficulty": "beginner", "xp": 35, "equipment": ["ball", "goal"], "description": "Place shots with inside of foot to corners." },
+    { "id": "fi_laces", "category": "finishing", "name": "Laces Finishing", "duration": 8, "reps": "3x8", "difficulty": "intermediate", "xp": 40, "equipment": ["ball", "goal"], "description": "Power shots with laces from edge of box." },
+    { "id": "fi_volleys", "category": "finishing", "name": "Volleys", "duration": 10, "reps": "3x6", "difficulty": "advanced", "xp": 50, "equipment": ["ball", "goal", "partner"], "description": "Strike ball out of air before it bounces." },
+    { "id": "fi_weak_foot", "category": "finishing", "name": "Weak Foot Finishing", "duration": 10, "reps": "3x8", "difficulty": "advanced", "xp": 55, "equipment": ["ball", "goal"], "description": "All finishing with non-dominant foot only." },
+    { "id": "fi_near_far", "category": "finishing", "name": "Near/Far Post Finishing", "duration": 10, "reps": "3x6 each", "difficulty": "intermediate", "xp": 45, "equipment": ["ball", "goal"], "description": "Attack near and far post with timed runs." },
+    { "id": "sp_accel", "category": "speed", "name": "Acceleration Sprints", "duration": 8, "reps": "6x15 yards", "difficulty": "intermediate", "xp": 40, "equipment": ["cones"], "description": "Explosive starts from standing and rolling positions." },
+    { "id": "sp_agility", "category": "speed", "name": "Agility Ladder", "duration": 8, "reps": "4 patterns x3", "difficulty": "intermediate", "xp": 35, "equipment": ["agility ladder"], "description": "Quick feet patterns through agility ladder." },
+    { "id": "sp_cod", "category": "speed", "name": "Change of Direction Sprints", "duration": 10, "reps": "5x T-test", "difficulty": "intermediate", "xp": 40, "equipment": ["cones"], "description": "Sprint, cut, and accelerate through cone patterns." },
+    { "id": "sp_sprint", "category": "speed", "name": "Sprint Mechanics", "duration": 8, "reps": "6x30 yards", "difficulty": "intermediate", "xp": 35, "equipment": ["cones"], "description": "Focus on arm drive, knee lift, and forward lean." },
+    { "id": "sp_balance", "category": "speed", "name": "Balance Training", "duration": 6, "reps": "3x30 sec each", "difficulty": "beginner", "xp": 25, "equipment": [], "description": "Single-leg balance and stability exercises." },
+    { "id": "sp_injury", "category": "speed", "name": "Injury Prevention", "duration": 10, "reps": "Full routine", "difficulty": "beginner", "xp": 30, "equipment": ["resistance band"], "description": "Nordic curls, band walks, and hip activation." },
+    { "id": "gk_footwork", "category": "goalkeeper", "name": "Footwork Drills", "duration": 8, "reps": "4x60 sec", "difficulty": "intermediate", "xp": 40, "equipment": ["cones"], "description": "Quick lateral and forward/backward movement patterns." },
+    { "id": "gk_handling", "category": "goalkeeper", "name": "Handling", "duration": 10, "reps": "3x10", "difficulty": "intermediate", "xp": 45, "equipment": ["ball", "partner"], "description": "Catch and hold shots from various angles." },
+    { "id": "gk_diving", "category": "goalkeeper", "name": "Diving", "duration": 10, "reps": "3x8 each side", "difficulty": "advanced", "xp": 50, "equipment": ["ball", "partner"], "description": "Low and high diving saves with proper technique." },
+    { "id": "gk_distribution", "category": "goalkeeper", "name": "Distribution", "duration": 8, "reps": "3x10", "difficulty": "intermediate", "xp": 40, "equipment": ["ball", "cones"], "description": "Throwing and kicking to targets." },
+    { "id": "rc_stretch", "category": "recovery", "name": "Dynamic Stretching", "duration": 10, "reps": "Full routine", "difficulty": "beginner", "xp": 20, "equipment": [], "description": "Leg swings, hip circles, and walking lunges." },
+    { "id": "rc_foam", "category": "recovery", "name": "Foam Rolling", "duration": 10, "reps": "Full routine", "difficulty": "beginner", "xp": 20, "equipment": ["foam roller"], "description": "Roll quads, hamstrings, calves, and IT band." },
+    { "id": "rc_mobility", "category": "recovery", "name": "Hip & Ankle Mobility", "duration": 8, "reps": "Full routine", "difficulty": "beginner", "xp": 20, "equipment": [], "description": "Hip flexor stretches and ankle circles." }
+  ],
+  "weeklySchedule": {
+    "monday": { "focus": ["Ball Mastery", "Dribbling", "Passing", "Conditioning"], "categories": ["ball_mastery", "dribbling", "passing", "speed"] },
+    "tuesday": { "focus": ["First Touch", "Scanning", "Passing Accuracy"], "categories": ["first_touch", "passing"] },
+    "wednesday": { "focus": ["Finishing", "Movement Off the Ball", "Speed Training"], "categories": ["finishing", "speed"] },
+    "thursday": { "focus": ["Dribbling Under Pressure", "Change of Direction", "Conditioning"], "categories": ["dribbling", "speed"] },
+    "friday": { "focus": ["Position-Specific Training"], "categories": ["passing", "finishing", "dribbling"] },
+    "saturday": { "focus": ["Match Preparation"], "categories": ["passing", "finishing", "first_touch"] },
+    "sunday": { "focus": ["Recovery and Mobility"], "categories": ["recovery"] }
+  },
+  "positionFocus": {
+    "goalkeeper": ["goalkeeper", "passing", "speed"],
+    "defender": ["first_touch", "passing", "speed", "ball_mastery"],
+    "midfielder": ["passing", "first_touch", "dribbling", "ball_mastery"],
+    "winger": ["dribbling", "speed", "finishing", "first_touch"],
+    "striker": ["finishing", "first_touch", "speed", "dribbling"]
+  },
+  "categories": {
+    "ball_mastery": {
+      "id": "ball_mastery",
+      "name": "Ball Mastery",
+      "icon": "⚽",
+      "subcategories": {
+        "foundations": ["Toe taps", "Pull-push", "V-cuts", "L-turns", "Cruyff turns", "Sole rolls", "Inside/outside touches"]
+      }
+    },
+    "dribbling": {
+      "id": "dribbling",
+      "name": "Dribbling",
+      "icon": "🏃",
+      "subcategories": {
+        "moves": ["1v1 moves", "Change of direction", "Speed dribbling", "Shielding", "Tight-space control", "Explosive first step"]
+      }
+    },
+    "first_touch": {
+      "id": "first_touch",
+      "name": "First Touch",
+      "icon": "👟",
+      "subcategories": {
+        "control": ["Ground control", "Driven passes", "Lofted balls", "Half volleys", "Chest control", "Thigh control", "Directional first touch"]
+      }
+    },
+    "passing": {
+      "id": "passing",
+      "name": "Passing",
+      "icon": "🎯",
+      "subcategories": {
+        "techniques": ["One-touch passing", "Two-touch passing", "Wall passing", "Partner passing", "Long passing", "Combination play", "Passing under pressure"]
+      }
+    },
+    "finishing": {
+      "id": "finishing",
+      "name": "Finishing",
+      "icon": "🥅",
+      "subcategories": {
+        "techniques": ["One-touch finishing", "Inside-foot finishing", "Laces finishing", "Volleys", "Half volleys", "Weak foot finishing", "Finishing under pressure", "Near-post and far-post finishing"]
+      }
+    },
+    "speed": {
+      "id": "speed",
+      "name": "Speed & Athletic Performance",
+      "icon": "⚡",
+      "subcategories": {
+        "athletic": ["Acceleration", "Agility", "Change of direction", "Sprint mechanics", "Jump training", "Balance", "Coordination", "Injury prevention"]
+      }
+    },
+    "goalkeeper": {
+      "id": "goalkeeper",
+      "name": "Goalkeeper Training",
+      "icon": "🧤",
+      "subcategories": {
+        "gk": ["Footwork", "Handling", "Diving", "Positioning", "Distribution", "Shot stopping", "Reaction training"]
+      }
+    },
+    "recovery": {
+      "id": "recovery",
+      "name": "Mobility & Recovery",
+      "icon": "🧘",
+      "subcategories": {
+        "recovery": ["Dynamic stretching", "Foam rolling", "Hip mobility", "Ankle mobility", "Cool-down routine", "Breathing exercises"]
+      }
+    }
+  },
+  "challenges": [
+    {
+      "id": "ball_mastery_30",
+      "name": "30-Day Ball Mastery Challenge",
+      "description": "Complete ball mastery drills every day for 30 days.",
+      "duration": 30,
+      "icon": "⚽",
+      "xpReward": 500,
+      "category": "ball_mastery",
+      "targetCount": 30,
+      "unit": "days"
+    },
+    {
+      "id": "1000_touch",
+      "name": "1,000 Touch Challenge",
+      "description": "Accumulate 1,000 ball touches this month.",
+      "duration": 30,
+      "icon": "👟",
+      "xpReward": 300,
+      "category": "ball_mastery",
+      "targetCount": 1000,
+      "unit": "touches"
+    },
+    {
+      "id": "weak_foot",
+      "name": "Weak Foot Challenge",
+      "description": "Complete 20 weak-foot specific drills.",
+      "duration": 14,
+      "icon": "🦶",
+      "xpReward": 400,
+      "category": "finishing",
+      "targetCount": 20,
+      "unit": "drills"
+    },
+    {
+      "id": "passing_accuracy",
+      "name": "Passing Accuracy Challenge",
+      "description": "Hit 50 consecutive wall passes without a miss.",
+      "duration": 7,
+      "icon": "🎯",
+      "xpReward": 250,
+      "category": "passing",
+      "targetCount": 50,
+      "unit": "passes"
+    },
+    {
+      "id": "juggling",
+      "name": "Juggling Challenge",
+      "description": "Reach 100 consecutive juggles.",
+      "duration": 14,
+      "icon": "🎪",
+      "xpReward": 350,
+      "category": "ball_mastery",
+      "targetCount": 100,
+      "unit": "juggles"
+    },
+    {
+      "id": "speed",
+      "name": "Speed Challenge",
+      "description": "Complete 15 speed and agility sessions.",
+      "duration": 21,
+      "icon": "⚡",
+      "xpReward": 400,
+      "category": "speed",
+      "targetCount": 15,
+      "unit": "sessions"
+    }
+  ],
+  "achievements": [
+    { "id": "first_session", "name": "First Steps", "description": "Complete your first training session", "icon": "🎯", "xp": 50 },
+    { "id": "streak_7", "name": "Week Warrior", "description": "7-day training streak", "icon": "🔥", "xp": 200 },
+    { "id": "streak_30", "name": "Iron Will", "description": "30-day training streak", "icon": "💪", "xp": 1000 },
+    { "id": "ball_master", "name": "Ball Master", "description": "Complete 50 ball mastery drills", "icon": "⚽", "xp": 300 },
+    { "id": "weak_foot", "name": "Two-Footed Threat", "description": "Complete the Weak Foot Challenge", "icon": "🦶", "xp": 500 },
+    { "id": "speed_demon", "name": "Speed Demon", "description": "Complete the Speed Challenge", "icon": "⚡", "xp": 400 },
+    { "id": "finisher", "name": "Clinical Finisher", "description": "Complete 25 finishing drills", "icon": "🥅", "xp": 350 },
+    { "id": "juggler", "name": "Juggling Pro", "description": "Reach 100 juggles", "icon": "🎪", "xp": 250 },
+    { "id": "challenge_hero", "name": "Challenge Hero", "description": "Complete 5 monthly challenges", "icon": "🏅", "xp": 750 },
+    { "id": "elite_graduate", "name": "Elite Graduate", "description": "Reach Elite progression level", "icon": "⭐", "xp": 500 }
+  ],
+  "levels": [
+    { "id": "rookie", "name": "Rookie", "minXp": 0, "icon": "🌱" },
+    { "id": "academy", "name": "Academy", "minXp": 500, "icon": "⚽" },
+    { "id": "advanced", "name": "Advanced", "minXp": 1500, "icon": "🔥" },
+    { "id": "elite", "name": "Elite", "minXp": 3500, "icon": "⭐" },
+    { "id": "premier", "name": "Premier", "minXp": 7000, "icon": "🏆" },
+    { "id": "professional", "name": "Professional", "minXp": 15000, "icon": "👑" }
+  ]
+}
