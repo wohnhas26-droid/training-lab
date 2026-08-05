@@ -30,6 +30,22 @@ if (-not $git) {
 
 Write-Host "Using git: $git" -ForegroundColor Cyan
 
+$name = & $git config user.name 2>$null
+$email = & $git config user.email 2>$null
+if (-not $name -or -not $email) {
+  $globalName = & $git config --global user.name 2>$null
+  $globalEmail = & $git config --global user.email 2>$null
+  if (-not $globalName -or -not $globalEmail) {
+    Write-Host "Git identity not configured. Set it once:" -ForegroundColor Yellow
+    Write-Host '  git config --global user.name "Ryan"'
+    Write-Host '  git config --global user.email "you@example.com"'
+    Write-Host ""
+    Write-Host "Using local repo identity for this commit only."
+    if (-not $name) { & $git config user.name "Ryan" }
+    if (-not $email) { & $git config user.email "ryan@local" }
+  }
+}
+
 if (-not (Test-Path ".git")) {
   & $git init
   & $git branch -M main
@@ -44,6 +60,13 @@ if (-not $status) {
 } else {
   $msg = "Initial commit: Futbol Training Lab - subscription platform with Stripe, dashboards, Docker deploy, and webhooks."
   & $git commit -m $msg
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "Commit failed. Configure identity and re-run:" -ForegroundColor Red
+    Write-Host '  git config --global user.name "Ryan"'
+    Write-Host '  git config --global user.email "you@example.com"'
+    Write-Host "  npm run setup:git"
+    exit 1
+  }
   Write-Host "Initial commit created." -ForegroundColor Green
 }
 
