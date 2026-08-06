@@ -12,10 +12,9 @@ COPY src ./src
 RUN npx prisma generate
 
 ENV NODE_ENV=production
-ENV PORT=3001
-ENV DATABASE_URL="file:/data/prod.db"
+ENV DATABASE_URL="file:./data/prod.db"
 
-RUN mkdir -p /data
+RUN mkdir -p data
 
 EXPOSE 3001
 
