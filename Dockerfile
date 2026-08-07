@@ -27,9 +27,11 @@ WORKDIR /app/backend
 ENV NODE_ENV=production
 ENV DATABASE_URL="file:./data/prod.db"
 
+RUN apk add --no-cache wget
+
 EXPOSE 3001
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s \
-  CMD wget -qO- http://127.0.0.1:3001/api/health || wget -qO- http://127.0.0.1:${PORT}/api/health || exit 1
+  CMD sh -c 'wget -qO- http://127.0.0.1:${PORT:-3001}/api/health || exit 1'
 
 CMD ["sh", "-c", "npx prisma db push && node src/index.js"]
