@@ -33,6 +33,7 @@
     import { renderNav, formatPrice } from '/js/components/ui.js';
     import { SUBSCRIPTION_PLANS } from '/js/data/subscriptions.js';
     import { getToken } from '/js/services/api.js';
+    import { openUrl } from '/js/utils/openUrl.js';
     import '/js/app.js';
 
     document.getElementById('nav').innerHTML = renderNav('pricing');
@@ -82,7 +83,7 @@
       try {
         const result = await TrainingLab.createCheckout(plan);
         if (result.url) {
-          window.location.href = result.url;
+          await openUrl(result.url);
         } else {
           throw new Error(result.message || 'Checkout unavailable');
         }

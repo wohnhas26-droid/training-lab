@@ -31,6 +31,7 @@
 
   <script type="module">
     import { renderNav, renderSidebar, capitalize } from '/js/components/ui.js';
+    import { openUrl } from '/js/utils/openUrl.js';
     import '/js/app.js';
     import { saveWeeklyPlan } from '/js/services/storage.js';
 
@@ -101,7 +102,7 @@
       document.getElementById('manage-billing-btn')?.addEventListener('click', async () => {
         try {
           const portal = await TrainingLab.openBillingPortal();
-          if (portal.url) window.location.href = portal.url;
+          if (portal.url) await openUrl(portal.url);
         } catch (err) {
           TrainingLab.showToast(err.message || 'Could not open billing portal');
         }

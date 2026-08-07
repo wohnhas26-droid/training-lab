@@ -1,0 +1,22 @@
+{
+  "appId": "com.futboltraininglab.app",
+  "appName": "Futbol Training Lab",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https",
+    "allowNavigation": [
+      "checkout.stripe.com",
+      "*.stripe.com"
+    ]
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#0f172a"
+    },
+    "StatusBar": {
+      "style": "LIGHT",
+      "backgroundColor": "#0f172a"
+    }
+  }
+}

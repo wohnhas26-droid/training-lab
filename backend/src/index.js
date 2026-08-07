@@ -17,7 +17,26 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const staticRoot = join(__dirname, '../..');
 const app = express();
 
-app.use(cors({ origin: config.frontendUrl, credentials: true }));
+const corsOrigins = new Set([
+  config.frontendUrl,
+  'capacitor://localhost',
+  'https://localhost',
+  'http://localhost',
+  'ionic://localhost',
+].filter(Boolean));
+
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || corsOrigins.has(origin)) {
+      callback(null, true);
+    } else if (config.nodeEnv === 'development') {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
+  credentials: true,
+}));
 
 app.get('/api/health', (_req, res) => {
   res.json({

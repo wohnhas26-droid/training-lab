@@ -14,9 +14,26 @@
     "db:studio": "npm run db:studio --prefix backend",
     "setup:git": "powershell -ExecutionPolicy Bypass -File ./scripts/setup-git.ps1",
     "setup:webhooks": "powershell -ExecutionPolicy Bypass -File ./scripts/setup-webhooks-local.ps1",
-    "deploy:docker": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy-docker.ps1"
+    "deploy:docker": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy-docker.ps1",
+    "build:www": "powershell -ExecutionPolicy Bypass -File ./scripts/build-www.ps1 && node scripts/bundle-mobile.mjs",
+    "cap:sync": "npm run build:www && npx cap sync",
+    "cap:open:android": "npx cap open android",
+    "cap:open:ios": "npx cap open ios",
+    "cap:run:android": "npx cap run android",
+    "cap:run:ios": "npx cap run ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.2.0",
+    "@capacitor/app": "^7.0.1",
+    "@capacitor/browser": "^7.0.1",
+    "@capacitor/core": "^7.2.0",
+    "@capacitor/ios": "^7.2.0",
+    "@capacitor/splash-screen": "^7.0.1",
+    "@capacitor/status-bar": "^7.0.1"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "@capacitor/cli": "^7.2.0",
+    "concurrently": "^9.1.2",
+    "esbuild": "^0.25.0"
   }
 }

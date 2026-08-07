@@ -13,6 +13,7 @@ import { TRAINING_CATEGORIES, EXERCISES } from './data/exercises.js';
 import { CHALLENGES } from './data/challenges.js';
 import { ACHIEVEMENTS, getLevelForXp } from './data/levels.js';
 import { saveWeeklyPlan } from './services/storage.js';
+import { openUrl } from './utils/openUrl.js';
 
 let apiReady = false;
 
@@ -76,7 +77,7 @@ window.TrainingLab = {
         try {
           const checkout = await createCheckout(formData.plan);
           if (checkout.url) {
-            window.location.href = checkout.url;
+            await openUrl(checkout.url);
             return;
           }
         } catch (err) {

@@ -146,6 +146,17 @@ Production serves frontend on port 80 (nginx proxies `/api` to the backend).
 
 If the API isn't running, the app falls back to **localStorage** demo mode — all features work locally without persistence across devices.
 
+## Mobile App (Capacitor)
+
+Build for **Google Play** and **App Store**:
+
+```powershell
+npm run cap:sync
+npm run cap:open:android   # requires Android Studio
+```
+
+Set your API URL in `js/config/appConfig.js` before building. Full guide: [docs/MOBILE.md](docs/MOBILE.md)
+
 ## Scripts
 
 | Command | Description |
@@ -158,4 +169,5 @@ If the API isn't running, the app falls back to **localStorage** demo mode — a
 | `npm run stripe:webhooks` | Register production webhook endpoint |
 | `npm run setup:git` | Init repo + first commit |
 | `npm run setup:webhooks` | Forward Stripe webhooks locally |
-| `npm run deploy:docker` | Build and run production Docker stack |
+| `npm run cap:sync` | Build www + sync Android/iOS projects |
+| `npm run cap:open:android` | Open project in Android Studio |

@@ -1,7 +1,6 @@
-const API_BASE = window.__API_URL__
-  || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:3001/api'
-    : `${window.location.origin}/api`);
+import { resolveApiBase } from '../config/appConfig.js';
+
+const API_BASE = resolveApiBase();
 const TOKEN_KEY = 'training_lab_token';
 
 let apiAvailable = null;
