@@ -45,10 +45,6 @@
     document.getElementById('nav').innerHTML = renderNav();
     document.getElementById('sidebar').innerHTML = renderSidebar('coach', 'feedback');
 
-    await TrainingLab.ready();
-    const players = await TrainingLab.getCoachTeamData();
-    document.getElementById('feedback-player').innerHTML = players.map(p => `<option>${p.name}</option>`).join('');
-
     const demoVideos = [
       { player: 'Alex Rivera', skill: 'First Touch', date: 'Today', status: 'Pending Review' },
       { player: 'Jordan Lee', skill: 'Finishing', date: 'Yesterday', status: 'Pending Review' },
@@ -73,6 +69,10 @@
       TrainingLab.showToast('Feedback submitted!');
       e.target.reset();
     });
+
+    await TrainingLab.ready();
+    const players = await TrainingLab.getCoachTeamData();
+    document.getElementById('feedback-player').innerHTML = players.map(p => `<option>${p.name}</option>`).join('');
   </script>
 </body>
 </html>
