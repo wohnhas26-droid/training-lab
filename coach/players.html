@@ -33,7 +33,9 @@
     TrainingLab.requireAuth('coach');
     document.getElementById('nav').innerHTML = renderNav();
     document.getElementById('sidebar').innerHTML = renderSidebar('coach', 'players');
-    document.getElementById('players-table').innerHTML = TrainingLab.getCoachTeamData().map(p => `
+    await TrainingLab.ready();
+    const players = await TrainingLab.getCoachTeamData();
+    document.getElementById('players-table').innerHTML = players.map(p => `
       <tr>
         <td><strong>${p.name}</strong></td>
         <td>${p.position}</td>

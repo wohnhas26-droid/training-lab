@@ -45,7 +45,8 @@
     document.getElementById('nav').innerHTML = renderNav();
     document.getElementById('sidebar').innerHTML = renderSidebar('coach', 'feedback');
 
-    const players = TrainingLab.getCoachTeamData();
+    await TrainingLab.ready();
+    const players = await TrainingLab.getCoachTeamData();
     document.getElementById('feedback-player').innerHTML = players.map(p => `<option>${p.name}</option>`).join('');
 
     const demoVideos = [
