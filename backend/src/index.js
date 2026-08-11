@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { config, isStripeConfigured } from './config.js';
+import { config, isStripeConfigured, isOriginAllowed } from './config.js';
 import authRoutes from './routes/auth.js';
 import trainingRoutes from './routes/training.js';
 import progressRoutes from './routes/progress.js';
@@ -17,23 +17,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const staticRoot = join(__dirname, '../..');
 const app = express();
 
-const corsOrigins = new Set([
-  config.frontendUrl,
-  'capacitor://localhost',
-  'https://localhost',
-  'http://localhost',
-  'ionic://localhost',
-].filter(Boolean));
-
 app.use(cors({
   origin(origin, callback) {
-    if (!origin || corsOrigins.has(origin)) {
-      callback(null, true);
-    } else if (config.nodeEnv === 'development') {
-      callback(null, true);
-    } else {
-      callback(null, false);
-    }
+    callback(null, isOriginAllowed(origin));
   },
   credentials: true,
 }));
