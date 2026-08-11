@@ -28,6 +28,23 @@
         <div class="grid grid-4" id="achievements-grid" style="margin-top: 1rem;"></div>
       </div>
 
+      <div class="card" style="margin-bottom: 2rem;">
+        <h3 class="card-title">Submit a Skill Video for Review</h3>
+        <p class="card-subtitle" style="margin: 0.5rem 0 1rem;">Send a clip to your coach for personalized feedback.</p>
+        <form id="video-form" style="display: grid; gap: 0.75rem; max-width: 520px;">
+          <div class="form-group">
+            <label class="form-label">Skill</label>
+            <select class="form-select" name="skill" id="video-skill" required></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Video link (optional)</label>
+            <input type="url" class="form-input" name="url" placeholder="https://...">
+          </div>
+          <button type="submit" class="btn btn-primary" style="justify-self: start;">Submit for Review</button>
+        </form>
+        <div id="my-videos" style="margin-top: 1.5rem;"></div>
+      </div>
+
       <div class="card" id="evaluation-card" style="display: none;">
         <h3 class="card-title">Monthly Evaluation <span class="badge badge-gold">Elite</span></h3>
         <div id="evaluation-content" style="margin-top: 1rem;"></div>
@@ -79,6 +96,54 @@
         </div>
       `;
     }).join('');
+
+    // Skill video submissions
+    const videoSkill = document.getElementById('video-skill');
+    videoSkill.innerHTML = Object.values(TrainingLab.TRAINING_CATEGORIES)
+      .map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+
+    function renderMyVideos(videos) {
+      const el = document.getElementById('my-videos');
+      if (!videos.length) {
+        el.innerHTML = '<p style="color: var(--slate-500);">No submissions yet.</p>';
+        return;
+      }
+      el.innerHTML = videos.map(v => {
+        const pending = String(v.status).toLowerCase() === 'pending';
+        return `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 0; border-bottom:1px solid var(--slate-800);">
+          <div><strong>${v.skill}</strong>${v.url ? ` · <a href="${v.url}" target="_blank" rel="noopener" style="color: var(--green-400);">link</a>` : ''}</div>
+          <span class="badge ${pending ? 'badge-gold' : 'badge-green'}">${pending ? 'Pending Review' : 'Reviewed'}</span>
+        </div>`;
+      }).join('');
+    }
+
+    let myVideos = [];
+    document.getElementById('video-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const btn = e.target.querySelector('button[type="submit"]');
+      if (btn) btn.disabled = true;
+      try {
+        await TrainingLab.ready();
+        const created = await TrainingLab.submitVideo({ skill: fd.get('skill'), url: fd.get('url') });
+        myVideos.unshift(created);
+        TrainingLab.showToast('Video submitted for review!');
+        e.target.reset();
+        renderMyVideos(myVideos);
+      } catch (err) {
+        TrainingLab.showToast(err.message || 'Could not submit video');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    });
+
+    renderMyVideos(myVideos);
+    (async () => {
+      await TrainingLab.ready();
+      myVideos = await TrainingLab.getMyVideos();
+      renderMyVideos(myVideos);
+    })();
 
     if (state.subscription === 'elite') {
       const evaluation = TrainingLab.generateEvaluation(state.profile || {}, state.progress);

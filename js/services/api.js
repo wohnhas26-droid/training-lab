@@ -84,6 +84,9 @@ export const api = {
 
   getExercises: () => request('/catalog/exercises'),
   getCategories: () => request('/catalog/categories'),
+
+  getMyVideos: () => request('/videos'),
+  submitVideo: (body) => request('/videos', { method: 'POST', body: JSON.stringify(body) }),
 };
 
 export async function initApi() {
