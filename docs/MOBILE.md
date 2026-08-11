@@ -25,12 +25,15 @@ Update Railway `FRONTEND_URL` CORS — the backend already allows Capacitor orig
 
 ## Build web assets & sync
 
-```powershell
-cd C:\Users\Ryan\training-lab
+Works on any OS (macOS, Linux, Windows):
+
+```bash
 npm run cap:sync
 ```
 
-This copies static files to `www/`, bundles mobile helpers, and syncs native projects.
+This copies static files to `www/` (via `scripts/build-www.mjs`), bundles the native
+mobile helpers into `www/`, and syncs the native projects. On Windows you can
+alternatively use the PowerShell copy step with `npm run build:www:ps`.
 
 ## Run on device / emulator
 
