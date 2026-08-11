@@ -29,41 +29,32 @@
     await TrainingLab.ready();
     const current = TrainingLab.loadState();
     const child = current.children?.[0];
-    const childReport = child ? await TrainingLab.getChildReport(child.id).catch(() => null) : null;
 
-    const monthLabel = new Date().toLocaleString(undefined, { month: 'long', year: 'numeric' });
+    const reports = child ? await TrainingLab.getChildReports(child.id) : null;
 
-    let card;
-    if (childReport) {
-      const p = childReport.player;
-      const score = Math.max(1, Math.min(10, Math.round((childReport.streak || 0) / 3) + 5));
-      card = {
-        score,
-        consistency: childReport.consistency,
-        skills: p.progress.skillsCompleted,
-        activeChallenges: (p.activeChallenges || []).length,
-        feedback: (p.coachFeedback || []).length ? `${p.coachFeedback.length} coach note(s)` : 'None yet',
-      };
-    } else {
-      card = { score: 8, consistency: 'Excellent', skills: 42, activeChallenges: 1, feedback: 'Available' };
+    function cardHtml(r) {
+      return `
+      <div class="card"${r.sessions === 0 ? ' style="opacity: 0.7;"' : ''}>
+        <h3 class="card-title">${r.label} Report Card</h3>
+        <p style="font-size: 2rem; font-weight: 800; color: var(--green-400); margin: 1rem 0;">${r.score}/10</p>
+        <ul style="color: var(--slate-400); font-size: 0.9rem; padding-left: 1.25rem;">
+          <li>Training consistency: ${r.consistency}</li>
+          <li>Sessions completed: ${r.sessions}</li>
+          <li>Minutes trained: ${r.minutes}</li>
+          <li>Skills practiced: ${r.skills}</li>
+        </ul>
+      </div>`;
     }
 
-    document.getElementById('report-cards').innerHTML = `
-      <div class="card">
-        <h3 class="card-title">${monthLabel} Report Card</h3>
-        <p style="font-size: 2rem; font-weight: 800; color: var(--green-400); margin: 1rem 0;">${card.score}/10</p>
-        <ul style="color: var(--slate-400); font-size: 0.9rem; padding-left: 1.25rem;">
-          <li>Training consistency: ${card.consistency}</li>
-          <li>Skills completed: ${card.skills}</li>
-          <li>Active challenges: ${card.activeChallenges}</li>
-          <li>Coach feedback: ${card.feedback}</li>
-        </ul>
-      </div>
-      <div class="card" style="opacity: 0.75;">
-        <h3 class="card-title">Earlier months</h3>
-        <p style="color: var(--slate-400); font-size: 0.9rem;">Monthly report history will appear here as your player logs more training over time.</p>
-      </div>
-    `;
+    if (reports && reports.length) {
+      document.getElementById('report-cards').innerHTML = reports.map(cardHtml).join('');
+    } else {
+      // Offline/demo fallback: a single illustrative current-month card.
+      const monthLabel = new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' });
+      document.getElementById('report-cards').innerHTML = cardHtml({
+        label: monthLabel, score: 8, consistency: 'Excellent', sessions: 10, minutes: 300, skills: 24,
+      });
+    }
   </script>
 </body>
 </html>

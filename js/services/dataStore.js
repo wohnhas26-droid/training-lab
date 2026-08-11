@@ -222,6 +222,17 @@ export async function getChildReportRemote(childId) {
   return null;
 }
 
+export async function getChildReportsRemote(childId) {
+  if (isApiMode() && childId) {
+    try {
+      return await api.getParentReports(childId);
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 export async function createCheckout(plan) {
   if (isApiMode()) return api.createCheckout(plan);
   return { demo: true, url: '/subscription/success.html?plan=' + plan };

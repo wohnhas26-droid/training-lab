@@ -80,6 +80,7 @@ export const api = {
   verifyCheckout: (sessionId) => request(`/subscriptions/verify?session_id=${encodeURIComponent(sessionId)}`),
 
   getParentReport: (childId) => request(`/catalog/parent/${childId}`),
+  getParentReports: (childId) => request(`/catalog/parent/${childId}/reports`),
 
   getExercises: () => request('/catalog/exercises'),
   getCategories: () => request('/catalog/categories'),
