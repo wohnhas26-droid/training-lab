@@ -54,10 +54,24 @@ npm run cap:run:android
 npm run cap:run:ios
 ```
 
+## App icons & splash screens
+
+Source art lives in [`assets/`](../assets/README.md) (`logo.png`, `icon-only.png`).
+Generate native assets with:
+
+```bash
+npm run assets:generate
+```
+
+Add platforms first (`npx cap add android|ios`) so the icons/splashes are written
+into the native projects; without platforms it generates PWA icons and skips
+native with a warning. Replace `assets/logo.png` with your own artwork (≥1024×1024)
+to rebrand.
+
 ## App Store submission checklist
 
-- [ ] App icon 1024×1024 (`resources/icon.png` — add via `@capacitor/assets`)
-- [ ] Splash screen
+- [x] App icon + splash source art in `assets/` (run `npm run assets:generate`)
+- [ ] Splash screen tuning (see `capacitor.config.json` SplashScreen)
 - [ ] Privacy Policy URL (required)
 - [ ] Screenshots (phone + tablet sizes)
 - [ ] `NATIVE_API_URL` points to production API
