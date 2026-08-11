@@ -27,12 +27,17 @@ DATABASE_URL="file:/data/prod.db"
 # Test keys for now — switch to sk_live_/pk_live_ when ready to charge
 STRIPE_SECRET_KEY="sk_test_..."
 STRIPE_PUBLISHABLE_KEY="pk_test_..."
-STRIPE_WEBHOOK_SECRET="whsec_WmmamburdjY9hyndDVRRfEdgnfFXM8bK"
+STRIPE_WEBHOOK_SECRET="whsec_..."
 
-STRIPE_PRICE_PLAYER="price_1U16FRLudFl66ZQwMkeKgqvU"
-STRIPE_PRICE_ELITE="price_1U16FRLudFl66ZQwwJgldiFt"
-STRIPE_PRICE_TEAM="price_1U16FSLudFl66ZQwaVKulnBU"
+STRIPE_PRICE_PLAYER="price_..."
+STRIPE_PRICE_ELITE="price_..."
+STRIPE_PRICE_TEAM="price_..."
 ```
+
+> **Never commit real secrets.** Set these only in your host's environment
+> variables / secret manager. A previous revision of this file contained a real
+> `STRIPE_WEBHOOK_SECRET` — if that value was ever live, rotate it in the Stripe
+> Dashboard (Developers → Webhooks → roll the signing secret).
 
 Webhook endpoint (already created in Stripe):
 `https://www.futbol-training-lab.com/api/webhooks/stripe`
