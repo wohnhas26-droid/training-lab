@@ -46,22 +46,38 @@
 
     let players = [];
 
-    const demoVideos = [
-      { player: 'Alex Rivera', skill: 'First Touch', date: 'Today', status: 'Pending Review' },
-      { player: 'Jordan Lee', skill: 'Finishing', date: 'Yesterday', status: 'Pending Review' },
-      { player: 'Taylor Kim', skill: 'Distribution', date: '2 days ago', status: 'Reviewed' },
-    ];
+    function relativeDate(iso) {
+      if (!iso) return '';
+      const then = new Date(iso);
+      if (Number.isNaN(then.getTime())) return '';
+      const days = Math.floor((Date.now() - then.getTime()) / 86400000);
+      if (days <= 0) return 'Today';
+      if (days === 1) return 'Yesterday';
+      return `${days} days ago`;
+    }
 
-    document.getElementById('video-queue').innerHTML = demoVideos.map(v => `
+    function renderVideoQueue(videos) {
+      const queue = document.getElementById('video-queue');
+      if (!videos.length) {
+        queue.innerHTML = '<div class="card"><p style="color: var(--slate-400);">No video submissions yet.</p></div>';
+        return;
+      }
+      queue.innerHTML = videos.map(v => {
+        const pending = String(v.status).toLowerCase() === 'pending';
+        const statusLabel = pending ? 'Pending Review' : 'Reviewed';
+        const when = relativeDate(v.createdAt);
+        return `
       <div class="card">
-        <span class="badge ${v.status === 'Pending Review' ? 'badge-gold' : 'badge-green'}">${v.status}</span>
-        <h3 class="card-title" style="margin-top: 0.75rem;">${v.player}</h3>
-        <p class="card-subtitle">${v.skill} assessment · ${v.date}</p>
+        <span class="badge ${pending ? 'badge-gold' : 'badge-green'}">${statusLabel}</span>
+        <h3 class="card-title" style="margin-top: 0.75rem;">${v.playerName || 'Player'}</h3>
+        <p class="card-subtitle">${v.skill} assessment${when ? ` · ${when}` : ''}</p>
         <div style="background: var(--slate-800); height: 120px; border-radius: 8px; margin-top: 1rem; display: flex; align-items: center; justify-content: center; color: var(--slate-500);">
           ▶ Video Preview
         </div>
       </div>
-    `).join('');
+    `;
+      }).join('');
+    }
 
     document.getElementById('feedback-form').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -91,6 +107,8 @@
     players = await TrainingLab.getCoachTeamData();
     document.getElementById('feedback-player').innerHTML =
       players.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+
+    renderVideoQueue(await TrainingLab.getCoachVideos());
   </script>
 </body>
 </html>

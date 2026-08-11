@@ -29,7 +29,32 @@
     document.getElementById('sidebar').innerHTML = renderSidebar('parent', 'attendance');
 
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const attended = [true, true, false, true, true, false, false];
+
+    // Dates (YYYY-MM-DD) for the current week, Monday→Sunday.
+    function currentWeekDates() {
+      const now = new Date();
+      const dow = (now.getDay() + 6) % 7; // 0 = Monday
+      const monday = new Date(now);
+      monday.setDate(now.getDate() - dow);
+      return days.map((_, i) => {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        return d.toISOString().split('T')[0];
+      });
+    }
+
+    await TrainingLab.ready();
+    const current = TrainingLab.loadState();
+    const child = current.children?.[0];
+    const childReport = child ? await TrainingLab.getChildReport(child.id).catch(() => null) : null;
+
+    let attended;
+    if (childReport) {
+      const sessionDates = new Set((childReport.player.completedSessions || []).map(s => s.date));
+      attended = currentWeekDates().map(date => sessionDates.has(date));
+    } else {
+      attended = [true, true, false, true, true, false, false];
+    }
 
     document.getElementById('attendance-grid').innerHTML = days.map((d, i) => `
       <div style="text-align: center; padding: 1rem;">

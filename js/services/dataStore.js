@@ -198,6 +198,30 @@ export async function submitFeedbackRemote({ playerId, playerName, feedback, rat
   return local.addCoachFeedback({ player: playerName || playerId, feedback, rating });
 }
 
+const DEMO_VIDEOS = [
+  { id: 'demo-1', playerName: 'Alex Rivera', skill: 'First Touch', status: 'pending', createdAt: null },
+  { id: 'demo-2', playerName: 'Jordan Lee', skill: 'Finishing', status: 'pending', createdAt: null },
+  { id: 'demo-3', playerName: 'Taylor Kim', skill: 'Distribution', status: 'reviewed', createdAt: null },
+];
+
+export async function getCoachVideosRemote() {
+  if (isApiMode()) {
+    try {
+      return await api.getCoachVideos();
+    } catch {
+      return [];
+    }
+  }
+  return DEMO_VIDEOS;
+}
+
+export async function getChildReportRemote(childId) {
+  if (isApiMode() && childId) {
+    return api.getParentReport(childId);
+  }
+  return null;
+}
+
 export async function createCheckout(plan) {
   if (isApiMode()) return api.createCheckout(plan);
   return { demo: true, url: '/subscription/success.html?plan=' + plan };

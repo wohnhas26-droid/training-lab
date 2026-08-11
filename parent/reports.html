@@ -26,20 +26,44 @@
     document.getElementById('nav').innerHTML = renderNav();
     document.getElementById('sidebar').innerHTML = renderSidebar('parent', 'reports');
 
-    const months = ['August 2026', 'July 2026', 'June 2026'];
-    document.getElementById('report-cards').innerHTML = months.map((m, i) => `
+    await TrainingLab.ready();
+    const current = TrainingLab.loadState();
+    const child = current.children?.[0];
+    const childReport = child ? await TrainingLab.getChildReport(child.id).catch(() => null) : null;
+
+    const monthLabel = new Date().toLocaleString(undefined, { month: 'long', year: 'numeric' });
+
+    let card;
+    if (childReport) {
+      const p = childReport.player;
+      const score = Math.max(1, Math.min(10, Math.round((childReport.streak || 0) / 3) + 5));
+      card = {
+        score,
+        consistency: childReport.consistency,
+        skills: p.progress.skillsCompleted,
+        activeChallenges: (p.activeChallenges || []).length,
+        feedback: (p.coachFeedback || []).length ? `${p.coachFeedback.length} coach note(s)` : 'None yet',
+      };
+    } else {
+      card = { score: 8, consistency: 'Excellent', skills: 42, activeChallenges: 1, feedback: 'Available' };
+    }
+
+    document.getElementById('report-cards').innerHTML = `
       <div class="card">
-        <h3 class="card-title">${m} Report Card</h3>
-        <p style="font-size: 2rem; font-weight: 800; color: var(--green-400); margin: 1rem 0;">${8 - i}/10</p>
+        <h3 class="card-title">${monthLabel} Report Card</h3>
+        <p style="font-size: 2rem; font-weight: 800; color: var(--green-400); margin: 1rem 0;">${card.score}/10</p>
         <ul style="color: var(--slate-400); font-size: 0.9rem; padding-left: 1.25rem;">
-          <li>Training consistency: ${i === 0 ? 'Excellent' : 'Good'}</li>
-          <li>Skills completed: ${42 - i * 5}</li>
-          <li>Challenges finished: ${2 - i}</li>
-          <li>Coach feedback: ${i === 0 ? 'Available (Elite)' : 'N/A'}</li>
+          <li>Training consistency: ${card.consistency}</li>
+          <li>Skills completed: ${card.skills}</li>
+          <li>Active challenges: ${card.activeChallenges}</li>
+          <li>Coach feedback: ${card.feedback}</li>
         </ul>
-        <button class="btn btn-secondary btn-sm" style="margin-top: 1rem;">Download PDF</button>
       </div>
-    `).join('');
+      <div class="card" style="opacity: 0.75;">
+        <h3 class="card-title">Earlier months</h3>
+        <p style="color: var(--slate-400); font-size: 0.9rem;">Monthly report history will appear here as your player logs more training over time.</p>
+      </div>
+    `;
   </script>
 </body>
 </html>

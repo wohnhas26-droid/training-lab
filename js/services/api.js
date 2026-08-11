@@ -71,6 +71,7 @@ export const api = {
   createAssignment: (body) => request('/coach/assignments', { method: 'POST', body: JSON.stringify(body) }),
   getAssignments: () => request('/coach/assignments'),
   submitFeedback: (body) => request('/coach/feedback', { method: 'POST', body: JSON.stringify(body) }),
+  getCoachVideos: () => request('/coach/videos'),
 
   getStripeConfig: () => request('/subscriptions/config'),
   getSubscriptionStatus: () => request('/subscriptions/status'),
