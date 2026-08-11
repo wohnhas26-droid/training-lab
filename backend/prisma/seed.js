@@ -101,6 +101,18 @@ async function main() {
     });
   }
 
+  const videoSubmissions = [
+    { id: 'seed-vid-1', skill: 'First Touch', status: 'pending' },
+    { id: 'seed-vid-2', skill: 'Finishing', status: 'reviewed' },
+  ];
+  for (const v of videoSubmissions) {
+    await prisma.videoSubmission.upsert({
+      where: { id: v.id },
+      update: { skill: v.skill, status: v.status },
+      create: { id: v.id, playerId: player.id, skill: v.skill, status: v.status },
+    });
+  }
+
   console.log('Seed complete!');
   console.log('');
   console.log('Demo accounts (password: demo1234):');

@@ -98,9 +98,18 @@ router.get('/videos', async (req, res) => {
     where: { playerId: { in: playerIds } },
     orderBy: { createdAt: 'desc' },
     take: 20,
+    include: { player: { select: { name: true } } },
   });
 
-  res.json(videos);
+  res.json(videos.map(v => ({
+    id: v.id,
+    playerId: v.playerId,
+    playerName: v.player?.name || 'Player',
+    skill: v.skill,
+    url: v.url,
+    status: v.status,
+    createdAt: v.createdAt,
+  })));
 });
 
 export default router;
