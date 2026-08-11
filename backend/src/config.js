@@ -41,3 +41,20 @@ export function isStripeConfigured() {
   const { secretKey, prices } = config.stripe;
   return Boolean(secretKey && secretKey.startsWith('sk_') && Object.values(prices).some(Boolean));
 }
+
+// Well-known placeholder secrets shipped in examples/config — never valid in prod.
+export const INSECURE_JWT_SECRETS = new Set([
+  'dev-secret-change-in-production',
+  'change-me-in-production',
+  'change-me-to-a-long-random-string-in-production',
+]);
+
+// Returns a human-readable problem string if the JWT secret is unsafe for the
+// given environment, or null when it's acceptable. Only enforced in production.
+export function jwtSecretIssue(secret = config.jwtSecret, nodeEnv = config.nodeEnv) {
+  if (nodeEnv !== 'production') return null;
+  if (!secret) return 'JWT_SECRET is not set';
+  if (INSECURE_JWT_SECRETS.has(secret)) return 'JWT_SECRET is set to a known insecure default';
+  if (secret.length < 16) return 'JWT_SECRET is too short (use at least 16 characters)';
+  return null;
+}
