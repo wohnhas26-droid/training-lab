@@ -158,6 +158,46 @@ export async function getCoachTeamRemote() {
   return null;
 }
 
+const LOCAL_ASSIGNMENTS_KEY = 'coach_assignments';
+
+function loadLocalAssignments() {
+  try {
+    return JSON.parse(localStorage.getItem(LOCAL_ASSIGNMENTS_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+export async function getAssignmentsRemote() {
+  if (isApiMode()) {
+    try {
+      return await api.getAssignments();
+    } catch {
+      return [];
+    }
+  }
+  return loadLocalAssignments();
+}
+
+export async function createAssignmentRemote({ title, category, dueDate, notes, assignTo = 'all' }) {
+  const payload = { title, category, dueDate, notes, assignTo };
+  if (isApiMode()) {
+    return api.createAssignment(payload);
+  }
+  const assignments = loadLocalAssignments();
+  const entry = { ...payload, id: `local-${Date.now()}`, createdAt: new Date().toISOString() };
+  assignments.unshift(entry);
+  localStorage.setItem(LOCAL_ASSIGNMENTS_KEY, JSON.stringify(assignments));
+  return entry;
+}
+
+export async function submitFeedbackRemote({ playerId, playerName, feedback, rating }) {
+  if (isApiMode()) {
+    return api.submitFeedback({ playerId, feedback, rating });
+  }
+  return local.addCoachFeedback({ player: playerName || playerId, feedback, rating });
+}
+
 export async function createCheckout(plan) {
   if (isApiMode()) return api.createCheckout(plan);
   return { demo: true, url: '/subscription/success.html?plan=' + plan };
