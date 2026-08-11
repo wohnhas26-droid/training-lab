@@ -12,6 +12,7 @@ import coachRoutes from './routes/coach.js';
 import subscriptionRoutes from './routes/subscriptions.js';
 import webhookRoutes from './routes/webhooks.js';
 import catalogRoutes from './routes/catalog.js';
+import videoRoutes from './routes/videos.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const staticRoot = join(__dirname, '../..');
@@ -42,6 +43,7 @@ app.use('/api/challenges', challengeRoutes);
 app.use('/api/coach', coachRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/catalog', catalogRoutes);
+app.use('/api/videos', videoRoutes);
 
 if (config.nodeEnv === 'production') {
   app.use(express.static(staticRoot, { index: false }));
