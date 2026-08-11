@@ -3,6 +3,7 @@ import { authRequired, requireRole } from '../middleware/auth.js';
 import { getUserState } from '../lib/prisma.js';
 import { prisma } from '../lib/prisma.js';
 import { EXERCISES, CHALLENGES, ACHIEVEMENTS, PROGRESSION_LEVELS, TRAINING_CATEGORIES } from '../data/index.js';
+import { monthlyReports } from '../services/reports.js';
 
 const router = Router();
 
@@ -52,6 +53,17 @@ router.get('/parent/:childId', authRequired, requireRole('parent'), async (req, 
     minutesThisWeek: weeklySessions.reduce((s, sess) => s + (sess.minutes || 0), 0),
     player: state,
   });
+});
+
+router.get('/parent/:childId/reports', authRequired, requireRole('parent'), async (req, res) => {
+  const link = await prisma.parentLink.findUnique({
+    where: { parentId_childId: { parentId: req.userId, childId: req.params.childId } },
+  });
+
+  if (!link) return res.status(403).json({ error: 'Not linked to this player' });
+
+  const state = await getUserState(req.params.childId);
+  res.json(monthlyReports(state.completedSessions, { months: 4 }));
 });
 
 export default router;
