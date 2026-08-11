@@ -39,11 +39,12 @@
   <script type="module">
     import { renderNav, renderSidebar } from '/js/components/ui.js';
     import '/js/app.js';
-    import { addCoachFeedback } from '/js/services/storage.js';
 
     TrainingLab.requireAuth('coach');
     document.getElementById('nav').innerHTML = renderNav();
     document.getElementById('sidebar').innerHTML = renderSidebar('coach', 'feedback');
+
+    let players = [];
 
     const demoVideos = [
       { player: 'Alex Rivera', skill: 'First Touch', date: 'Today', status: 'Pending Review' },
@@ -62,17 +63,34 @@
       </div>
     `).join('');
 
-    document.getElementById('feedback-form').addEventListener('submit', (e) => {
+    document.getElementById('feedback-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const fd = new FormData(e.target);
-      addCoachFeedback({ player: fd.get('player'), feedback: fd.get('feedback'), rating: fd.get('rating') });
-      TrainingLab.showToast('Feedback submitted!');
-      e.target.reset();
+      const playerId = fd.get('player');
+      const playerName = players.find(p => String(p.id) === String(playerId))?.name || playerId;
+      const btn = e.target.querySelector('button[type="submit"]');
+      if (btn) btn.disabled = true;
+      try {
+        await TrainingLab.ready();
+        await TrainingLab.submitFeedback({
+          playerId,
+          playerName,
+          feedback: fd.get('feedback'),
+          rating: Number(fd.get('rating')) || 7,
+        });
+        TrainingLab.showToast('Feedback submitted!');
+        e.target.reset();
+      } catch (err) {
+        TrainingLab.showToast(err.message || 'Could not submit feedback');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
     });
 
     await TrainingLab.ready();
-    const players = await TrainingLab.getCoachTeamData();
-    document.getElementById('feedback-player').innerHTML = players.map(p => `<option>${p.name}</option>`).join('');
+    players = await TrainingLab.getCoachTeamData();
+    document.getElementById('feedback-player').innerHTML =
+      players.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
   </script>
 </body>
 </html>

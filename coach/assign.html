@@ -57,6 +57,7 @@
     document.getElementById('sidebar').innerHTML = renderSidebar('coach', 'assign');
 
     let players = [];
+    let assignments = [];
 
     document.getElementById('player-select').innerHTML = '<option value="all">Entire Team</option>';
     document.getElementById('category-select').innerHTML =
@@ -64,7 +65,10 @@
 
     document.querySelector('[name="dueDate"]').value = new Date().toISOString().split('T')[0];
 
-    let assignments = JSON.parse(localStorage.getItem('coach_assignments') || '[]');
+    function assignToLabel(assignTo) {
+      if (!assignTo || assignTo === 'all') return 'Entire Team';
+      return players.find(p => String(p.id) === String(assignTo))?.name || assignTo;
+    }
 
     function renderAssignments() {
       document.getElementById('assignments-list').innerHTML = assignments.length
@@ -72,28 +76,37 @@
             <div style="padding: 1rem; background: var(--slate-800); border-radius: 8px; margin-bottom: 0.75rem;">
               <strong>${a.title}</strong>
               <p style="font-size: 0.85rem; color: var(--slate-400); margin-top: 0.25rem;">
-                ${getCategoryName(a.category)} · Due ${a.dueDate} · Assigned to ${a.assignTo}
+                ${getCategoryName(a.category)} · Due ${a.dueDate} · Assigned to ${assignToLabel(a.assignTo)}
               </p>
             </div>
           `).join('')
         : '<p style="color: var(--slate-500);">No assignments yet.</p>';
     }
 
-    document.getElementById('assign-form').addEventListener('submit', (e) => {
+    document.getElementById('assign-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const fd = new FormData(e.target);
-      assignments.push({
-        title: fd.get('title'),
-        assignTo: fd.get('assignTo') === 'all' ? 'Entire Team' : players.find(p => p.id == fd.get('assignTo'))?.name,
-        category: fd.get('category'),
-        dueDate: fd.get('dueDate'),
-        notes: fd.get('notes'),
-      });
-      localStorage.setItem('coach_assignments', JSON.stringify(assignments));
-      TrainingLab.showToast('Training assigned!');
-      e.target.reset();
-      document.querySelector('[name="dueDate"]').value = new Date().toISOString().split('T')[0];
-      renderAssignments();
+      const btn = e.target.querySelector('button[type="submit"]');
+      if (btn) btn.disabled = true;
+      try {
+        await TrainingLab.ready();
+        const created = await TrainingLab.createAssignment({
+          title: fd.get('title'),
+          category: fd.get('category'),
+          dueDate: fd.get('dueDate'),
+          notes: fd.get('notes'),
+          assignTo: fd.get('assignTo'),
+        });
+        assignments.unshift(created);
+        TrainingLab.showToast('Training assigned!');
+        e.target.reset();
+        document.querySelector('[name="dueDate"]').value = new Date().toISOString().split('T')[0];
+        renderAssignments();
+      } catch (err) {
+        TrainingLab.showToast(err.message || 'Could not assign training');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
     });
 
     renderAssignments();
@@ -103,6 +116,8 @@
     document.getElementById('player-select').innerHTML =
       '<option value="all">Entire Team</option>' +
       players.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    assignments = await TrainingLab.getAssignments();
+    renderAssignments();
   </script>
 </body>
 </html>

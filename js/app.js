@@ -2,6 +2,7 @@ import {
   loadState, saveState, logout, saveProfile, saveSubscription,
   completeSessionRemote, joinChallengeRemote, updateChallengeProgressRemote,
   register, loginWithCredentials, regeneratePlanRemote, getCoachTeamRemote,
+  getAssignmentsRemote, createAssignmentRemote, submitFeedbackRemote,
   createCheckout, openBillingPortal, getSubscriptionStatus, verifyCheckoutSession,
   getStripeConfig, bootstrap, isApiMode,
 } from './services/dataStore.js';
@@ -58,6 +59,9 @@ window.TrainingLab = {
     const remote = await getCoachTeamRemote();
     return remote || getCoachTeamData();
   },
+  getAssignments: getAssignmentsRemote,
+  createAssignment: createAssignmentRemote,
+  submitFeedback: submitFeedbackRemote,
   getParentReport,
   showToast,
   SUBSCRIPTION_PLANS,
