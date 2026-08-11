@@ -56,11 +56,9 @@
     document.getElementById('nav').innerHTML = renderNav();
     document.getElementById('sidebar').innerHTML = renderSidebar('coach', 'assign');
 
-    const players = TrainingLab.getCoachTeamData();
-    document.getElementById('player-select').innerHTML =
-      '<option value="all">Entire Team</option>' +
-      players.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    let players = [];
 
+    document.getElementById('player-select').innerHTML = '<option value="all">Entire Team</option>';
     document.getElementById('category-select').innerHTML =
       Object.values(TRAINING_CATEGORIES).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
 
@@ -99,6 +97,12 @@
     });
 
     renderAssignments();
+
+    await TrainingLab.ready();
+    players = await TrainingLab.getCoachTeamData();
+    document.getElementById('player-select').innerHTML =
+      '<option value="all">Entire Team</option>' +
+      players.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
   </script>
 </body>
 </html>

@@ -5,7 +5,8 @@
   "description": "Futbol Training Lab — Train Smarter. Play Faster.",
   "scripts": {
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
-    "dev:frontend": "powershell -ExecutionPolicy Bypass -File ./serve.ps1",
+    "dev:frontend": "node scripts/serve.mjs",
+    "dev:frontend:ps": "powershell -ExecutionPolicy Bypass -File ./serve.ps1",
     "dev:backend": "npm run dev --prefix backend",
     "setup": "npm run setup --prefix backend",
     "start": "npm run start --prefix backend",
