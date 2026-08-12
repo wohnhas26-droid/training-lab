@@ -11,26 +11,34 @@ Futbol Training Lab ships as a native app using [Capacitor](https://capacitorjs.
 
 ## API URL for mobile builds
 
-Native apps call your hosted API directly. Edit before building:
+Native apps call your hosted API directly. Two ways to set it:
 
-`js/config/appConfig.js` → `NATIVE_API_URL`
+1. **At build time (recommended)** — pass `API_URL`; it overrides only the built
+   `www/` output, so you can point staging vs prod builds without editing source:
 
-Use your Railway URL until custom domain DNS works:
+   ```bash
+   API_URL=https://YOUR-APP.up.railway.app/api npm run cap:sync
+   ```
 
-```javascript
-export const NATIVE_API_URL = 'https://YOUR-APP.up.railway.app/api';
-```
+2. **In source** — change the default in `js/config/appConfig.js` → `NATIVE_API_URL`:
+
+   ```javascript
+   export const NATIVE_API_URL = 'https://YOUR-APP.up.railway.app/api';
+   ```
 
 Update Railway `FRONTEND_URL` CORS — the backend already allows Capacitor origins (`https://localhost`, `capacitor://localhost`).
 
 ## Build web assets & sync
 
-```powershell
-cd C:\Users\Ryan\training-lab
+Works on any OS (macOS, Linux, Windows):
+
+```bash
 npm run cap:sync
 ```
 
-This copies static files to `www/`, bundles mobile helpers, and syncs native projects.
+This copies static files to `www/` (via `scripts/build-www.mjs`), bundles the native
+mobile helpers into `www/`, and syncs the native projects. On Windows you can
+alternatively use the PowerShell copy step with `npm run build:www:ps`.
 
 ## Run on device / emulator
 
@@ -54,10 +62,24 @@ npm run cap:run:android
 npm run cap:run:ios
 ```
 
+## App icons & splash screens
+
+Source art lives in [`assets/`](../assets/README.md) (`logo.png`, `icon-only.png`).
+Generate native assets with:
+
+```bash
+npm run assets:generate
+```
+
+Add platforms first (`npx cap add android|ios`) so the icons/splashes are written
+into the native projects; without platforms it generates PWA icons and skips
+native with a warning. Replace `assets/logo.png` with your own artwork (≥1024×1024)
+to rebrand.
+
 ## App Store submission checklist
 
-- [ ] App icon 1024×1024 (`resources/icon.png` — add via `@capacitor/assets`)
-- [ ] Splash screen
+- [x] App icon + splash source art in `assets/` (run `npm run assets:generate`)
+- [ ] Splash screen tuning (see `capacitor.config.json` SplashScreen)
 - [ ] Privacy Policy URL (required)
 - [ ] Screenshots (phone + tablet sizes)
 - [ ] `NATIVE_API_URL` points to production API

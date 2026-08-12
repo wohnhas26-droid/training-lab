@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { config, isStripeConfigured, isOriginAllowed } from './config.js';
+import { config, isStripeConfigured, isOriginAllowed, jwtSecretIssue } from './config.js';
 import authRoutes from './routes/auth.js';
 import trainingRoutes from './routes/training.js';
 import progressRoutes from './routes/progress.js';
@@ -61,6 +61,12 @@ app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(500).json({ error: 'Internal server error' });
 });
+
+const secretIssue = jwtSecretIssue();
+if (secretIssue) {
+  console.error(`FATAL: ${secretIssue}. Set a strong JWT_SECRET before starting in production.`);
+  process.exit(1);
+}
 
 app.listen(config.port, () => {
   console.log(`Futbol Training Lab API running on http://localhost:${config.port}`);

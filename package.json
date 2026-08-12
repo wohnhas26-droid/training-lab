@@ -4,6 +4,8 @@
   "private": true,
   "description": "Futbol Training Lab — Train Smarter. Play Faster.",
   "scripts": {
+    "test": "node --test \"test/*.test.mjs\"",
+    "scan:secrets": "node scripts/scan-secrets.mjs",
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
     "dev:frontend": "node scripts/serve.mjs",
     "dev:frontend:ps": "powershell -ExecutionPolicy Bypass -File ./serve.ps1",
@@ -16,8 +18,10 @@
     "setup:git": "powershell -ExecutionPolicy Bypass -File ./scripts/setup-git.ps1",
     "setup:webhooks": "powershell -ExecutionPolicy Bypass -File ./scripts/setup-webhooks-local.ps1",
     "deploy:docker": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy-docker.ps1",
-    "build:www": "powershell -ExecutionPolicy Bypass -File ./scripts/build-www.ps1 && node scripts/bundle-mobile.mjs",
+    "build:www": "node scripts/build-www.mjs && node scripts/bundle-mobile.mjs",
+    "build:www:ps": "powershell -ExecutionPolicy Bypass -File ./scripts/build-www.ps1 && node scripts/bundle-mobile.mjs",
     "cap:sync": "npm run build:www && npx cap sync",
+    "assets:generate": "capacitor-assets generate --iconBackgroundColor #0f172a --iconBackgroundColorDark #0f172a --splashBackgroundColor #0f172a --splashBackgroundColorDark #0f172a",
     "cap:open:android": "npx cap open android",
     "cap:open:ios": "npx cap open ios",
     "cap:run:android": "npx cap run android",
@@ -33,6 +37,7 @@
     "@capacitor/status-bar": "^7.0.1"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^7.2.0",
     "concurrently": "^9.1.2",
     "esbuild": "^0.25.0"
