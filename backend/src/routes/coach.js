@@ -63,6 +63,15 @@ router.post('/team/players', async (req, res) => {
   res.status(201).json(await getTeamWithRoster(req.userId));
 });
 
+router.delete('/team/players/:userId', async (req, res) => {
+  const team = await prisma.team.findFirst({ where: { coachId: req.userId } });
+  if (team) {
+    // Idempotent: removing a non-member is not an error.
+    await prisma.teamMember.deleteMany({ where: { teamId: team.id, userId: req.params.userId } });
+  }
+  res.json(await getTeamWithRoster(req.userId));
+});
+
 router.post('/assignments', async (req, res) => {
   const { title, category, dueDate, notes, assignTo = 'all' } = req.body;
 

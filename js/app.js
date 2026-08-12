@@ -2,7 +2,7 @@ import {
   loadState, saveState, logout, saveProfile, saveSubscription,
   completeSessionRemote, joinChallengeRemote, updateChallengeProgressRemote,
   register, loginWithCredentials, regeneratePlanRemote, getCoachTeamRemote,
-  addTeamPlayerRemote,
+  addTeamPlayerRemote, removeTeamPlayerRemote,
   getAssignmentsRemote, createAssignmentRemote, submitFeedbackRemote,
   getCoachVideosRemote, getChildReportRemote, getChildReportsRemote,
   getMyVideosRemote, submitVideoRemote,
@@ -63,6 +63,7 @@ window.TrainingLab = {
     return remote || getCoachTeamData();
   },
   addTeamPlayer: addTeamPlayerRemote,
+  removeTeamPlayer: removeTeamPlayerRemote,
   getAssignments: getAssignmentsRemote,
   createAssignment: createAssignmentRemote,
   submitFeedback: submitFeedbackRemote,
