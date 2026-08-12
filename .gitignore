@@ -11,6 +11,7 @@ backend/.env
 *.db-journal
 backend/prisma/dev.db
 backend/prisma/dev.db-journal
+backend/prisma/schema.postgres.prisma
 dist/
 build/
 .DS_Store
