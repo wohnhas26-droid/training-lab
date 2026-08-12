@@ -27,6 +27,7 @@ export async function getUserState(userId) {
       challengeEnrollments: true,
       weeklyPlans: { where: { active: true }, orderBy: { generatedAt: 'desc' }, take: 1 },
       feedbackReceived: { orderBy: { createdAt: 'desc' }, take: 20 },
+      parentLinks: { include: { child: { select: { id: true, name: true } } } },
     },
   });
 
@@ -81,5 +82,6 @@ export async function getUserState(userId) {
       rating: f.rating,
       date: f.date,
     })),
+    children: user.parentLinks.map(l => ({ id: l.child.id, name: l.child.name })),
   };
 }

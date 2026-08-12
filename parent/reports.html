@@ -26,20 +26,35 @@
     document.getElementById('nav').innerHTML = renderNav();
     document.getElementById('sidebar').innerHTML = renderSidebar('parent', 'reports');
 
-    const months = ['August 2026', 'July 2026', 'June 2026'];
-    document.getElementById('report-cards').innerHTML = months.map((m, i) => `
-      <div class="card">
-        <h3 class="card-title">${m} Report Card</h3>
-        <p style="font-size: 2rem; font-weight: 800; color: var(--green-400); margin: 1rem 0;">${8 - i}/10</p>
+    await TrainingLab.ready();
+    const current = TrainingLab.loadState();
+    const child = current.children?.[0];
+
+    const reports = child ? await TrainingLab.getChildReports(child.id) : null;
+
+    function cardHtml(r) {
+      return `
+      <div class="card"${r.sessions === 0 ? ' style="opacity: 0.7;"' : ''}>
+        <h3 class="card-title">${r.label} Report Card</h3>
+        <p style="font-size: 2rem; font-weight: 800; color: var(--green-400); margin: 1rem 0;">${r.score}/10</p>
         <ul style="color: var(--slate-400); font-size: 0.9rem; padding-left: 1.25rem;">
-          <li>Training consistency: ${i === 0 ? 'Excellent' : 'Good'}</li>
-          <li>Skills completed: ${42 - i * 5}</li>
-          <li>Challenges finished: ${2 - i}</li>
-          <li>Coach feedback: ${i === 0 ? 'Available (Elite)' : 'N/A'}</li>
+          <li>Training consistency: ${r.consistency}</li>
+          <li>Sessions completed: ${r.sessions}</li>
+          <li>Minutes trained: ${r.minutes}</li>
+          <li>Skills practiced: ${r.skills}</li>
         </ul>
-        <button class="btn btn-secondary btn-sm" style="margin-top: 1rem;">Download PDF</button>
-      </div>
-    `).join('');
+      </div>`;
+    }
+
+    if (reports && reports.length) {
+      document.getElementById('report-cards').innerHTML = reports.map(cardHtml).join('');
+    } else {
+      // Offline/demo fallback: a single illustrative current-month card.
+      const monthLabel = new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' });
+      document.getElementById('report-cards').innerHTML = cardHtml({
+        label: monthLabel, score: 8, consistency: 'Excellent', sessions: 10, minutes: 300, skills: 24,
+      });
+    }
   </script>
 </body>
 </html>

@@ -101,6 +101,45 @@ async function main() {
     });
   }
 
+  const videoSubmissions = [
+    { id: 'seed-vid-1', skill: 'First Touch', status: 'pending' },
+    { id: 'seed-vid-2', skill: 'Finishing', status: 'reviewed' },
+  ];
+  for (const v of videoSubmissions) {
+    await prisma.videoSubmission.upsert({
+      where: { id: v.id },
+      update: { skill: v.skill, status: v.status },
+      create: { id: v.id, playerId: player.id, skill: v.skill, status: v.status },
+    });
+  }
+
+  // Historical completed sessions so parent monthly reports show real trends.
+  const now = new Date();
+  const monthDayISO = (monthsAgo, day) =>
+    new Date(now.getFullYear(), now.getMonth() - monthsAgo, day).toISOString().split('T')[0];
+  const historical = [
+    ...[2, 9].filter(d => d <= now.getDate()).map(day => ({ monthsAgo: 0, day })),
+    ...[3, 6, 9, 12, 15, 18, 21, 24, 27].map(day => ({ monthsAgo: 1, day })),
+    ...[5, 10, 15, 20, 25].map(day => ({ monthsAgo: 2, day })),
+  ];
+  for (const { monthsAgo, day } of historical) {
+    const id = `seed-sess-m${monthsAgo}-d${day}`;
+    const date = monthDayISO(monthsAgo, day);
+    await prisma.completedSession.upsert({
+      where: { id },
+      update: { date },
+      create: {
+        id,
+        userId: player.id,
+        sessionId: 'seed-session',
+        date,
+        exercises: JSON.stringify(['bm_toe_taps', 'pa_two_touch']),
+        xp: 60,
+        minutes: 30,
+      },
+    });
+  }
+
   console.log('Seed complete!');
   console.log('');
   console.log('Demo accounts (password: demo1234):');

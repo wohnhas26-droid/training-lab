@@ -42,6 +42,24 @@ export function isStripeConfigured() {
   return Boolean(secretKey && secretKey.startsWith('sk_') && Object.values(prices).some(Boolean));
 }
 
+// Origins used by the Capacitor native app webview. The app authenticates with
+// a bearer token (not cookies), so these must be allowed by CORS in production.
+export const NATIVE_ORIGINS = [
+  'capacitor://localhost',
+  'https://localhost',
+  'http://localhost',
+  'ionic://localhost',
+];
+
+export function isOriginAllowed(origin, { frontendUrl = config.frontendUrl, nodeEnv = config.nodeEnv } = {}) {
+  // Non-browser clients (curl, native fetch without an Origin) send no Origin.
+  if (!origin) return true;
+  const allowed = new Set([frontendUrl, ...NATIVE_ORIGINS].filter(Boolean));
+  if (allowed.has(origin)) return true;
+  // Be permissive in development to ease local testing across ports/hosts.
+  return nodeEnv === 'development';
+}
+
 // Well-known placeholder secrets shipped in examples/config — never valid in prod.
 export const INSECURE_JWT_SECRETS = new Set([
   'dev-secret-change-in-production',

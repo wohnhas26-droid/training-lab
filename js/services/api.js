@@ -71,6 +71,7 @@ export const api = {
   createAssignment: (body) => request('/coach/assignments', { method: 'POST', body: JSON.stringify(body) }),
   getAssignments: () => request('/coach/assignments'),
   submitFeedback: (body) => request('/coach/feedback', { method: 'POST', body: JSON.stringify(body) }),
+  getCoachVideos: () => request('/coach/videos'),
 
   getStripeConfig: () => request('/subscriptions/config'),
   getSubscriptionStatus: () => request('/subscriptions/status'),
@@ -79,6 +80,7 @@ export const api = {
   verifyCheckout: (sessionId) => request(`/subscriptions/verify?session_id=${encodeURIComponent(sessionId)}`),
 
   getParentReport: (childId) => request(`/catalog/parent/${childId}`),
+  getParentReports: (childId) => request(`/catalog/parent/${childId}/reports`),
 
   getExercises: () => request('/catalog/exercises'),
   getCategories: () => request('/catalog/categories'),

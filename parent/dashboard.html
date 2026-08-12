@@ -39,7 +39,7 @@
   <script type="module">
     import { renderNav, renderSidebar } from '/js/components/ui.js';
     import '/js/app.js';
-    import { ACHIEVEMENTS } from '/js/data/levels.js';
+    import { ACHIEVEMENTS, getLevelForXp } from '/js/data/levels.js';
 
     const state = TrainingLab.requireAuth('parent');
     if (!state) throw new Error('Auth required');
@@ -47,20 +47,43 @@
     document.getElementById('nav').innerHTML = renderNav();
     document.getElementById('sidebar').innerHTML = renderSidebar('parent', 'dashboard');
 
-    const playerData = TrainingLab.loadState();
-    playerData.user = { name: 'Alex Rivera', role: 'player' };
-    playerData.profile = playerData.profile || { position: 'midfielder' };
-    playerData.progress = playerData.progress.xp ? playerData.progress : {
-      xp: 1200, streak: 5, minutesTrained: 340, skillsCompleted: 42,
-    };
-    playerData.achievements = playerData.achievements.length ? playerData.achievements : ['first_session', 'streak_7'];
-    playerData.completedSessions = playerData.completedSessions.length ? playerData.completedSessions : [
-      { date: new Date().toISOString().split('T')[0] },
-      { date: new Date(Date.now() - 86400000).toISOString().split('T')[0] },
-      { date: new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0] },
-    ];
+    await TrainingLab.ready();
+    const current = TrainingLab.loadState();
+    const child = current.children?.[0];
 
-    const report = TrainingLab.getParentReport(playerData);
+    let report;
+    let achievements;
+
+    const childReport = child ? await TrainingLab.getChildReport(child.id).catch(() => null) : null;
+    if (childReport) {
+      const xp = childReport.player.progress.xp;
+      const level = getLevelForXp(xp).current;
+      report = {
+        weeklyCompletion: childReport.weeklyCompletion,
+        streak: childReport.streak,
+        consistency: childReport.consistency,
+        goalsAchieved: childReport.goalsAchieved,
+        minutesThisWeek: childReport.minutesThisWeek,
+        skillProgression: `${level.name} (${xp} XP)`,
+      };
+      achievements = childReport.player.achievements || [];
+    } else {
+      // Offline/demo fallback: illustrate with representative data.
+      const playerData = {
+        ...current,
+        user: { name: child?.name || 'Your player', role: 'player' },
+        profile: current.profile || { position: 'midfielder' },
+        progress: current.progress?.xp ? current.progress : { xp: 1200, streak: 5, minutesTrained: 340, skillsCompleted: 42 },
+        achievements: current.achievements?.length ? current.achievements : ['first_session', 'streak_7'],
+        completedSessions: current.completedSessions?.length ? current.completedSessions : [
+          { date: new Date().toISOString().split('T')[0] },
+          { date: new Date(Date.now() - 86400000).toISOString().split('T')[0] },
+          { date: new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0] },
+        ],
+      };
+      report = TrainingLab.getParentReport(playerData);
+      achievements = playerData.achievements;
+    }
 
     document.getElementById('parent-stats').innerHTML = `
       <div class="stat-card"><div class="stat-value">${report.weeklyCompletion.split('/')[0]}</div><div class="stat-label">Sessions This Week</div></div>
@@ -80,7 +103,7 @@
       <p style="color: var(--slate-400); font-size: 0.9rem;">Your player is making steady progress. Keep encouraging daily training!</p>
     `;
 
-    document.getElementById('goals-achieved').innerHTML = playerData.achievements.map(id => {
+    document.getElementById('goals-achieved').innerHTML = achievements.map(id => {
       const a = ACHIEVEMENTS.find(x => x.id === id);
       return a ? `<span class="badge badge-green" style="margin: 0.25rem;">${a.icon} ${a.name}</span>` : '';
     }).join('') || '<p style="color: var(--slate-500);">No achievements yet.</p>';
