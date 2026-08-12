@@ -136,6 +136,16 @@ export async function updateChallengeProgressRemote(challengeId, increment = 1) 
   return local.updateChallengeProgress(challengeId, progress);
 }
 
+export async function updateProfileRemote(profile) {
+  if (isApiMode()) {
+    cachedState = await api.updateProfile(profile);
+    syncToLocalStorage(cachedState);
+    return cachedState;
+  }
+  local.saveProfile(profile);
+  return local.loadState();
+}
+
 export async function regeneratePlanRemote(profile) {
   if (isApiMode()) {
     const plan = await api.regeneratePlan();
