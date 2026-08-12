@@ -24,7 +24,9 @@
     TrainingLab.requireAuth('coach');
     document.getElementById('nav').innerHTML = renderNav();
     document.getElementById('sidebar').innerHTML = renderSidebar('coach', 'leaderboard');
-    document.getElementById('leaderboard').innerHTML = TrainingLab.getCoachTeamData().map((p, i) => `
+    await TrainingLab.ready();
+    const teamPlayers = await TrainingLab.getCoachTeamData();
+    document.getElementById('leaderboard').innerHTML = teamPlayers.map((p, i) => `
       <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--slate-800);">
         <span class="leaderboard-rank rank-${i < 3 ? i + 1 : 'other'}">${i + 1}</span>
         <div style="flex: 1;">
