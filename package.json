@@ -5,6 +5,7 @@
   "description": "Futbol Training Lab — Train Smarter. Play Faster.",
   "scripts": {
     "test": "node --test \"test/*.test.mjs\"",
+    "scan:secrets": "node scripts/scan-secrets.mjs",
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
     "dev:frontend": "node scripts/serve.mjs",
     "dev:frontend:ps": "powershell -ExecutionPolicy Bypass -File ./serve.ps1",
