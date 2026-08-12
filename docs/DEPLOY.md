@@ -16,6 +16,7 @@ Copy `.env.example` to `.env` and set:
 
 ```env
 JWT_SECRET="<generate-a-long-random-string>"
+POSTGRES_PASSWORD="<a-strong-db-password>"
 FRONTEND_URL="https://yourdomain.com"
 STRIPE_SECRET_KEY="sk_live_..."
 STRIPE_PUBLISHABLE_KEY="pk_live_..."
@@ -43,8 +44,13 @@ npm run stripe:setup
 docker compose -f docker-compose.prod.yml up -d --build
 ```
 
+This starts three services: **PostgreSQL** (`db`, data in the `pg-data` volume),
+the **API** (`api`, waits for the DB healthcheck, runs `prisma db push` on start),
+and **nginx** (`frontend`). `JWT_SECRET` and `POSTGRES_PASSWORD` must be set in `.env`.
+
 - **Frontend:** port 80 (nginx)
 - **API:** port 3001 (internal, proxied via nginx at `/api`)
+- **Database:** PostgreSQL (internal, persisted in the `pg-data` volume)
 
 Point your domain DNS to the server. Add SSL with [Caddy](https://caddyserver.com/) or [Certbot](https://certbot.eff.org/) in front of port 80.
 
@@ -67,15 +73,31 @@ docker compose -f docker-compose.prod.yml exec api node prisma/seed.js
 
 ---
 
-## Option B: Railway
+## Option B: Railway + PostgreSQL (recommended)
 
-1. Push repo to GitHub
-2. Create Railway project → **Deploy from GitHub**
-3. Add **Dockerfile** service using `backend/Dockerfile`
-4. Set environment variables from `.env.example`
-5. Deploy static frontend separately OR use docker-compose on Railway
+The root `Dockerfile` is a single service that serves the API **and** the static
+frontend, and it now targets **PostgreSQL** (the Prisma schema for production is
+generated from `schema.prisma` at build time — see `scripts/make-postgres-schema.mjs`).
 
-For a single-service deploy, use Docker Compose plugin on Railway.
+1. Push repo to GitHub.
+2. Railway → **New Project** → **Deploy from GitHub** → select the repo. Railway
+   auto-detects the root `Dockerfile` (health check `/api/health` via `railway.toml`).
+3. In the project, **+ New → Database → PostgreSQL**. Railway creates a `DATABASE_URL`.
+4. On the app service → **Variables**, add:
+   ```
+   NODE_ENV=production
+   JWT_SECRET=<long random string>        # required; app refuses to boot without a strong value
+   FRONTEND_URL=https://<your-domain-or-railway-url>
+   DATABASE_URL=${{Postgres.DATABASE_URL}}   # reference the Postgres plugin's variable
+   # Stripe (optional): STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_PRICE_*
+   ```
+   Generate a secret: `node -e "console.log(require('crypto').randomBytes(48).toString('base64'))"`.
+5. Deploy. The container runs `prisma db push` against Postgres on start (creates tables),
+   then boots. Verify `https://<url>/api/health` → `{"status":"ok",...}`.
+6. (Optional) Seed demo accounts once: Railway → service → **Shell** (or `railway run`):
+   `node prisma/seed.js` (run from the image's `/app/backend`).
+
+Data persists in the Postgres plugin across redeploys — no volume juggling needed.
 
 ---
 
@@ -107,7 +129,7 @@ For a single-service deploy, use Docker Compose plugin on Railway.
 ```
 Browser → nginx (:80) → static HTML/JS/CSS
                       → /api/* → Express API (:3001)
-                                      → SQLite (/data/prod.db)
+                                      → PostgreSQL (db:5432)
                                       → Stripe API
 ```
 
