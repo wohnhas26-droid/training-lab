@@ -2,6 +2,7 @@ import {
   loadState, saveState, logout, saveProfile, saveSubscription,
   completeSessionRemote, joinChallengeRemote, updateChallengeProgressRemote,
   register, loginWithCredentials, regeneratePlanRemote, getCoachTeamRemote,
+  addTeamPlayerRemote,
   getAssignmentsRemote, createAssignmentRemote, submitFeedbackRemote,
   getCoachVideosRemote, getChildReportRemote, getChildReportsRemote,
   getMyVideosRemote, submitVideoRemote,
@@ -61,6 +62,7 @@ window.TrainingLab = {
     const remote = await getCoachTeamRemote();
     return remote || getCoachTeamData();
   },
+  addTeamPlayer: addTeamPlayerRemote,
   getAssignments: getAssignmentsRemote,
   createAssignment: createAssignmentRemote,
   submitFeedback: submitFeedbackRemote,
