@@ -69,6 +69,7 @@ export const api = {
 
   getCoachTeam: () => request('/coach/team'),
   addTeamPlayer: (email) => request('/coach/team/players', { method: 'POST', body: JSON.stringify({ email }) }),
+  removeTeamPlayer: (userId) => request(`/coach/team/players/${encodeURIComponent(userId)}`, { method: 'DELETE' }),
   createAssignment: (body) => request('/coach/assignments', { method: 'POST', body: JSON.stringify(body) }),
   getAssignments: () => request('/coach/assignments'),
   submitFeedback: (body) => request('/coach/feedback', { method: 'POST', body: JSON.stringify(body) }),
