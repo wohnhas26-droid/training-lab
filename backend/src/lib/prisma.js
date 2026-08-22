@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { serializeCoachFeedback } from './feedback.js';
 
 export const prisma = new PrismaClient();
 
@@ -26,7 +27,11 @@ export async function getUserState(userId) {
       achievements: true,
       challengeEnrollments: true,
       weeklyPlans: { where: { active: true }, orderBy: { generatedAt: 'desc' }, take: 1 },
-      feedbackReceived: { orderBy: { createdAt: 'desc' }, take: 20 },
+      feedbackReceived: {
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+        include: { coach: { select: { name: true } } },
+      },
       parentLinks: { include: { child: { select: { id: true, name: true } } } },
     },
   });
@@ -77,11 +82,7 @@ export async function getUserState(userId) {
     activeChallenges: user.challengeEnrollments.filter(c => !c.completed).map(c => c.challengeId),
     challengeProgress: Object.fromEntries(user.challengeEnrollments.map(c => [c.challengeId, c.progress])),
     weeklyPlan: user.weeklyPlans[0] ? parseJson(user.weeklyPlans[0].plan, null) : null,
-    coachFeedback: user.feedbackReceived.map(f => ({
-      feedback: f.feedback,
-      rating: f.rating,
-      date: f.date,
-    })),
+    coachFeedback: user.feedbackReceived.map(serializeCoachFeedback),
     children: user.parentLinks.map(l => ({ id: l.child.id, name: l.child.name })),
   };
 }

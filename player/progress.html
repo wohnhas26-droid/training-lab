@@ -45,6 +45,12 @@
         <div id="my-videos" style="margin-top: 1.5rem;"></div>
       </div>
 
+      <div class="card" style="margin-bottom: 2rem;">
+        <h3 class="card-title">Coach Feedback</h3>
+        <p class="card-subtitle" style="margin: 0.5rem 0 1rem;">Notes from your coach after sessions and video reviews.</p>
+        <div id="coach-feedback-list"></div>
+      </div>
+
       <div class="card" id="evaluation-card" style="display: none;">
         <h3 class="card-title">Monthly Evaluation <span class="badge badge-gold">Elite</span></h3>
         <div id="evaluation-content" style="margin-top: 1rem;"></div>
@@ -53,7 +59,7 @@
   </div>
 
   <script type="module">
-    import { renderNav, renderSidebar } from '/js/components/ui.js';
+    import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
     import '/js/app.js';
     import { PROGRESSION_LEVELS } from '/js/data/levels.js';
 
@@ -143,6 +149,45 @@
       await TrainingLab.ready();
       myVideos = await TrainingLab.getMyVideos();
       renderMyVideos(myVideos);
+    })();
+
+    function formatFeedbackDate(value) {
+      if (!value) return '';
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return escapeHtml(value);
+      return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function renderCoachFeedback(items) {
+      const el = document.getElementById('coach-feedback-list');
+      const list = Array.isArray(items) ? items : [];
+      // Player view: API items have feedback/rating/date. Ignore coach-offline
+      // records that only stored a `player` name from submitting feedback.
+      const received = list.filter((f) => f && (f.feedback || f.rating) && !f.player);
+      if (!received.length) {
+        el.innerHTML = '<p style="color: var(--slate-500);">No coach feedback yet. After your coach reviews a session or video, notes will show up here.</p>';
+        return;
+      }
+      el.innerHTML = received.map((f) => {
+        const who = escapeHtml(f.coachName || 'Your coach');
+        const when = formatFeedbackDate(f.date);
+        const rating = Number.isFinite(Number(f.rating)) ? `${Number(f.rating)}/10` : '';
+        return `
+          <div style="padding: 1rem 0; border-bottom: 1px solid var(--slate-800);">
+            <div style="display:flex; justify-content:space-between; gap: 1rem; align-items:baseline; flex-wrap:wrap;">
+              <strong style="color: var(--slate-200);">${who}</strong>
+              <span style="font-size: 0.85rem; color: var(--slate-500);">${when}${rating ? ` · <span class="badge badge-green">${escapeHtml(rating)}</span>` : ''}</span>
+            </div>
+            <p style="margin-top: 0.5rem; color: var(--slate-300);">${escapeHtml(f.feedback)}</p>
+          </div>`;
+      }).join('');
+    }
+
+    renderCoachFeedback(state.coachFeedback);
+    (async () => {
+      await TrainingLab.ready();
+      const fresh = TrainingLab.loadState();
+      renderCoachFeedback(fresh.coachFeedback);
     })();
 
     if (state.subscription === 'elite') {

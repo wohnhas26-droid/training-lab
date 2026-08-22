@@ -113,6 +113,41 @@ async function main() {
     });
   }
 
+  const today = new Date().toISOString().split('T')[0];
+  const fourDaysAgo = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  await prisma.coachFeedback.upsert({
+    where: { id: 'seed-fb-1' },
+    update: {
+      feedback: 'Great first touch this week. Work on scanning before you receive.',
+      rating: 8,
+      date: today,
+    },
+    create: {
+      id: 'seed-fb-1',
+      coachId: coach.id,
+      playerId: player.id,
+      feedback: 'Great first touch this week. Work on scanning before you receive.',
+      rating: 8,
+      date: today,
+    },
+  });
+  await prisma.coachFeedback.upsert({
+    where: { id: 'seed-fb-2' },
+    update: {
+      feedback: 'Passing weight is improving. Next session: weaker-foot wall work.',
+      rating: 7,
+      date: fourDaysAgo,
+    },
+    create: {
+      id: 'seed-fb-2',
+      coachId: coach.id,
+      playerId: player.id,
+      feedback: 'Passing weight is improving. Next session: weaker-foot wall work.',
+      rating: 7,
+      date: fourDaysAgo,
+    },
+  });
+
   // Historical completed sessions so parent monthly reports show real trends.
   const now = new Date();
   const monthDayISO = (monthsAgo, day) =>
