@@ -118,7 +118,10 @@
             }
           }
         }
-        await TrainingLab.checkAchievements(TrainingLab.loadState());
+        await         const unlocked = await TrainingLab.checkAchievements(TrainingLab.loadState());
+        if (unlocked.length) {
+          TrainingLab.showToast(`Achievement unlocked: ${unlocked[0].name}!`);
+        }
         renderChallenges();
       } catch (err) {
         TrainingLab.showToast(err.message || 'Could not update challenge');
