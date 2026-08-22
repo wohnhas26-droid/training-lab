@@ -102,14 +102,24 @@ async function main() {
   }
 
   const videoSubmissions = [
-    { id: 'seed-vid-1', skill: 'First Touch', status: 'pending' },
-    { id: 'seed-vid-2', skill: 'Finishing', status: 'reviewed' },
+    {
+      id: 'seed-vid-1',
+      skill: 'First Touch',
+      status: 'pending',
+      url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    },
+    {
+      id: 'seed-vid-2',
+      skill: 'Finishing',
+      status: 'reviewed',
+      url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+    },
   ];
   for (const v of videoSubmissions) {
     await prisma.videoSubmission.upsert({
       where: { id: v.id },
-      update: { skill: v.skill, status: v.status },
-      create: { id: v.id, playerId: player.id, skill: v.skill, status: v.status },
+      update: { skill: v.skill, status: v.status, url: v.url },
+      create: { id: v.id, playerId: player.id, skill: v.skill, status: v.status, url: v.url },
     });
   }
 
