@@ -79,7 +79,7 @@ export function buildTeamActivity({ sessions = [], videos = [], completions = []
       playerName,
       text: `${playerName} completed training`,
       at: toIso(at),
-      when: formatLastActive(dateKey(at), now),
+      when: formatLastActive(dateKey(s.date || at), now),
     });
   }
 

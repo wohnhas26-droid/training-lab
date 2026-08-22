@@ -59,7 +59,7 @@ test('activity only includes real sessions, videos, and assignment completions',
     sessions: [{
       id: 's1',
       userId: 'p1',
-      date: '2026-08-22',
+      date: '2026-08-19',
       createdAt: new Date('2026-08-22T12:00:00.000Z'),
       user: { id: 'p1', name: 'Alex Rivera' },
     }],
@@ -84,6 +84,7 @@ test('activity only includes real sessions, videos, and assignment completions',
   assert.match(items[0].text, /First Touch/);
   assert.equal(items[1].type, 'session');
   assert.match(items[1].text, /completed training/);
+  assert.equal(items[1].when, '3 days ago');
   assert.equal(items[2].type, 'assignment');
   assert.match(items[2].text, /Weaker-foot wall passing/);
   assert.deepEqual(buildTeamActivity({}, NOW), []);
