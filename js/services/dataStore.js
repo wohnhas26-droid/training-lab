@@ -212,11 +212,23 @@ export async function removeTeamPlayerRemote(userId) {
   return data.players || [];
 }
 
+export function emptyCoachTeamSnapshot() {
+  return {
+    players: [],
+    activity: [],
+    stats: { playerCount: 0, activeToday: 0, avgCompletion: 0, topStreak: 0 },
+  };
+}
+
 export async function getCoachTeamRemote() {
   if (isApiMode()) {
     try {
       const data = await api.getCoachTeam();
-      return data.players?.length ? data.players : null;
+      return {
+        players: Array.isArray(data.players) ? data.players : [],
+        activity: Array.isArray(data.activity) ? data.activity : [],
+        stats: data.stats || emptyCoachTeamSnapshot().stats,
+      };
     } catch {
       return null;
     }

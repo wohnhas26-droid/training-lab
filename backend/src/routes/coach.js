@@ -3,12 +3,48 @@ import { prisma, getUserState } from '../lib/prisma.js';
 import { authRequired, requireRole } from '../middleware/auth.js';
 import { monthlyReports } from '../services/reports.js';
 import { loadAssignmentViews } from '../services/assignments.js';
+import {
+  serializeTeamPlayer,
+  computeTeamStats,
+  buildTeamActivity,
+} from '../services/coachTeam.js';
 
 const router = Router();
 
 router.use(authRequired, requireRole('coach', 'admin'));
 
+async function loadTeamActivity(playerIds, now) {
+  if (!playerIds.length) return [];
+
+  const [sessions, videos, completions] = await Promise.all([
+    prisma.completedSession.findMany({
+      where: { userId: { in: playerIds } },
+      orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
+      take: 20,
+      include: { user: { select: { id: true, name: true } } },
+    }),
+    prisma.videoSubmission.findMany({
+      where: { playerId: { in: playerIds } },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+      include: { player: { select: { id: true, name: true } } },
+    }),
+    prisma.assignmentCompletion.findMany({
+      where: { playerId: { in: playerIds } },
+      orderBy: { completedAt: 'desc' },
+      take: 20,
+      include: {
+        player: { select: { id: true, name: true } },
+        assignment: { select: { title: true } },
+      },
+    }),
+  ]);
+
+  return buildTeamActivity({ sessions, videos, completions }, now).slice(0, 8);
+}
+
 async function getTeamWithRoster(coachId) {
+  const now = new Date();
   const team = await prisma.team.findFirst({
     where: { coachId },
     include: {
@@ -22,19 +58,16 @@ async function getTeamWithRoster(coachId) {
     },
   });
 
-  if (!team) return { team: null, players: [] };
+  if (!team) {
+    return { team: null, players: [], activity: [], stats: computeTeamStats([]) };
+  }
 
-  const players = team.members.map(m => ({
-    id: m.user.id,
-    name: m.user.name,
-    position: m.user.profile?.position || 'Player',
-    xp: m.user.progress?.xp || 0,
-    streak: m.user.progress?.streak || 0,
-    completion: Math.min(100, Math.round(((m.user.progress?.skillsCompleted || 0) / 50) * 100)),
-    lastActive: m.user.progress?.lastTrainingDate === new Date().toISOString().split('T')[0] ? 'Today' : 'Recently',
-  })).sort((a, b) => b.xp - a.xp);
+  const players = team.members
+    .map((m) => serializeTeamPlayer(m, now))
+    .sort((a, b) => b.xp - a.xp);
+  const activity = await loadTeamActivity(players.map((p) => p.id).filter(Boolean), now);
 
-  return { team, players };
+  return { team, players, activity, stats: computeTeamStats(players) };
 }
 
 async function playerOnCoachTeam(coachId, playerId) {

@@ -35,6 +35,9 @@ globalThis.fetch = async (url, opts = {}) => {
     if (u.includes('/coach/players/')) {
       return { user: { id: 'p-123', name: 'Alex Rivera' }, reports: [], videos: [] };
     }
+    if (u.endsWith('/coach/team')) {
+      return { players: [], activity: [], stats: { playerCount: 0, activeToday: 0, avgCompletion: 0, topStreak: 0 } };
+    }
     return {};
   };
   return { ok: true, status: 200, json };
@@ -82,4 +85,13 @@ test('online: getCoachPlayerRemote GETs the player report', async () => {
   assert.equal(detail.user.name, 'Alex Rivera');
   const get = calls.find((c) => c.url.includes('/coach/players/p-123') && c.method === 'GET');
   assert.ok(get, 'expected a GET to /coach/players/:id');
+});
+
+test('online: empty API roster stays empty (no invented teammates)', async () => {
+  const snap = await ds.getCoachTeamRemote();
+  assert.deepEqual(snap.players, []);
+  assert.deepEqual(snap.activity, []);
+  assert.equal(snap.stats.avgCompletion, 0);
+  const get = calls.find((c) => c.url.endsWith('/coach/team') && c.method === 'GET');
+  assert.ok(get, 'expected a GET to /coach/team');
 });

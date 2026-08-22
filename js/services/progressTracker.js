@@ -92,26 +92,6 @@ function getProgressSummaryFromState(state) {
 }
 
 export function getCoachTeamData() {
-  const demoPlayers = [
-    { id: 1, name: 'Alex Rivera', position: 'Midfielder', xp: 2450, streak: 12, completion: 92, lastActive: 'Today' },
-    { id: 2, name: 'Jordan Lee', position: 'Striker', xp: 1890, streak: 8, completion: 85, lastActive: 'Today' },
-    { id: 3, name: 'Sam Okonkwo', position: 'Defender', xp: 1200, streak: 5, completion: 78, lastActive: 'Yesterday' },
-    { id: 4, name: 'Casey Morgan', position: 'Winger', xp: 980, streak: 3, completion: 65, lastActive: '2 days ago' },
-    { id: 5, name: 'Taylor Kim', position: 'Goalkeeper', xp: 750, streak: 7, completion: 88, lastActive: 'Today' },
-  ];
-
-  const state = loadState();
-  if (state.user?.role === 'player') {
-    demoPlayers.unshift({
-      id: 0,
-      name: state.user.name,
-      position: state.profile?.position || 'Player',
-      xp: state.progress.xp,
-      streak: state.progress.streak,
-      completion: Math.min(100, Math.round((state.progress.skillsCompleted / 50) * 100)),
-      lastActive: 'Today',
-    });
-  }
-
-  return demoPlayers.sort((a, b) => b.xp - a.xp);
+  // Offline coaches have no server roster. Do not invent teammates.
+  return [];
 }

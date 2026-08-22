@@ -47,7 +47,13 @@
   </div>
 
   <script type="module">
-    import { renderNav, renderSidebar } from '/js/components/ui.js';
+    import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
+    import {
+      coachTeamStats,
+      renderCoachStats,
+      renderCoachLeaderboardRows,
+      renderCoachActivity,
+    } from '/js/components/coachDashboard.js';
     import '/js/app.js';
 
     TrainingLab.requireAuth('coach');
@@ -55,33 +61,13 @@
     document.getElementById('sidebar').innerHTML = renderSidebar('coach', 'dashboard');
 
     await TrainingLab.ready();
-    const players = await TrainingLab.getCoachTeamData();
-    const avgCompletion = Math.round(players.reduce((s, p) => s + p.completion, 0) / players.length);
-    const activeToday = players.filter(p => p.lastActive === 'Today').length;
+    const snapshot = await TrainingLab.getCoachTeam();
+    const players = snapshot.players || [];
+    const stats = coachTeamStats(players, snapshot.stats);
 
-    document.getElementById('coach-stats').innerHTML = `
-      <div class="stat-card"><div class="stat-value">${players.length}</div><div class="stat-label">Players</div></div>
-      <div class="stat-card"><div class="stat-value">${activeToday}</div><div class="stat-label">Active Today</div></div>
-      <div class="stat-card"><div class="stat-value">${avgCompletion}%</div><div class="stat-label">Avg Completion</div></div>
-      <div class="stat-card"><div class="stat-value">${players[0]?.streak || 0}</div><div class="stat-label">Top Streak</div></div>
-    `;
-
-    document.querySelector('#leaderboard-table tbody').innerHTML = players.slice(0, 5).map((p, i) => `
-      <tr>
-        <td><span class="leaderboard-rank rank-${i < 3 ? i + 1 : 'other'}">${i + 1}</span></td>
-        <td><strong>${p.name}</strong><br><span style="font-size: 0.8rem; color: var(--slate-500);">${p.position}</span></td>
-        <td>${p.xp.toLocaleString()}</td>
-        <td>${p.streak} days</td>
-        <td>${p.completion}%</td>
-      </tr>
-    `).join('');
-
-    document.getElementById('recent-activity').innerHTML = players.slice(0, 4).map(p => `
-      <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--slate-800);">
-        <span>${p.name} completed training</span>
-        <span style="color: var(--slate-500); font-size: 0.85rem;">${p.lastActive}</span>
-      </div>
-    `).join('');
+    document.getElementById('coach-stats').innerHTML = renderCoachStats(stats);
+    document.querySelector('#leaderboard-table tbody').innerHTML = renderCoachLeaderboardRows(players, { escapeHtml });
+    document.getElementById('recent-activity').innerHTML = renderCoachActivity(snapshot.activity, { escapeHtml });
   </script>
 </body>
 </html>
