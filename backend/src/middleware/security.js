@@ -51,6 +51,9 @@ export function helmetOptions({ nodeEnv = config.nodeEnv } = {}) {
         upgradeInsecureRequests: nodeEnv === 'production' ? [] : null,
       },
     },
+    // API is consumed cross-origin by the local frontend (port 8080) and the
+    // Capacitor webview (capacitor://localhost). CORS still gates who can call us.
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
     crossOriginEmbedderPolicy: false,
     frameguard: { action: 'deny' },
     referrerPolicy: { policy: 'strict-origin-when-cross-origin' },

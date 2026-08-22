@@ -47,6 +47,7 @@ test('rate limit defaults are generous for the SPA and strict for auth', () => {
 test('helmet production options enable HSTS, deny framing, and allow inline UI', () => {
   const opts = helmetOptions({ nodeEnv: 'production' });
   assert.equal(opts.crossOriginEmbedderPolicy, false);
+  assert.deepEqual(opts.crossOriginResourcePolicy, { policy: 'cross-origin' });
   assert.deepEqual(opts.frameguard, { action: 'deny' });
   assert.equal(opts.hsts.maxAge, 31536000);
   assert.ok(opts.contentSecurityPolicy.directives.scriptSrc.includes("'unsafe-inline'"));
@@ -82,6 +83,7 @@ test('helmet sets security headers and hides X-Powered-By', async () => {
     assert.equal(res.headers.get('x-powered-by'), null);
     assert.equal(res.headers.get('x-content-type-options'), 'nosniff');
     assert.equal(res.headers.get('x-frame-options'), 'DENY');
+    assert.equal(res.headers.get('cross-origin-resource-policy'), 'cross-origin');
     assert.equal(res.headers.get('referrer-policy'), 'strict-origin-when-cross-origin');
     const csp = res.headers.get('content-security-policy') || '';
     assert.match(csp, /default-src 'self'/);
