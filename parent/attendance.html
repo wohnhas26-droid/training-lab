@@ -13,15 +13,14 @@
     <main class="main-content">
       <div class="page-header">
         <h1>Training Attendance</h1>
-        <p>Track which days your player completed training</p>
+        <p id="page-subtitle">Track which days your player completed training</p>
       </div>
-      <div class="card">
-        <div class="grid grid-4" id="attendance-grid"></div>
-      </div>
+      <div id="attendance-content"></div>
     </main>
   </div>
   <script type="module">
-    import { renderNav, renderSidebar } from '/js/components/ui.js';
+    import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
+    import { bindLinkPlayerForm, renderLinkPlayerCard } from '/js/components/parentChild.js';
     import '/js/app.js';
 
     TrainingLab.requireAuth('parent');
@@ -30,10 +29,9 @@
 
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-    // Dates (YYYY-MM-DD) for the current week, Monday→Sunday.
     function currentWeekDates() {
       const now = new Date();
-      const dow = (now.getDay() + 6) % 7; // 0 = Monday
+      const dow = (now.getDay() + 6) % 7;
       const monday = new Date(now);
       monday.setDate(now.getDate() - dow);
       return days.map((_, i) => {
@@ -43,29 +41,50 @@
       });
     }
 
-    await TrainingLab.ready();
-    const current = TrainingLab.loadState();
-    const child = current.children?.[0];
-    const childReport = child ? await TrainingLab.getChildReport(child.id).catch(() => null) : null;
-
-    let attended;
-    if (childReport) {
-      const sessionDates = new Set((childReport.player.completedSessions || []).map(s => s.date));
-      attended = currentWeekDates().map(date => sessionDates.has(date));
-    } else {
-      attended = [true, true, false, true, true, false, false];
+    function renderEmpty() {
+      document.getElementById('page-subtitle').textContent = 'Link a player to see real attendance — we never invent checkmarks.';
+      document.getElementById('attendance-content').innerHTML = renderLinkPlayerCard({ escapeHtml });
+      bindLinkPlayerForm({ onLinked: () => load() });
     }
 
-    document.getElementById('attendance-grid').innerHTML = days.map((d, i) => `
-      <div style="text-align: center; padding: 1rem;">
-        <div style="width: 48px; height: 48px; border-radius: 50%; margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
-          background: ${attended[i] ? 'rgba(16,185,129,0.2)' : 'var(--slate-800)'};
-          border: 2px solid ${attended[i] ? 'var(--green-500)' : 'var(--slate-700)'};">
-          ${attended[i] ? '✓' : '—'}
-        </div>
-        <div style="font-weight: 600;">${d}</div>
-      </div>
-    `).join('');
+    function renderWeek(child, attended) {
+      document.getElementById('page-subtitle').textContent = `This week for ${child.name}`;
+      document.getElementById('attendance-content').innerHTML = `
+        <div class="card">
+          <div class="grid grid-4" id="attendance-grid">
+            ${days.map((d, i) => `
+              <div style="text-align: center; padding: 1rem;">
+                <div style="width: 48px; height: 48px; border-radius: 50%; margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
+                  background: ${attended[i] ? 'rgba(16,185,129,0.2)' : 'var(--slate-800)'};
+                  border: 2px solid ${attended[i] ? 'var(--green-500)' : 'var(--slate-700)'};">
+                  ${attended[i] ? '✓' : '—'}
+                </div>
+                <div style="font-weight: 600;">${d}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+    }
+
+    async function load() {
+      await TrainingLab.ready();
+      const current = TrainingLab.loadState();
+      const child = current.children?.[0];
+      if (!child) {
+        renderEmpty();
+        return;
+      }
+      const childReport = await TrainingLab.getChildReport(child.id).catch(() => null);
+      if (!childReport) {
+        document.getElementById('page-subtitle').textContent = `Could not load ${child.name}'s attendance.`;
+        document.getElementById('attendance-content').innerHTML = '<div class="card"><p style="color: var(--slate-500);">Try again in a moment.</p></div>';
+        return;
+      }
+      const sessionDates = new Set((childReport.player.completedSessions || []).map(s => s.date));
+      renderWeek(child, currentWeekDates().map(date => sessionDates.has(date)));
+    }
+
+    load();
   </script>
 </body>
 </html>
