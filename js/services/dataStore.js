@@ -169,14 +169,31 @@ export async function updateProfileRemote(profile) {
   return local.loadState();
 }
 
-export async function regeneratePlanRemote(profile) {
+export async function regeneratePlanRemote() {
   if (isApiMode()) {
     const plan = await api.regeneratePlan();
-    cachedState = { ...cachedState, weeklyPlan: plan };
+    cachedState = { ...(cachedState || local.loadState()), weeklyPlan: plan };
     local.saveWeeklyPlan(plan);
     return plan;
   }
-  return null;
+  const { generatePersonalizedPlan } = await import('../services/trainingPlanner.js');
+  const state = local.loadState();
+  const plan = generatePersonalizedPlan(state.profile || {});
+  local.saveWeeklyPlan(plan);
+  cachedState = { ...state, weeklyPlan: plan };
+  return plan;
+}
+
+export async function getTodayTrainingRemote() {
+  if (isApiMode()) {
+    try {
+      return await api.getTodayTraining();
+    } catch {
+      // Fall through to the cached weekly plan.
+    }
+  }
+  const { getTodaySession } = await import('../services/trainingPlanner.js');
+  return getTodaySession((cachedState || local.loadState()).weeklyPlan);
 }
 
 export async function addTeamPlayerRemote(email) {

@@ -48,6 +48,7 @@
     import '/js/app.js';
     import { getDayName } from '/js/services/storage.js';
     import { WEEKLY_SCHEDULE } from '/js/data/exercises.js';
+    import { daysFromWeeklyPlan } from '/js/utils/weeklySchedule.js';
 
     const state = TrainingLab.requireAuth('player');
     if (!state) throw new Error('Auth required');
@@ -57,11 +58,7 @@
     document.getElementById('user-name').textContent = state.user.name.split(' ')[0];
 
     const summary = TrainingLab.getProgressSummary();
-    const session = TrainingLab.getTodaySession(state.weeklyPlan);
     const today = getDayName();
-
-    document.getElementById('today-focus').textContent =
-      session.focus ? `Today: ${session.focus.join(' · ')}` : 'Rest day — focus on recovery';
 
     document.getElementById('stats-grid').innerHTML = `
       <div class="stat-card"><div class="stat-value">${summary.streak}</div><div class="stat-label">Day Streak</div></div>
@@ -69,13 +66,6 @@
       <div class="stat-card"><div class="stat-value">${summary.minutesTrained}</div><div class="stat-label">Minutes Trained</div></div>
       <div class="stat-card"><div class="stat-value">${summary.achievementsUnlocked}/${summary.totalAchievements}</div><div class="stat-label">Achievements</div></div>
     `;
-
-    const exercises = session.exercises || [];
-    document.getElementById('today-session').innerHTML = exercises.length
-      ? `<p style="color: var(--slate-400); margin-bottom: 0.75rem;">${exercises.length} exercises · ~${session.estimatedMinutes || 0} min</p>` +
-        exercises.slice(0, 3).map(e => `<div style="padding: 0.5rem 0; border-bottom: 1px solid var(--slate-800);">${e.name}</div>`).join('') +
-        (exercises.length > 3 ? `<p style="color: var(--slate-500); margin-top: 0.5rem; font-size: 0.85rem;">+${exercises.length - 3} more</p>` : '')
-      : '<p style="color: var(--slate-400);">Rest and recovery day. Light mobility work recommended.</p>';
 
     document.getElementById('level-info').innerHTML = `
       <div class="level-badge" style="margin-bottom: 1rem;">${summary.level.icon} ${summary.level.name}</div>
@@ -85,12 +75,38 @@
       </p>
     `;
 
-    document.getElementById('weekly-schedule').innerHTML = Object.entries(WEEKLY_SCHEDULE).map(([day, sched]) => `
-      <div class="day-card ${day === today ? 'today' : ''}">
-        <div class="day-name">${day.charAt(0).toUpperCase() + day.slice(1)}</div>
-        <div class="day-focus">${sched.focus.slice(0, 2).join(', ')}</div>
-      </div>
-    `).join('');
+    function renderSession(session) {
+      document.getElementById('today-focus').textContent =
+        session.rest || !session.focus?.length
+          ? 'Rest day — focus on recovery'
+          : `Today: ${session.focus.join(' · ')}`;
+
+      const exercises = session.exercises || [];
+      document.getElementById('today-session').innerHTML = exercises.length
+        ? `<p style="color: var(--slate-400); margin-bottom: 0.75rem;">${exercises.length} exercises · ~${session.estimatedMinutes || 0} min</p>` +
+          exercises.slice(0, 3).map(e => `<div style="padding: 0.5rem 0; border-bottom: 1px solid var(--slate-800);">${escapeHtml(e.name)}</div>`).join('') +
+          (exercises.length > 3 ? `<p style="color: var(--slate-500); margin-top: 0.5rem; font-size: 0.85rem;">+${exercises.length - 3} more</p>` : '')
+        : '<p style="color: var(--slate-400);">Rest and recovery day. Light mobility work recommended.</p>';
+    }
+
+    function renderWeek(weeklyPlan) {
+      const days = daysFromWeeklyPlan(weeklyPlan, WEEKLY_SCHEDULE);
+      document.getElementById('weekly-schedule').innerHTML = days.map(({ day, rest, focus }) => `
+        <div class="day-card ${day === today ? 'today' : ''}">
+          <div class="day-name">${day.charAt(0).toUpperCase() + day.slice(1)}</div>
+          <div class="day-focus">${escapeHtml(rest ? 'Rest' : focus.slice(0, 2).join(', ') || '—')}</div>
+        </div>
+      `).join('');
+    }
+
+    renderSession(TrainingLab.getTodaySession(state.weeklyPlan));
+    renderWeek(state.weeklyPlan);
+
+    await TrainingLab.ready();
+    const current = TrainingLab.loadState();
+    const session = await TrainingLab.getTodayTraining();
+    renderSession(session);
+    renderWeek(current.weeklyPlan);
 
     const assignmentList = document.getElementById('assignments-list');
 

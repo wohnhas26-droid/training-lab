@@ -50,9 +50,11 @@
     document.getElementById('nav').innerHTML = renderNav();
     document.getElementById('sidebar').innerHTML = renderSidebar('player', 'training');
 
-    const session = TrainingLab.getTodaySession(state.weeklyPlan);
+    await TrainingLab.ready();
+    const current = TrainingLab.loadState();
+    const session = await TrainingLab.getTodayTraining();
     const completed = new Set(
-      state.completedSessions
+      (current.completedSessions || [])
         .filter(s => s.date === new Date().toISOString().split('T')[0])
         .flatMap(s => s.exercises)
     );
@@ -63,9 +65,9 @@
     let timerInterval = null;
 
     document.getElementById('session-meta').textContent =
-      session.focus
-        ? `${session.focus.join(' · ')} — ~${session.estimatedMinutes || 0} minutes`
-        : 'Recovery day';
+      session.rest || !session.focus?.length
+        ? 'Recovery day'
+        : `${session.focus.join(' · ')} — ~${session.estimatedMinutes || 0} minutes`;
 
     function updateProgress() {
       const pct = totalExercises ? Math.round((doneCount / totalExercises) * 100) : 0;
@@ -93,9 +95,9 @@
           <div class="exercise-item ${isDone ? 'completed' : ''}" data-id="${ex.id}" data-xp="${ex.xp}" data-duration="${ex.duration}">
             <div class="exercise-check">${isDone ? '✓' : ''}</div>
             <div class="exercise-info">
-              <div class="exercise-name">${i + 1}. ${ex.name}</div>
-              <div class="exercise-meta">${getCategoryName(ex.category)} · ${ex.reps} · ${ex.duration} min · +${ex.xp} XP ${difficultyBadge(ex.difficulty)}</div>
-              <p style="font-size: 0.85rem; color: var(--slate-500); margin-top: 0.25rem;">${ex.description}</p>
+              <div class="exercise-name">${i + 1}. ${escapeHtml(ex.name)}</div>
+              <div class="exercise-meta">${escapeHtml(getCategoryName(ex.category))} · ${escapeHtml(ex.reps)} · ${ex.duration} min · +${ex.xp} XP ${difficultyBadge(ex.difficulty)}</div>
+              <p style="font-size: 0.85rem; color: var(--slate-500); margin-top: 0.25rem;">${escapeHtml(ex.description)}</p>
             </div>
           </div>
         `;
