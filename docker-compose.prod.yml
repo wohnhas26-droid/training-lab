@@ -1,4 +1,19 @@
 services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=trainlab
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-change-me-in-production}
+      - POSTGRES_DB=trainlab
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trainlab -d trainlab"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   api:
     build:
       context: ./backend
@@ -8,10 +23,12 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_URL=file:/data/prod.db
+      - DATABASE_URL=postgresql://trainlab:${POSTGRES_PASSWORD:-change-me-in-production}@db:5432/trainlab
       - NODE_ENV=production
-    volumes:
-      - api-data:/data
+      - JWT_SECRET=${JWT_SECRET:?set JWT_SECRET in .env}
+    depends_on:
+      db:
+        condition: service_healthy
     restart: unless-stopped
 
   frontend:
@@ -26,4 +43,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  api-data:
+  pg-data:
