@@ -395,6 +395,24 @@ function loadLocalVideos() {
   }
 }
 
+export async function getCatalogRemote() {
+  if (isApiMode()) {
+    try {
+      const [exercises, categories] = await Promise.all([
+        api.getExercises(),
+        api.getCategories(),
+      ]);
+      return {
+        exercises: Array.isArray(exercises) ? exercises : [],
+        categories,
+      };
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 export async function getMyVideosRemote() {
   if (isApiMode()) {
     try {

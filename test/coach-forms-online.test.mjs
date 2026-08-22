@@ -38,6 +38,12 @@ globalThis.fetch = async (url, opts = {}) => {
     if (u.endsWith('/coach/team')) {
       return { players: [], activity: [], stats: { playerCount: 0, activeToday: 0, avgCompletion: 0, topStreak: 0 } };
     }
+    if (u.endsWith('/catalog/exercises')) {
+      return [{ id: 'bm_toe_taps', name: 'Toe Taps', category: 'ball_mastery' }];
+    }
+    if (u.endsWith('/catalog/categories')) {
+      return { ball_mastery: { id: 'ball_mastery', name: 'Ball Mastery' } };
+    }
     return {};
   };
   return { ok: true, status: 200, json };
@@ -94,4 +100,12 @@ test('online: empty API roster stays empty (no invented teammates)', async () =>
   assert.equal(snap.stats.avgCompletion, 0);
   const get = calls.find((c) => c.url.endsWith('/coach/team') && c.method === 'GET');
   assert.ok(get, 'expected a GET to /coach/team');
+});
+
+test('online: getCatalogRemote loads exercises and categories from the API', async () => {
+  const catalog = await ds.getCatalogRemote();
+  assert.equal(catalog.exercises[0].id, 'bm_toe_taps');
+  assert.equal(catalog.categories.ball_mastery.name, 'Ball Mastery');
+  assert.ok(calls.find((c) => c.url.endsWith('/catalog/exercises')));
+  assert.ok(calls.find((c) => c.url.endsWith('/catalog/categories')));
 });

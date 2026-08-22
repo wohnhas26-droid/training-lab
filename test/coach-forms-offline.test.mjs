@@ -61,3 +61,8 @@ test('offline: getCoachPlayerRemote requires the API', async () => {
     /internet connection/,
   );
 });
+
+test('offline: getCatalogRemote returns null so the page can use the bundled catalog', async () => {
+  const catalog = await ds.getCatalogRemote();
+  assert.equal(catalog, null);
+});
