@@ -22,6 +22,42 @@
       </div>
 
       <div class="card" style="margin-top: 1.5rem;">
+        <h3 class="card-title">Edit Profile</h3>
+        <p class="card-subtitle" style="margin: 0.5rem 0 1rem;">Update your details — this shapes your personalized plan.</p>
+        <form id="profile-form" style="display: grid; gap: 0.75rem; max-width: 640px;">
+          <div class="grid grid-2" style="gap: 0.75rem;">
+            <div class="form-group"><label class="form-label">Age</label><input type="number" class="form-input" name="age" min="6" max="99"></div>
+            <div class="form-group"><label class="form-label">Position</label>
+              <select class="form-select" name="position">
+                <option value="goalkeeper">Goalkeeper</option>
+                <option value="defender">Defender</option>
+                <option value="midfielder">Midfielder</option>
+                <option value="winger">Winger</option>
+                <option value="striker">Striker</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Skill Level</label>
+              <select class="form-select" name="skillLevel">
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+                <option value="elite">Elite</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Training Days / week</label>
+              <select class="form-select" name="trainingDays">
+                <option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group"><label class="form-label">Goals (comma-separated)</label><input type="text" class="form-input" name="goals" placeholder="passing, first touch"></div>
+          <div class="form-group"><label class="form-label">Improvement Areas (comma-separated)</label><input type="text" class="form-input" name="improvementAreas" placeholder="ball_mastery, passing"></div>
+          <div class="form-group"><label class="form-label">Equipment (comma-separated)</label><input type="text" class="form-input" name="equipment" placeholder="ball, cones, wall"></div>
+          <button type="submit" class="btn btn-primary" style="justify-self: start;">Save Profile</button>
+        </form>
+      </div>
+
+      <div class="card" style="margin-top: 1.5rem;">
         <h3 class="card-title">Regenerate Training Plan</h3>
         <p class="card-subtitle" style="margin: 0.5rem 0 1rem;">Update your profile and rebuild your 4-week AI development plan.</p>
         <button class="btn btn-primary" id="regenerate-btn">Regenerate Plan</button>
@@ -41,7 +77,7 @@
     document.getElementById('nav').innerHTML = renderNav();
     document.getElementById('sidebar').innerHTML = renderSidebar('player', 'profile');
 
-    const profile = state.profile || {};
+    let profile = state.profile || {};
     const planNames = {
       player: 'Player Membership',
       elite: 'Elite Membership',
@@ -59,7 +95,8 @@
       return `<span class="badge ${cls}">${label}</span>`;
     }
 
-    document.getElementById('profile-info').innerHTML = `
+    function renderProfileInfo() {
+      document.getElementById('profile-info').innerHTML = `
       <h3 class="card-title">${state.user.name}</h3>
       <p class="card-subtitle" style="margin-bottom: 1rem;">${state.user.email}</p>
       <div style="display: grid; gap: 0.75rem;">
@@ -71,6 +108,50 @@
         <div><span style="color: var(--slate-500);">Equipment:</span> ${(profile.equipment || []).join(', ') || '—'}</div>
       </div>
     `;
+    }
+    renderProfileInfo();
+
+    // Prefill and wire the edit form.
+    const toCsv = (arr) => (Array.isArray(arr) ? arr.join(', ') : (arr || ''));
+    const csvToArr = (s) => String(s || '').split(',').map(x => x.trim()).filter(Boolean);
+    function pform() { return document.getElementById('profile-form'); }
+    function pform_prefill() {
+      pform().age.value = profile.age || '';
+      pform().position.value = profile.position || 'midfielder';
+      pform().skillLevel.value = profile.skillLevel || 'intermediate';
+      pform().trainingDays.value = String(profile.trainingDays || 5);
+      pform().goals.value = toCsv(profile.goals);
+      pform().improvementAreas.value = toCsv(profile.improvementAreas);
+      pform().equipment.value = toCsv(profile.equipment);
+    }
+    pform_prefill();
+
+    pform().addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const btn = e.target.querySelector('button[type="submit"]');
+      if (btn) btn.disabled = true;
+      try {
+        await TrainingLab.ready();
+        const updated = await TrainingLab.updateProfile({
+          age: parseInt(fd.get('age'), 10) || undefined,
+          position: fd.get('position'),
+          skillLevel: fd.get('skillLevel'),
+          trainingDays: parseInt(fd.get('trainingDays'), 10) || 5,
+          goals: csvToArr(fd.get('goals')),
+          improvementAreas: csvToArr(fd.get('improvementAreas')),
+          equipment: csvToArr(fd.get('equipment')),
+        });
+        profile = (updated && updated.profile) ? updated.profile : profile;
+        renderProfileInfo();
+        pform_prefill();
+        TrainingLab.showToast('Profile updated!');
+      } catch (err) {
+        TrainingLab.showToast(err.message || 'Could not update profile');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    });
 
     async function renderSubscription() {
       await TrainingLab.ready();
