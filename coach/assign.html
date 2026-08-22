@@ -48,7 +48,8 @@
   </div>
 
   <script type="module">
-    import { renderNav, renderSidebar, getCategoryName } from '/js/components/ui.js';
+    import { renderNav, renderSidebar, getCategoryName, escapeHtml } from '/js/components/ui.js';
+    import { renderCoachAssignmentList } from '/js/components/assignments.js';
     import '/js/app.js';
     import { TRAINING_CATEGORIES } from '/js/data/exercises.js';
 
@@ -71,16 +72,11 @@
     }
 
     function renderAssignments() {
-      document.getElementById('assignments-list').innerHTML = assignments.length
-        ? assignments.map(a => `
-            <div style="padding: 1rem; background: var(--slate-800); border-radius: 8px; margin-bottom: 0.75rem;">
-              <strong>${a.title}</strong>
-              <p style="font-size: 0.85rem; color: var(--slate-400); margin-top: 0.25rem;">
-                ${getCategoryName(a.category)} · Due ${a.dueDate} · Assigned to ${assignToLabel(a.assignTo)}
-              </p>
-            </div>
-          `).join('')
-        : '<p style="color: var(--slate-500);">No assignments yet.</p>';
+      document.getElementById('assignments-list').innerHTML = renderCoachAssignmentList(assignments, {
+        getCategoryName,
+        escapeHtml,
+        assignToLabel,
+      });
     }
 
     document.getElementById('assign-form').addEventListener('submit', async (e) => {

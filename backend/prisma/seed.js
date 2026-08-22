@@ -185,6 +185,28 @@ async function main() {
     });
   }
 
+  const due = new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0];
+  await prisma.assignment.upsert({
+    where: { id: 'seed-assign-1' },
+    update: {
+      title: 'Weaker-foot wall passing',
+      category: 'passing',
+      dueDate: due,
+      notes: '3x15 with your non-dominant foot. Film one set if you can.',
+      assignTo: 'all',
+    },
+    create: {
+      id: 'seed-assign-1',
+      teamId: team.id,
+      coachId: coach.id,
+      title: 'Weaker-foot wall passing',
+      category: 'passing',
+      dueDate: due,
+      notes: '3x15 with your non-dominant foot. Film one set if you can.',
+      assignTo: 'all',
+    },
+  });
+
   await prisma.challengeEnrollment.upsert({
     where: { userId_challengeId: { userId: player.id, challengeId: 'weak_foot' } },
     update: { progress: 12, completed: false },

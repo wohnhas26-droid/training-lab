@@ -73,6 +73,8 @@ export const api = {
   removeTeamPlayer: (userId) => request(`/coach/team/players/${encodeURIComponent(userId)}`, { method: 'DELETE' }),
   createAssignment: (body) => request('/coach/assignments', { method: 'POST', body: JSON.stringify(body) }),
   getAssignments: () => request('/coach/assignments'),
+  getMyAssignments: () => request('/training/assignments'),
+  completeAssignment: (id) => request(`/training/assignments/${encodeURIComponent(id)}/complete`, { method: 'POST' }),
   submitFeedback: (body) => request('/coach/feedback', { method: 'POST', body: JSON.stringify(body) }),
   getCoachVideos: () => request('/coach/videos'),
 

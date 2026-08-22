@@ -30,6 +30,11 @@
         </div>
       </div>
 
+      <div class="card" style="margin-bottom: 2rem;">
+        <h3 class="card-title">Coach Assignments</h3>
+        <div id="assignments-list" style="margin-top: 1rem;"></div>
+      </div>
+
       <div class="card">
         <h3 class="card-title">Weekly Schedule</h3>
         <div class="grid grid-4" id="weekly-schedule" style="margin-top: 1rem;"></div>
@@ -38,7 +43,8 @@
   </div>
 
   <script type="module">
-    import { renderNav, renderSidebar, getCategoryName } from '/js/components/ui.js';
+    import { renderNav, renderSidebar, getCategoryName, escapeHtml } from '/js/components/ui.js';
+    import { renderPlayerAssignmentList } from '/js/components/assignments.js';
     import '/js/app.js';
     import { getDayName } from '/js/services/storage.js';
     import { WEEKLY_SCHEDULE } from '/js/data/exercises.js';
@@ -85,6 +91,30 @@
         <div class="day-focus">${sched.focus.slice(0, 2).join(', ')}</div>
       </div>
     `).join('');
+
+    const assignmentList = document.getElementById('assignments-list');
+
+    async function loadAssignments() {
+      await TrainingLab.ready();
+      const items = await TrainingLab.getMyAssignments();
+      assignmentList.innerHTML = renderPlayerAssignmentList(items, { getCategoryName, escapeHtml });
+    }
+
+    assignmentList.addEventListener('click', async (e) => {
+      const btn = e.target.closest('.assignment-complete');
+      if (!btn) return;
+      btn.disabled = true;
+      try {
+        await TrainingLab.completeAssignment(btn.dataset.id);
+        TrainingLab.showToast('Assignment complete!');
+        await loadAssignments();
+      } catch (err) {
+        TrainingLab.showToast(err.message || 'Could not complete assignment');
+        btn.disabled = false;
+      }
+    });
+
+    loadAssignments();
   </script>
 </body>
 </html>

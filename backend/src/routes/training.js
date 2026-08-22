@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { prisma, getUserState, toJson, parseJson } from '../lib/prisma.js';
 import { authRequired } from '../middleware/auth.js';
 import { generatePersonalizedPlan, getTodaySession, generateEvaluation } from '../services/trainingPlanner.js';
+import { loadAssignmentViews, playerCanSeeAssignment } from '../services/assignments.js';
 
 const router = Router();
 
@@ -115,6 +116,47 @@ router.put('/profile', authRequired, async (req, res) => {
 
   const state = await getUserState(req.userId);
   res.json(state);
+});
+
+router.get('/assignments', authRequired, async (req, res) => {
+  const memberships = await prisma.teamMember.findMany({
+    where: { userId: req.userId },
+    select: { teamId: true },
+  });
+  const teamIds = memberships.map((m) => m.teamId);
+  if (!teamIds.length) return res.json([]);
+
+  const assignments = await prisma.assignment.findMany({
+    where: {
+      teamId: { in: teamIds },
+      OR: [{ assignTo: 'all' }, { assignTo: req.userId }],
+    },
+    orderBy: [{ dueDate: 'asc' }, { createdAt: 'desc' }],
+  });
+
+  res.json(await loadAssignmentViews(prisma, assignments, { playerId: req.userId }));
+});
+
+router.post('/assignments/:id/complete', authRequired, async (req, res) => {
+  const assignment = await prisma.assignment.findUnique({ where: { id: req.params.id } });
+  if (!assignment) return res.status(404).json({ error: 'Assignment not found' });
+
+  const onTeam = await prisma.teamMember.findFirst({
+    where: { teamId: assignment.teamId, userId: req.userId },
+    select: { id: true },
+  });
+  if (!onTeam || !playerCanSeeAssignment(assignment.assignTo, req.userId)) {
+    return res.status(404).json({ error: 'Assignment not found' });
+  }
+
+  await prisma.assignmentCompletion.upsert({
+    where: { assignmentId_playerId: { assignmentId: assignment.id, playerId: req.userId } },
+    create: { assignmentId: assignment.id, playerId: req.userId },
+    update: {},
+  });
+
+  const [view] = await loadAssignmentViews(prisma, [assignment], { playerId: req.userId });
+  res.json(view);
 });
 
 router.get('/evaluation', authRequired, async (req, res) => {
