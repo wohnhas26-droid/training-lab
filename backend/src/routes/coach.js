@@ -147,10 +147,13 @@ router.get('/assignments', async (req, res) => {
 });
 
 router.post('/feedback', async (req, res) => {
-  const { playerId, feedback, rating } = req.body;
+  const { playerId, feedback, rating, videoId } = req.body;
   if (!playerId || !feedback) {
     return res.status(400).json({ error: 'Player and feedback required' });
   }
+
+  const onTeam = await playerOnCoachTeam(req.userId, playerId);
+  if (!onTeam) return res.status(404).json({ error: 'Player not on your team' });
 
   const entry = await prisma.coachFeedback.create({
     data: {
@@ -161,6 +164,13 @@ router.post('/feedback', async (req, res) => {
       date: new Date().toISOString().split('T')[0],
     },
   });
+
+  if (videoId) {
+    await prisma.videoSubmission.updateMany({
+      where: { id: String(videoId), playerId },
+      data: { status: 'reviewed' },
+    });
+  }
 
   res.status(201).json(entry);
 });

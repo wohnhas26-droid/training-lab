@@ -66,13 +66,14 @@ test('online: getAssignmentsRemote GETs from the API', async () => {
 });
 
 test('online: submitFeedbackRemote POSTs playerId to the API (no local write)', async () => {
-  await ds.submitFeedbackRemote({ playerId: 'p-123', playerName: 'Alex', feedback: 'Nice', rating: 9 });
+  await ds.submitFeedbackRemote({ playerId: 'p-123', playerName: 'Alex', feedback: 'Nice', rating: 9, videoId: 'vid-1' });
   const post = calls.find((c) => c.url.endsWith('/coach/feedback') && c.method === 'POST');
   assert.ok(post, 'expected a POST to /coach/feedback');
   const sent = JSON.parse(post.body);
   assert.equal(sent.playerId, 'p-123');
   assert.equal(sent.rating, 9);
   assert.equal(sent.feedback, 'Nice');
+  assert.equal(sent.videoId, 'vid-1');
   assert.equal(localStorage.getItem('training_lab_app'), null);
 });
 

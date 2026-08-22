@@ -53,6 +53,8 @@ test('helmet production options enable HSTS, deny framing, and allow inline UI',
   assert.ok(opts.contentSecurityPolicy.directives.scriptSrc.includes("'unsafe-inline'"));
   assert.ok(opts.contentSecurityPolicy.directives.styleSrc.includes("'unsafe-inline'"));
   assert.deepEqual(opts.contentSecurityPolicy.directives.objectSrc, ["'none'"]);
+  assert.ok(opts.contentSecurityPolicy.directives.frameSrc.includes('https://www.youtube-nocookie.com'));
+  assert.ok(opts.contentSecurityPolicy.directives.mediaSrc.includes('https:'));
   assert.deepEqual(opts.contentSecurityPolicy.directives.upgradeInsecureRequests, []);
 });
 

@@ -224,16 +224,16 @@ export async function createAssignmentRemote({ title, category, dueDate, notes, 
   return entry;
 }
 
-export async function submitFeedbackRemote({ playerId, playerName, feedback, rating }) {
+export async function submitFeedbackRemote({ playerId, playerName, feedback, rating, videoId }) {
   if (isApiMode()) {
-    return api.submitFeedback({ playerId, feedback, rating });
+    return api.submitFeedback({ playerId, feedback, rating, videoId });
   }
   return local.addCoachFeedback({ player: playerName || playerId, feedback, rating });
 }
 
 const DEMO_VIDEOS = [
-  { id: 'demo-1', playerName: 'Alex Rivera', skill: 'First Touch', status: 'pending', createdAt: null },
-  { id: 'demo-2', playerName: 'Jordan Lee', skill: 'Finishing', status: 'pending', createdAt: null },
+  { id: 'demo-1', playerId: 1, playerName: 'Alex Rivera', skill: 'First Touch', status: 'pending', createdAt: null, url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' },
+  { id: 'demo-2', playerId: 2, playerName: 'Jordan Lee', skill: 'Finishing', status: 'pending', createdAt: null, url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4' },
   { id: 'demo-3', playerName: 'Taylor Kim', skill: 'Distribution', status: 'reviewed', createdAt: null },
 ];
 
