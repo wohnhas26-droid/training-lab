@@ -132,5 +132,7 @@ docker compose -f docker-compose.prod.yml up -d --build
 | `"stripe": false` in health | Check `STRIPE_SECRET_KEY` and price IDs in env |
 | Webhooks not syncing | Verify `STRIPE_WEBHOOK_SECRET` and endpoint URL |
 | CORS errors | Set `FRONTEND_URL` to exact domain (with https) |
+| 429 on login | Auth is limited to 10 attempts / 15 min per IP; wait or raise `RATE_LIMIT_AUTH_MAX` |
+| Rate limits hit every user | Production sets `trust proxy`; do not disable it behind Railway/nginx |
 
 See also: [docs/WEBHOOKS.md](WEBHOOKS.md) · [docs/STRIPE.md](STRIPE.md)
