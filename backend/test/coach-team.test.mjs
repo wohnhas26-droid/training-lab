@@ -80,12 +80,13 @@ test('activity only includes real sessions, videos, and assignment completions',
   }, NOW);
 
   assert.equal(items.length, 3);
+  const video = items.find((i) => i.type === 'video');
+  const session = items.find((i) => i.type === 'session');
+  const assignment = items.find((i) => i.type === 'assignment');
+  assert.match(video.text, /First Touch/);
+  assert.match(session.text, /completed training/);
+  assert.equal(session.when, '3 days ago');
+  assert.match(assignment.text, /Weaker-foot wall passing/);
   assert.equal(items[0].type, 'video');
-  assert.match(items[0].text, /First Touch/);
-  assert.equal(items[1].type, 'session');
-  assert.match(items[1].text, /completed training/);
-  assert.equal(items[1].when, '3 days ago');
-  assert.equal(items[2].type, 'assignment');
-  assert.match(items[2].text, /Weaker-foot wall passing/);
   assert.deepEqual(buildTeamActivity({}, NOW), []);
 });

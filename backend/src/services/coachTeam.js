@@ -71,7 +71,7 @@ export function buildTeamActivity({ sessions = [], videos = [], completions = []
 
   for (const s of sessions) {
     const playerName = s.user?.name || 'Player';
-    const at = s.createdAt || s.date;
+    const at = s.date || s.createdAt;
     items.push({
       id: `session:${s.id}`,
       type: 'session',
@@ -79,7 +79,7 @@ export function buildTeamActivity({ sessions = [], videos = [], completions = []
       playerName,
       text: `${playerName} completed training`,
       at: toIso(at),
-      when: formatLastActive(dateKey(s.date || at), now),
+      when: formatLastActive(dateKey(at), now),
     });
   }
 

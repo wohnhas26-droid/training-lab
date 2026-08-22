@@ -19,7 +19,7 @@ async function loadTeamActivity(playerIds, now) {
   const [sessions, videos, completions] = await Promise.all([
     prisma.completedSession.findMany({
       where: { userId: { in: playerIds } },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
       take: 20,
       include: { user: { select: { id: true, name: true } } },
     }),
