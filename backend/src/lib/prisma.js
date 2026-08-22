@@ -28,7 +28,7 @@ export async function getUserState(userId) {
       challengeEnrollments: true,
       weeklyPlans: { where: { active: true }, orderBy: { generatedAt: 'desc' }, take: 1 },
       feedbackReceived: {
-        orderBy: { createdAt: 'desc' },
+        orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
         take: 20,
         include: { coach: { select: { name: true } } },
       },
