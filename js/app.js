@@ -1,7 +1,8 @@
 import {
   loadState, saveState, logout, saveProfile, saveSubscription,
   completeSessionRemote, joinChallengeRemote, updateChallengeProgressRemote,
-  register, loginWithCredentials, regeneratePlanRemote, getTodayTrainingRemote, updateProfileRemote,   getCoachTeamRemote,
+  register, loginWithCredentials, regeneratePlanRemote, getTodayTrainingRemote, updateProfileRemote,
+  getCoachTeamRemote, emptyCoachTeamSnapshot,
   addTeamPlayerRemote, removeTeamPlayerRemote, getCoachPlayerRemote,
   getAssignmentsRemote, createAssignmentRemote, getMyAssignmentsRemote, completeAssignmentRemote, submitFeedbackRemote,
   getCoachVideosRemote, getChildReportRemote, getChildReportsRemote, addChildRemote, removeChildRemote,
@@ -66,9 +67,14 @@ window.TrainingLab = {
   generateEvaluation,
   checkAchievements,
   getProgressSummary,
+  getCoachTeam: async () => {
+    const remote = await getCoachTeamRemote();
+    return remote || emptyCoachTeamSnapshot();
+  },
   getCoachTeamData: async () => {
     const remote = await getCoachTeamRemote();
-    return remote || getCoachTeamData();
+    if (remote) return remote.players;
+    return getCoachTeamData();
   },
   addTeamPlayer: addTeamPlayerRemote,
   removeTeamPlayer: removeTeamPlayerRemote,
