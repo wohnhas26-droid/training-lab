@@ -3,12 +3,13 @@ import bcrypt from 'bcryptjs';
 import { prisma, getUserState, toJson } from '../lib/prisma.js';
 import { signToken, authRequired } from '../middleware/auth.js';
 import { generatePersonalizedPlan } from '../services/trainingPlanner.js';
+import { validatePlayerForLink } from '../services/parentLinks.js';
 
 const router = Router();
 
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, name, role = 'player', profile, plan = 'player' } = req.body;
+    const { email, password, name, role = 'player', profile, plan = 'player', childEmail } = req.body;
 
     if (!email || !password || !name) {
       return res.status(400).json({ error: 'Email, password, and name are required' });
@@ -47,6 +48,19 @@ router.post('/register', async (req, res) => {
       await prisma.weeklyPlan.create({
         data: { userId: user.id, plan: toJson(weeklyPlan), active: true },
       });
+    }
+
+    if (user.role === 'parent' && childEmail) {
+      const childEmailTrimmed = String(childEmail).trim();
+      let child = await prisma.user.findUnique({ where: { email: childEmailTrimmed } });
+      if (!child) {
+        child = await prisma.user.findUnique({ where: { email: childEmailTrimmed.toLowerCase() } });
+      }
+      if (!validatePlayerForLink(child, user.id)) {
+        await prisma.parentLink.create({
+          data: { parentId: user.id, childId: child.id },
+        });
+      }
     }
 
     const token = signToken(user);

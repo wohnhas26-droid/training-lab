@@ -40,6 +40,14 @@
         </select>
       </div>
 
+      <div id="parent-fields" style="display: none;">
+        <div class="form-group">
+          <label class="form-label">Player email (optional)</label>
+          <input type="email" class="form-input" name="childEmail" placeholder="player@example.com">
+          <p style="font-size: 0.8rem; color: var(--slate-500); margin-top: 0.35rem;">Link the account your player already created. You can also do this later from the parent dashboard.</p>
+        </div>
+      </div>
+
       <div id="player-fields">
         <div class="form-group">
           <label class="form-label">Age</label>
@@ -163,8 +171,9 @@
     });
 
     document.getElementById('role-select').addEventListener('change', (e) => {
-      const isPlayer = e.target.value === 'player';
-      document.getElementById('player-fields').style.display = isPlayer ? 'block' : 'none';
+      const role = e.target.value;
+      document.getElementById('player-fields').style.display = role === 'player' ? 'block' : 'none';
+      document.getElementById('parent-fields').style.display = role === 'parent' ? 'block' : 'none';
     });
 
     function getSelectedValues(field) {
@@ -188,6 +197,7 @@
         trainingDays: fd.get('trainingDays'),
         equipment: getSelectedValues('equipment'),
         plan: fd.get('plan'),
+        childEmail: fd.get('childEmail'),
       });
     });
   </script>

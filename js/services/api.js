@@ -86,6 +86,8 @@ export const api = {
 
   getParentReport: (childId) => request(`/catalog/parent/${childId}`),
   getParentReports: (childId) => request(`/catalog/parent/${childId}/reports`),
+  addChild: (email) => request('/parent/children', { method: 'POST', body: JSON.stringify({ email }) }),
+  removeChild: (userId) => request(`/parent/children/${encodeURIComponent(userId)}`, { method: 'DELETE' }),
 
   getExercises: () => request('/catalog/exercises'),
   getCategories: () => request('/catalog/categories'),

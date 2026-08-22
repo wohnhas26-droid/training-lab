@@ -13,48 +13,62 @@
     <main class="main-content">
       <div class="page-header">
         <h1>Monthly Report Cards</h1>
-        <p>Detailed monthly evaluations of your player's development</p>
+        <p id="page-subtitle">Detailed monthly evaluations of your player's development</p>
       </div>
       <div id="report-cards" class="grid grid-2"></div>
     </main>
   </div>
   <script type="module">
-    import { renderNav, renderSidebar } from '/js/components/ui.js';
+    import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
+    import { bindLinkPlayerForm, renderLinkPlayerCard } from '/js/components/parentChild.js';
     import '/js/app.js';
 
     TrainingLab.requireAuth('parent');
     document.getElementById('nav').innerHTML = renderNav();
     document.getElementById('sidebar').innerHTML = renderSidebar('parent', 'reports');
 
-    await TrainingLab.ready();
-    const current = TrainingLab.loadState();
-    const child = current.children?.[0];
-
-    const reports = child ? await TrainingLab.getChildReports(child.id) : null;
-
     function cardHtml(r) {
       return `
       <div class="card"${r.sessions === 0 ? ' style="opacity: 0.7;"' : ''}>
-        <h3 class="card-title">${r.label} Report Card</h3>
-        <p style="font-size: 2rem; font-weight: 800; color: var(--green-400); margin: 1rem 0;">${r.score}/10</p>
+        <h3 class="card-title">${escapeHtml(r.label)} Report Card</h3>
+        <p style="font-size: 2rem; font-weight: 800; color: var(--green-400); margin: 1rem 0;">${Number(r.score)}/10</p>
         <ul style="color: var(--slate-400); font-size: 0.9rem; padding-left: 1.25rem;">
-          <li>Training consistency: ${r.consistency}</li>
-          <li>Sessions completed: ${r.sessions}</li>
-          <li>Minutes trained: ${r.minutes}</li>
-          <li>Skills practiced: ${r.skills}</li>
+          <li>Training consistency: ${escapeHtml(r.consistency)}</li>
+          <li>Sessions completed: ${Number(r.sessions)}</li>
+          <li>Minutes trained: ${Number(r.minutes)}</li>
+          <li>Skills practiced: ${Number(r.skills)}</li>
         </ul>
       </div>`;
     }
 
-    if (reports && reports.length) {
-      document.getElementById('report-cards').innerHTML = reports.map(cardHtml).join('');
-    } else {
-      // Offline/demo fallback: a single illustrative current-month card.
-      const monthLabel = new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' });
-      document.getElementById('report-cards').innerHTML = cardHtml({
-        label: monthLabel, score: 8, consistency: 'Excellent', sessions: 10, minutes: 300, skills: 24,
-      });
+    function renderEmpty() {
+      document.getElementById('page-subtitle').textContent = 'Link a player to see real report cards — we never invent scores.';
+      document.getElementById('report-cards').className = '';
+      document.getElementById('report-cards').innerHTML = renderLinkPlayerCard({ escapeHtml });
+      bindLinkPlayerForm({ onLinked: () => load() });
     }
+
+    async function load() {
+      await TrainingLab.ready();
+      const current = TrainingLab.loadState();
+      const child = current.children?.[0];
+      if (!child) {
+        renderEmpty();
+        return;
+      }
+      const reports = await TrainingLab.getChildReports(child.id).catch(() => null);
+      if (!reports || !reports.length) {
+        document.getElementById('page-subtitle').textContent = `No monthly reports yet for ${child.name}`;
+        document.getElementById('report-cards').className = '';
+        document.getElementById('report-cards').innerHTML = '<div class="card"><p style="color: var(--slate-500);">No training months to score yet.</p></div>';
+        return;
+      }
+      document.getElementById('page-subtitle').textContent = `Monthly evaluations for ${child.name}`;
+      document.getElementById('report-cards').className = 'grid grid-2';
+      document.getElementById('report-cards').innerHTML = reports.map(cardHtml).join('');
+    }
+
+    load();
   </script>
 </body>
 </html>
