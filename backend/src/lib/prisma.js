@@ -80,6 +80,7 @@ export async function getUserState(userId) {
     completedExercises: user.completedExercises.map(e => e.exerciseId),
     achievements: user.achievements.map(a => a.achievementId),
     activeChallenges: user.challengeEnrollments.filter(c => !c.completed).map(c => c.challengeId),
+    completedChallenges: user.challengeEnrollments.filter(c => c.completed).map(c => c.challengeId),
     challengeProgress: Object.fromEntries(user.challengeEnrollments.map(c => [c.challengeId, c.progress])),
     weeklyPlan: user.weeklyPlans[0] ? parseJson(user.weeklyPlans[0].plan, null) : null,
     coachFeedback: user.feedbackReceived.map(serializeCoachFeedback),

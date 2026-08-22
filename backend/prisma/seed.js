@@ -185,6 +185,17 @@ async function main() {
     });
   }
 
+  await prisma.challengeEnrollment.upsert({
+    where: { userId_challengeId: { userId: player.id, challengeId: 'weak_foot' } },
+    update: { progress: 12, completed: false },
+    create: { userId: player.id, challengeId: 'weak_foot', progress: 12, completed: false },
+  });
+  await prisma.challengeEnrollment.upsert({
+    where: { userId_challengeId: { userId: player.id, challengeId: 'speed' } },
+    update: { progress: 15, completed: true },
+    create: { userId: player.id, challengeId: 'speed', progress: 15, completed: true },
+  });
+
   console.log('Seed complete!');
   console.log('');
   console.log('Demo accounts (password: demo1234):');

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { prisma, getUserState } from '../lib/prisma.js';
 import { authRequired } from '../middleware/auth.js';
 import { CHALLENGES } from '../data/index.js';
+import { applyChallengeProgress } from '../services/challenges.js';
 
 const router = Router();
 
@@ -9,7 +10,8 @@ router.get('/', authRequired, async (req, res) => {
   const state = await getUserState(req.userId);
   res.json(CHALLENGES.map(c => ({
     ...c,
-    joined: state.activeChallenges.includes(c.id),
+    joined: state.activeChallenges.includes(c.id) || state.completedChallenges.includes(c.id),
+    completed: state.completedChallenges.includes(c.id),
     progress: state.challengeProgress[c.id] || 0,
   })));
 });
@@ -41,15 +43,18 @@ router.post('/:id/progress', authRequired, async (req, res) => {
 
   if (!enrollment) return res.status(400).json({ error: 'Not enrolled in challenge' });
 
-  const newProgress = enrollment.progress + increment;
-  const completed = newProgress >= challenge.targetCount;
+  const { progress, completed, newlyCompleted } = applyChallengeProgress(
+    enrollment,
+    increment,
+    challenge.targetCount,
+  );
 
   await prisma.challengeEnrollment.update({
     where: { id: enrollment.id },
-    data: { progress: newProgress, completed },
+    data: { progress, completed },
   });
 
-  if (completed && !enrollment.completed) {
+  if (newlyCompleted) {
     await prisma.progress.update({
       where: { userId: req.userId },
       data: { xp: { increment: challenge.xpReward } },
@@ -57,7 +62,7 @@ router.post('/:id/progress', authRequired, async (req, res) => {
   }
 
   const state = await getUserState(req.userId);
-  res.json({ ...state, challengeCompleted: completed });
+  res.json({ ...state, challengeCompleted: completed, newlyCompleted });
 });
 
 export default router;
