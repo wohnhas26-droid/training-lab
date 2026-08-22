@@ -15,6 +15,17 @@
         <h1>Player Progress Reports</h1>
         <p>Monitor individual player development and training consistency</p>
       </div>
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <h3 class="card-title">Add a Player to Your Team</h3>
+        <p class="card-subtitle" style="margin: 0.5rem 0 1rem;">Enter the email a player signed up with to add them to your roster.</p>
+        <form id="add-player-form" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: end; max-width: 560px;">
+          <div class="form-group" style="flex: 1; min-width: 240px; margin: 0;">
+            <label class="form-label">Player email</label>
+            <input type="email" class="form-input" name="email" required placeholder="player@example.com">
+          </div>
+          <button type="submit" class="btn btn-primary">Add Player</button>
+        </form>
+      </div>
       <div class="card">
         <div class="table-wrap">
           <table>
@@ -33,9 +44,14 @@
     TrainingLab.requireAuth('coach');
     document.getElementById('nav').innerHTML = renderNav();
     document.getElementById('sidebar').innerHTML = renderSidebar('coach', 'players');
-    await TrainingLab.ready();
-    const players = await TrainingLab.getCoachTeamData();
-    document.getElementById('players-table').innerHTML = players.map(p => `
+
+    function renderRoster(players) {
+      const tbody = document.getElementById('players-table');
+      if (!players.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="color: var(--slate-500);">No players yet. Add one above.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = players.map(p => `
       <tr>
         <td><strong>${p.name}</strong></td>
         <td>${p.position}</td>
@@ -43,9 +59,51 @@
         <td>${p.streak} days</td>
         <td><div class="progress-bar" style="width: 80px; display: inline-block; vertical-align: middle;"><div class="progress-fill" style="width: ${p.completion}%"></div></div> ${p.completion}%</td>
         <td>${p.lastActive}</td>
-        <td><button class="btn btn-ghost btn-sm" onclick="alert('Progress report for ${p.name} would download as PDF.')">Report</button></td>
+        <td style="white-space: nowrap;">
+          <button class="btn btn-ghost btn-sm" onclick="alert('Progress report for ${p.name} would download as PDF.')">Report</button>
+          <button class="btn btn-ghost btn-sm remove-player-btn" data-id="${p.id}" data-name="${p.name}" style="color: #f87171;">Remove</button>
+        </td>
       </tr>
     `).join('');
+    }
+
+    document.getElementById('players-table').addEventListener('click', async (e) => {
+      const btn = e.target.closest('.remove-player-btn');
+      if (!btn) return;
+      const { id, name } = btn.dataset;
+      if (!confirm(`Remove ${name} from your team?`)) return;
+      btn.disabled = true;
+      try {
+        await TrainingLab.ready();
+        const players = await TrainingLab.removeTeamPlayer(id);
+        TrainingLab.showToast(`${name} removed from your team`);
+        renderRoster(players);
+      } catch (err) {
+        TrainingLab.showToast(err.message || 'Could not remove player');
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById('add-player-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const btn = e.target.querySelector('button[type="submit"]');
+      if (btn) btn.disabled = true;
+      try {
+        await TrainingLab.ready();
+        const players = await TrainingLab.addTeamPlayer(fd.get('email'));
+        TrainingLab.showToast('Player added to your team!');
+        e.target.reset();
+        renderRoster(players);
+      } catch (err) {
+        TrainingLab.showToast(err.message || 'Could not add player');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    });
+
+    await TrainingLab.ready();
+    renderRoster(await TrainingLab.getCoachTeamData());
   </script>
 </body>
 </html>

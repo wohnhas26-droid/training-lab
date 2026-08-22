@@ -6,9 +6,9 @@ const router = Router();
 
 router.use(authRequired, requireRole('coach', 'admin'));
 
-router.get('/team', async (req, res) => {
+async function getTeamWithRoster(coachId) {
   const team = await prisma.team.findFirst({
-    where: { coachId: req.userId },
+    where: { coachId },
     include: {
       members: {
         include: {
@@ -20,9 +20,7 @@ router.get('/team', async (req, res) => {
     },
   });
 
-  if (!team) {
-    return res.json({ team: null, players: [] });
-  }
+  if (!team) return { team: null, players: [] };
 
   const players = team.members.map(m => ({
     id: m.user.id,
@@ -34,7 +32,44 @@ router.get('/team', async (req, res) => {
     lastActive: m.user.progress?.lastTrainingDate === new Date().toISOString().split('T')[0] ? 'Today' : 'Recently',
   })).sort((a, b) => b.xp - a.xp);
 
-  res.json({ team, players });
+  return { team, players };
+}
+
+router.get('/team', async (req, res) => {
+  res.json(await getTeamWithRoster(req.userId));
+});
+
+router.post('/team/players', async (req, res) => {
+  const email = String(req.body.email || '').trim();
+  if (!email) return res.status(400).json({ error: 'Player email is required' });
+
+  const player = await prisma.user.findUnique({ where: { email } });
+  if (!player) return res.status(404).json({ error: 'No account found with that email' });
+  if (player.role !== 'player') return res.status(400).json({ error: 'That account is not a player' });
+  if (player.id === req.userId) return res.status(400).json({ error: 'You cannot add yourself' });
+
+  let team = await prisma.team.findFirst({ where: { coachId: req.userId } });
+  if (!team) {
+    team = await prisma.team.create({ data: { name: 'My Team', coachId: req.userId } });
+  }
+
+  // Idempotent: adding an existing member is not an error.
+  await prisma.teamMember.upsert({
+    where: { teamId_userId: { teamId: team.id, userId: player.id } },
+    update: {},
+    create: { teamId: team.id, userId: player.id },
+  });
+
+  res.status(201).json(await getTeamWithRoster(req.userId));
+});
+
+router.delete('/team/players/:userId', async (req, res) => {
+  const team = await prisma.team.findFirst({ where: { coachId: req.userId } });
+  if (team) {
+    // Idempotent: removing a non-member is not an error.
+    await prisma.teamMember.deleteMany({ where: { teamId: team.id, userId: req.params.userId } });
+  }
+  res.json(await getTeamWithRoster(req.userId));
 });
 
 router.post('/assignments', async (req, res) => {

@@ -136,6 +136,16 @@ export async function updateChallengeProgressRemote(challengeId, increment = 1) 
   return local.updateChallengeProgress(challengeId, progress);
 }
 
+export async function updateProfileRemote(profile) {
+  if (isApiMode()) {
+    cachedState = await api.updateProfile(profile);
+    syncToLocalStorage(cachedState);
+    return cachedState;
+  }
+  local.saveProfile(profile);
+  return local.loadState();
+}
+
 export async function regeneratePlanRemote(profile) {
   if (isApiMode()) {
     const plan = await api.regeneratePlan();
@@ -144,6 +154,22 @@ export async function regeneratePlanRemote(profile) {
     return plan;
   }
   return null;
+}
+
+export async function addTeamPlayerRemote(email) {
+  if (!isApiMode()) {
+    throw new Error('Adding players requires an internet connection');
+  }
+  const data = await api.addTeamPlayer(email);
+  return data.players || [];
+}
+
+export async function removeTeamPlayerRemote(userId) {
+  if (!isApiMode()) {
+    throw new Error('Removing players requires an internet connection');
+  }
+  const data = await api.removeTeamPlayer(userId);
+  return data.players || [];
 }
 
 export async function getCoachTeamRemote() {

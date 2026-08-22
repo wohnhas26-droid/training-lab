@@ -1,7 +1,8 @@
 import {
   loadState, saveState, logout, saveProfile, saveSubscription,
   completeSessionRemote, joinChallengeRemote, updateChallengeProgressRemote,
-  register, loginWithCredentials, regeneratePlanRemote, getCoachTeamRemote,
+  register, loginWithCredentials, regeneratePlanRemote, updateProfileRemote, getCoachTeamRemote,
+  addTeamPlayerRemote, removeTeamPlayerRemote,
   getAssignmentsRemote, createAssignmentRemote, submitFeedbackRemote,
   getCoachVideosRemote, getChildReportRemote, getChildReportsRemote,
   getMyVideosRemote, submitVideoRemote,
@@ -43,6 +44,7 @@ window.TrainingLab = {
     setTimeout(() => window.location.href = '/index.html', 500);
   },
   saveProfile,
+  updateProfile: updateProfileRemote,
   saveSubscription,
   completeSession: completeSessionRemote,
   joinChallenge: joinChallengeRemote,
@@ -61,6 +63,8 @@ window.TrainingLab = {
     const remote = await getCoachTeamRemote();
     return remote || getCoachTeamData();
   },
+  addTeamPlayer: addTeamPlayerRemote,
+  removeTeamPlayer: removeTeamPlayerRemote,
   getAssignments: getAssignmentsRemote,
   createAssignment: createAssignmentRemote,
   submitFeedback: submitFeedbackRemote,
