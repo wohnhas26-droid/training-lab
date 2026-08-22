@@ -4,6 +4,7 @@ import {
   register, loginWithCredentials, regeneratePlanRemote, getCoachTeamRemote,
   getAssignmentsRemote, createAssignmentRemote, submitFeedbackRemote,
   getCoachVideosRemote, getChildReportRemote, getChildReportsRemote,
+  getMyVideosRemote, submitVideoRemote,
   createCheckout, openBillingPortal, getSubscriptionStatus, verifyCheckoutSession,
   getStripeConfig, bootstrap, isApiMode,
 } from './services/dataStore.js';
@@ -66,6 +67,8 @@ window.TrainingLab = {
   getCoachVideos: getCoachVideosRemote,
   getChildReport: getChildReportRemote,
   getChildReports: getChildReportsRemote,
+  getMyVideos: getMyVideosRemote,
+  submitVideo: submitVideoRemote,
   getParentReport,
   showToast,
   SUBSCRIPTION_PLANS,

@@ -233,6 +233,38 @@ export async function getChildReportsRemote(childId) {
   return null;
 }
 
+const LOCAL_VIDEOS_KEY = 'player_video_submissions';
+
+function loadLocalVideos() {
+  try {
+    return JSON.parse(localStorage.getItem(LOCAL_VIDEOS_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+export async function getMyVideosRemote() {
+  if (isApiMode()) {
+    try {
+      return await api.getMyVideos();
+    } catch {
+      return [];
+    }
+  }
+  return loadLocalVideos();
+}
+
+export async function submitVideoRemote({ skill, url }) {
+  if (isApiMode()) {
+    return api.submitVideo({ skill, url });
+  }
+  const videos = loadLocalVideos();
+  const entry = { id: `local-${Date.now()}`, skill, url: url || null, status: 'pending', createdAt: new Date().toISOString() };
+  videos.unshift(entry);
+  localStorage.setItem(LOCAL_VIDEOS_KEY, JSON.stringify(videos));
+  return entry;
+}
+
 export async function createCheckout(plan) {
   if (isApiMode()) return api.createCheckout(plan);
   return { demo: true, url: '/subscription/success.html?plan=' + plan };
