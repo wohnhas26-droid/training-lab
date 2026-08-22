@@ -1,7 +1,7 @@
 import {
   loadState, saveState, logout, saveProfile, saveSubscription,
   completeSessionRemote, joinChallengeRemote, updateChallengeProgressRemote,
-  register, loginWithCredentials, regeneratePlanRemote, updateProfileRemote,   getCoachTeamRemote,
+  register, loginWithCredentials, regeneratePlanRemote, getTodayTrainingRemote, updateProfileRemote,   getCoachTeamRemote,
   addTeamPlayerRemote, removeTeamPlayerRemote, getCoachPlayerRemote,
   getAssignmentsRemote, createAssignmentRemote, getMyAssignmentsRemote, completeAssignmentRemote, submitFeedbackRemote,
   getCoachVideosRemote, getChildReportRemote, getChildReportsRemote, addChildRemote, removeChildRemote,
@@ -60,6 +60,8 @@ window.TrainingLab = {
   verifyCheckoutSession,
   getStripeConfig,
   generatePersonalizedPlan,
+  regeneratePlan: regeneratePlanRemote,
+  getTodayTraining: getTodayTrainingRemote,
   getTodaySession,
   generateEvaluation,
   checkAchievements,

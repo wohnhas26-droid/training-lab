@@ -69,8 +69,6 @@
     import { renderNav, renderSidebar, capitalize } from '/js/components/ui.js';
     import { openUrl } from '/js/utils/openUrl.js';
     import '/js/app.js';
-    import { saveWeeklyPlan } from '/js/services/storage.js';
-
     const state = TrainingLab.requireAuth('player');
     if (!state) throw new Error('Auth required');
 
@@ -169,7 +167,7 @@
           ${plan === 'elite' ? '<span class="badge badge-gold">AI Personal Training</span>' : ''}
         </div>
         ${periodEnd ? `<p style="color: var(--slate-400); font-size: 0.9rem;">Current period ends: ${periodEnd}</p>` : ''}
-        <p style="color: var(--slate-400); margin-top: 1rem; font-size: 0.9rem;">
+        <p style="color: var(--slate-400); margin-top: 1rem; font-size: 0.9rem;" id="plan-generated">
           Weekly plan generated: ${state.weeklyPlan?.generatedAt ? new Date(state.weeklyPlan.generatedAt).toLocaleDateString() : 'Not yet'}
         </p>
         <div style="display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap;">
@@ -192,10 +190,24 @@
 
     renderSubscription();
 
-    document.getElementById('regenerate-btn').addEventListener('click', () => {
-      const newPlan = TrainingLab.generatePersonalizedPlan(profile);
-      saveWeeklyPlan(newPlan);
-      TrainingLab.showToast('Training plan regenerated!');
+    document.getElementById('regenerate-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('regenerate-btn');
+      btn.disabled = true;
+      try {
+        await TrainingLab.ready();
+        const plan = await TrainingLab.regeneratePlan();
+        const generated = document.getElementById('plan-generated');
+        if (generated) {
+          generated.textContent = plan?.generatedAt
+            ? `Weekly plan generated: ${new Date(plan.generatedAt).toLocaleDateString()}`
+            : 'Weekly plan generated: just now';
+        }
+        TrainingLab.showToast('Training plan regenerated!');
+      } catch (err) {
+        TrainingLab.showToast(err.message || 'Could not regenerate plan');
+      } finally {
+        btn.disabled = false;
+      }
     });
   </script>
 </body>
