@@ -1,6 +1,11 @@
 import * as local from './storage.js';
 import { api, isApiMode, getToken, setToken, initApi, checkApiHealth } from './api.js';
 import { getChallengeById } from '../data/challenges.js';
+import { isNativeApp } from '../config/appConfig.js';
+
+function checkoutClient() {
+  return isNativeApp() ? 'native' : 'web';
+}
 
 let cachedState = null;
 
@@ -315,12 +320,12 @@ export async function submitVideoRemote({ skill, url }) {
 }
 
 export async function createCheckout(plan) {
-  if (isApiMode()) return api.createCheckout(plan);
+  if (isApiMode()) return api.createCheckout(plan, checkoutClient());
   return { demo: true, url: '/subscription/success.html?plan=' + plan };
 }
 
 export async function openBillingPortal() {
-  if (isApiMode()) return api.createPortal();
+  if (isApiMode()) return api.createPortal(checkoutClient());
   throw new Error('Billing portal requires API connection');
 }
 

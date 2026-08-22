@@ -1,6 +1,9 @@
 /** Production API used by iOS/Android builds (Capacitor). Update if using Railway URL temporarily. */
 export const NATIVE_API_URL = 'https://www.futbol-training-lab.com/api';
 
+/** Custom URL scheme Stripe uses to return to the native app after checkout. */
+export const APP_DEEP_LINK_SCHEME = 'traininglab';
+
 export function isNativeApp() {
   return typeof window.Capacitor !== 'undefined'
     && window.Capacitor.isNativePlatform?.();

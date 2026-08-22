@@ -30,7 +30,7 @@ router.get('/plans', (_req, res) => {
 });
 
 router.post('/checkout', authRequired, async (req, res) => {
-  const { plan } = req.body;
+  const { plan, client } = req.body;
   if (!PLAN_CONFIG[plan]) {
     return res.status(400).json({ error: 'Invalid plan' });
   }
@@ -39,6 +39,7 @@ router.post('/checkout', authRequired, async (req, res) => {
     const user = await prisma.user.findUnique({ where: { id: req.userId } });
     const result = await createCheckoutSession(req.userId, plan, {
       role: user?.role,
+      client,
     });
     res.json(result);
   } catch (err) {
@@ -53,7 +54,7 @@ router.post('/portal', authRequired, async (req, res) => {
   }
 
   try {
-    const result = await createPortalSession(req.userId);
+    const result = await createPortalSession(req.userId, { client: req.body?.client });
     res.json(result);
   } catch (err) {
     console.error('Portal error:', err);

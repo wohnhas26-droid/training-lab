@@ -20,7 +20,7 @@
     "deploy:docker": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy-docker.ps1",
     "build:www": "node scripts/build-www.mjs && node scripts/bundle-mobile.mjs",
     "build:www:ps": "powershell -ExecutionPolicy Bypass -File ./scripts/build-www.ps1 && node scripts/bundle-mobile.mjs",
-    "cap:sync": "npm run build:www && npx cap sync",
+    "cap:sync": "npm run build:www && npx cap sync && node scripts/apply-deeplink-config.mjs",
     "assets:generate": "capacitor-assets generate --iconBackgroundColor #0f172a --iconBackgroundColorDark #0f172a --splashBackgroundColor #0f172a --splashBackgroundColorDark #0f172a",
     "cap:open:android": "npx cap open android",
     "cap:open:ios": "npx cap open ios",
