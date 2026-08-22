@@ -32,7 +32,13 @@ STRIPE_WEBHOOK_SECRET="whsec_..."
 STRIPE_PRICE_PLAYER="price_..."
 STRIPE_PRICE_ELITE="price_..."
 STRIPE_PRICE_TEAM="price_..."
+
+# Optional — API already enables these in production
+# RATE_LIMIT_API_MAX=600
+# RATE_LIMIT_AUTH_MAX=10
 ```
+
+Production also sets `trust proxy` so rate limits key on the client IP behind Railway/nginx, sends Helmet security headers, and rejects JSON bodies larger than 100kb. Health checks (`/api/health`) and Stripe webhooks are not rate-limited.
 
 > **Never commit real secrets.** Set these only in your host's environment
 > variables / secret manager. A previous revision of this file contained a real
