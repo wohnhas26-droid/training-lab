@@ -2,7 +2,7 @@ import {
   loadState, saveState, logout, saveProfile, saveSubscription,
   completeSessionRemote, joinChallengeRemote, updateChallengeProgressRemote,
   register, loginWithCredentials, regeneratePlanRemote, getTodayTrainingRemote, updateProfileRemote,
-  getCoachTeamRemote, emptyCoachTeamSnapshot, getProgressSummaryRemote,
+  getCoachTeamRemote, emptyCoachTeamSnapshot, getProgressSummaryRemote, checkAchievementsRemote,
   addTeamPlayerRemote, removeTeamPlayerRemote, getCoachPlayerRemote,
   getAssignmentsRemote, createAssignmentRemote, getMyAssignmentsRemote, completeAssignmentRemote, submitFeedbackRemote,
   getCoachVideosRemote, getChildReportRemote, getChildReportsRemote, addChildRemote, removeChildRemote,
@@ -65,7 +65,7 @@ window.TrainingLab = {
   getTodayTraining: getTodayTrainingRemote,
   getTodaySession,
   generateEvaluation,
-  checkAchievements,
+  checkAchievements: checkAchievementsRemote,
   getProgressSummary: async () => {
     const remote = await getProgressSummaryRemote();
     return remote || getLocalProgressSummary();
