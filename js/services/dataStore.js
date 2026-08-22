@@ -222,6 +222,21 @@ function loadLocalAssignments() {
   }
 }
 
+function decorateLocalAssignment(assignment, userId) {
+  const completedBy = assignment.completedBy || [];
+  const completed = userId ? completedBy.includes(userId) : completedBy.length > 0;
+  return {
+    ...assignment,
+    notes: assignment.notes || '',
+    completedBy,
+    completedCount: completedBy.length,
+    assigneeCount: assignment.assignTo === 'all' ? 1 : 1,
+    completed,
+    overdue: false,
+    completions: [],
+  };
+}
+
 export async function getAssignmentsRemote() {
   if (isApiMode()) {
     try {
@@ -230,7 +245,21 @@ export async function getAssignmentsRemote() {
       return [];
     }
   }
-  return loadLocalAssignments();
+  return loadLocalAssignments().map((a) => decorateLocalAssignment(a));
+}
+
+export async function getMyAssignmentsRemote() {
+  if (isApiMode()) {
+    try {
+      return await api.getMyAssignments();
+    } catch {
+      return [];
+    }
+  }
+  const user = local.getCurrentUser();
+  return loadLocalAssignments()
+    .filter((a) => a.assignTo === 'all' || String(a.assignTo) === String(user?.id))
+    .map((a) => decorateLocalAssignment(a, user?.id));
 }
 
 export async function createAssignmentRemote({ title, category, dueDate, notes, assignTo = 'all' }) {
@@ -239,10 +268,30 @@ export async function createAssignmentRemote({ title, category, dueDate, notes, 
     return api.createAssignment(payload);
   }
   const assignments = loadLocalAssignments();
-  const entry = { ...payload, id: `local-${Date.now()}`, createdAt: new Date().toISOString() };
+  const entry = decorateLocalAssignment({
+    ...payload,
+    id: `local-${Date.now()}`,
+    createdAt: new Date().toISOString(),
+    completedBy: [],
+  });
   assignments.unshift(entry);
   localStorage.setItem(LOCAL_ASSIGNMENTS_KEY, JSON.stringify(assignments));
   return entry;
+}
+
+export async function completeAssignmentRemote(id) {
+  if (isApiMode()) {
+    return api.completeAssignment(id);
+  }
+  const user = local.getCurrentUser();
+  if (!user?.id) throw new Error('Not signed in');
+  const assignments = loadLocalAssignments();
+  const idx = assignments.findIndex((a) => String(a.id) === String(id));
+  if (idx < 0) throw new Error('Assignment not found');
+  const completedBy = [...new Set([...(assignments[idx].completedBy || []), user.id])];
+  assignments[idx] = { ...assignments[idx], completedBy };
+  localStorage.setItem(LOCAL_ASSIGNMENTS_KEY, JSON.stringify(assignments));
+  return decorateLocalAssignment(assignments[idx], user.id);
 }
 
 export async function submitFeedbackRemote({ playerId, playerName, feedback, rating, videoId }) {

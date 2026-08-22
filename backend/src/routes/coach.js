@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { prisma, getUserState } from '../lib/prisma.js';
 import { authRequired, requireRole } from '../middleware/auth.js';
 import { monthlyReports } from '../services/reports.js';
+import { loadAssignmentViews } from '../services/assignments.js';
 
 const router = Router();
 
@@ -118,7 +119,14 @@ router.delete('/team/players/:userId', async (req, res) => {
 });
 
 router.post('/assignments', async (req, res) => {
-  const { title, category, dueDate, notes, assignTo = 'all' } = req.body;
+  const title = String(req.body.title || '').trim();
+  const category = String(req.body.category || '').trim();
+  const dueDate = String(req.body.dueDate || '').trim();
+  const notes = String(req.body.notes || '').trim() || null;
+  const assignTo = String(req.body.assignTo || 'all').trim() || 'all';
+
+  if (!title) return res.status(400).json({ error: 'Title is required' });
+  if (!dueDate) return res.status(400).json({ error: 'Due date is required' });
 
   let team = await prisma.team.findFirst({ where: { coachId: req.userId } });
   if (!team) {
@@ -127,11 +135,17 @@ router.post('/assignments', async (req, res) => {
     });
   }
 
+  if (assignTo !== 'all') {
+    const onTeam = await playerOnCoachTeam(req.userId, assignTo);
+    if (!onTeam) return res.status(404).json({ error: 'Player not on your team' });
+  }
+
   const assignment = await prisma.assignment.create({
     data: { teamId: team.id, coachId: req.userId, title, category, dueDate, notes, assignTo },
   });
 
-  res.status(201).json(assignment);
+  const [view] = await loadAssignmentViews(prisma, [assignment]);
+  res.status(201).json(view);
 });
 
 router.get('/assignments', async (req, res) => {
@@ -143,7 +157,7 @@ router.get('/assignments', async (req, res) => {
     orderBy: { createdAt: 'desc' },
   });
 
-  res.json(assignments);
+  res.json(await loadAssignmentViews(prisma, assignments));
 });
 
 router.post('/feedback', async (req, res) => {

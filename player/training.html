@@ -17,6 +17,11 @@
       </div>
 
       <div class="card" style="margin-bottom: 1.5rem;">
+        <h3 class="card-title">Coach Assignments</h3>
+        <div id="assignments-list" style="margin-top: 1rem;"></div>
+      </div>
+
+      <div class="card" style="margin-bottom: 1.5rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
           <div>
             <span class="badge badge-green" id="session-progress-badge">0% Complete</span>
@@ -35,7 +40,8 @@
   </div>
 
   <script type="module">
-    import { renderNav, renderSidebar, difficultyBadge, getCategoryName } from '/js/components/ui.js';
+    import { renderNav, renderSidebar, difficultyBadge, getCategoryName, escapeHtml } from '/js/components/ui.js';
+    import { renderPlayerAssignmentList } from '/js/components/assignments.js';
     import '/js/app.js';
 
     const state = TrainingLab.requireAuth('player');
@@ -115,6 +121,30 @@
     }
 
     renderExercises();
+
+    const assignmentList = document.getElementById('assignments-list');
+
+    async function loadAssignments() {
+      await TrainingLab.ready();
+      const items = await TrainingLab.getMyAssignments();
+      assignmentList.innerHTML = renderPlayerAssignmentList(items, { getCategoryName, escapeHtml });
+    }
+
+    assignmentList.addEventListener('click', async (e) => {
+      const btn = e.target.closest('.assignment-complete');
+      if (!btn) return;
+      btn.disabled = true;
+      try {
+        await TrainingLab.completeAssignment(btn.dataset.id);
+        TrainingLab.showToast('Assignment complete!');
+        await loadAssignments();
+      } catch (err) {
+        TrainingLab.showToast(err.message || 'Could not complete assignment');
+        btn.disabled = false;
+      }
+    });
+
+    loadAssignments();
 
     document.getElementById('complete-session-btn').addEventListener('click', async () => {
       const exerciseIds = session.exercises.map(e => e.id);

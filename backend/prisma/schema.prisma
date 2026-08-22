@@ -48,6 +48,7 @@ model User {
   coachedTeams     Team[]           @relation("CoachTeams")
   teamMemberships  TeamMember[]
   assignmentsCreated Assignment[]   @relation("AssignmentCreator")
+  assignmentCompletions AssignmentCompletion[]
   feedbackGiven    CoachFeedback[]  @relation("FeedbackCoach")
   feedbackReceived CoachFeedback[]  @relation("FeedbackPlayer")
   videoSubmissions VideoSubmission[]
@@ -198,8 +199,21 @@ model Assignment {
   assignTo  String   @default("all")
   createdAt DateTime @default(now())
 
-  team  Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  coach User @relation("AssignmentCreator", fields: [coachId], references: [id])
+  team        Team                   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  coach       User                   @relation("AssignmentCreator", fields: [coachId], references: [id])
+  completions AssignmentCompletion[]
+}
+
+model AssignmentCompletion {
+  id           String   @id @default(cuid())
+  assignmentId String
+  playerId     String
+  completedAt  DateTime @default(now())
+
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  player     User       @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@unique([assignmentId, playerId])
 }
 
 model CoachFeedback {
