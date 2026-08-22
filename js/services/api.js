@@ -78,8 +78,8 @@ export const api = {
 
   getStripeConfig: () => request('/subscriptions/config'),
   getSubscriptionStatus: () => request('/subscriptions/status'),
-  createCheckout: (plan) => request('/subscriptions/checkout', { method: 'POST', body: JSON.stringify({ plan }) }),
-  createPortal: () => request('/subscriptions/portal', { method: 'POST' }),
+  createCheckout: (plan, client = 'web') => request('/subscriptions/checkout', { method: 'POST', body: JSON.stringify({ plan, client }) }),
+  createPortal: (client = 'web') => request('/subscriptions/portal', { method: 'POST', body: JSON.stringify({ client }) }),
   verifyCheckout: (sessionId) => request(`/subscriptions/verify?session_id=${encodeURIComponent(sessionId)}`),
 
   getParentReport: (childId) => request(`/catalog/parent/${childId}`),

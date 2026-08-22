@@ -77,7 +77,7 @@ All plans include a **7-day free trial**.
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/api/subscriptions/config` | Stripe config status (public) |
-| POST | `/api/subscriptions/checkout` | Create Checkout session (auth required) |
+| POST | `/api/subscriptions/checkout` | Create Checkout session (auth required). Body: `{ plan, client? }` where `client` is `web` (default) or `native` |
 | POST | `/api/subscriptions/portal` | Open billing portal (auth required) |
 | GET | `/api/subscriptions/verify?session_id=` | Verify checkout after redirect |
 | GET | `/api/subscriptions/status` | Current subscription status |
@@ -102,6 +102,7 @@ All plans include a **7-day free trial**.
 - [ ] Register production webhook URL: `https://yourdomain.com/api/webhooks/stripe`
 - [ ] Activate live Customer Portal
 - [ ] Set `FRONTEND_URL` to your production domain
+- [ ] Native checkout: API returns `traininglab://` success/cancel URLs when `client` is `native` (`APP_DEEP_LINK_SCHEME`)
 - [ ] Test full signup → checkout → webhook → dashboard flow
 
 ---

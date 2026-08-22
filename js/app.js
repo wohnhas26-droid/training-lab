@@ -18,6 +18,7 @@ import { CHALLENGES } from './data/challenges.js';
 import { ACHIEVEMENTS, getLevelForXp } from './data/levels.js';
 import { saveWeeklyPlan } from './services/storage.js';
 import { openUrl } from './utils/openUrl.js';
+import { startCheckoutReturnListener } from './utils/listenCheckoutReturn.js';
 
 let apiReady = false;
 
@@ -28,6 +29,10 @@ async function init() {
   } else {
     console.log('Running in offline/demo mode (localStorage)');
   }
+  await startCheckoutReturnListener({
+    verifyCheckoutSession,
+    showToast,
+  });
 }
 
 const initPromise = init();

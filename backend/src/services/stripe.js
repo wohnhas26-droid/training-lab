@@ -1,6 +1,9 @@
 import Stripe from 'stripe';
 import { config, PLAN_CONFIG, isStripeConfigured } from '../config.js';
 import { prisma } from '../lib/prisma.js';
+import { buildCheckoutReturnUrls, normalizeCheckoutClient } from './checkoutUrls.js';
+
+export { buildCheckoutReturnUrls, normalizeCheckoutClient } from './checkoutUrls.js';
 
 let stripe = null;
 
@@ -15,15 +18,6 @@ export function getStripe() {
 }
 
 export { isStripeConfigured, PLAN_CONFIG };
-
-function dashboardForRole(role) {
-  const routes = {
-    player: '/player/dashboard.html',
-    coach: '/coach/dashboard.html',
-    parent: '/parent/dashboard.html',
-  };
-  return routes[role] || routes.player;
-}
 
 async function ensureCustomer(user) {
   const s = getStripe();
@@ -52,12 +46,22 @@ async function ensureCustomer(user) {
   return customer.id;
 }
 
+function checkoutUrlsFor(plan, client) {
+  return buildCheckoutReturnUrls({
+    frontendUrl: config.frontendUrl,
+    scheme: config.appDeepLinkScheme,
+    plan,
+    client: normalizeCheckoutClient(client),
+  });
+}
+
 export async function createCheckoutSession(userId, plan, options = {}) {
+  const urls = checkoutUrlsFor(plan, options.client);
   const s = getStripe();
   if (!s) {
     return {
       demo: true,
-      url: `${config.frontendUrl}${dashboardForRole(options.role || 'player')}?subscribed=true`,
+      url: urls.demoSuccessUrl,
       message: 'Stripe not configured — demo mode active',
     };
   }
@@ -77,15 +81,19 @@ export async function createCheckoutSession(userId, plan, options = {}) {
   if (!user) throw new Error('User not found');
 
   const customerId = await ensureCustomer(user);
-  const successPath = options.successPath || `/subscription/success.html?plan=${plan}`;
-  const cancelPath = options.cancelPath || `/pricing.html?canceled=true`;
+  const successUrl = options.successPath
+    ? `${config.frontendUrl}${options.successPath}&session_id={CHECKOUT_SESSION_ID}`
+    : urls.successUrl;
+  const cancelUrl = options.cancelPath
+    ? `${config.frontendUrl}${options.cancelPath}`
+    : urls.cancelUrl;
 
   const session = await s.checkout.sessions.create({
     customer: customerId,
     mode: 'subscription',
     line_items: [{ price: priceId, quantity: 1 }],
-    success_url: `${config.frontendUrl}${successPath}&session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${config.frontendUrl}${cancelPath}`,
+    success_url: successUrl,
+    cancel_url: cancelUrl,
     allow_promotion_codes: true,
     billing_address_collection: 'auto',
     subscription_data: {
@@ -98,7 +106,7 @@ export async function createCheckoutSession(userId, plan, options = {}) {
   return { url: session.url, sessionId: session.id };
 }
 
-export async function createPortalSession(userId) {
+export async function createPortalSession(userId, options = {}) {
   const s = getStripe();
   if (!s) throw new Error('Stripe not configured');
 
@@ -111,9 +119,10 @@ export async function createPortalSession(userId) {
   const customerId = user.subscription?.stripeCustomerId || await ensureCustomer(user);
   if (!customerId) throw new Error('No billing account found');
 
+  const urls = checkoutUrlsFor('player', options.client);
   const session = await s.billingPortal.sessions.create({
     customer: customerId,
-    return_url: `${config.frontendUrl}/player/profile.html`,
+    return_url: urls.portalReturnUrl,
   });
 
   return { url: session.url };
@@ -266,6 +275,7 @@ export async function getPublicStripeConfig() {
   return {
     configured: isStripeConfigured(),
     publishableKey: config.stripe.publishableKey || null,
+    deepLinkScheme: config.appDeepLinkScheme,
     plans: Object.entries(PLAN_CONFIG).map(([id, plan]) => ({
       id,
       name: plan.name,

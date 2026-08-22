@@ -83,18 +83,35 @@ to rebrand.
 - [ ] Privacy Policy URL (required)
 - [ ] Screenshots (phone + tablet sizes)
 - [ ] `NATIVE_API_URL` points to production API
-- [ ] Test signup, training, checkout (Stripe opens in system browser)
+- [ ] Test signup, training, checkout (Stripe opens in system browser, then returns via `traininglab://`)
 - [ ] Apple: subscriptions often sold on **website** (Stripe), not in-app IAP
 
 ## Stripe on mobile
 
-Checkout opens in the **system browser** via `@capacitor/browser`. After payment, users return to the app manually (deep links can be added later).
+Checkout still opens in the **system browser** via `@capacitor/browser`. The native app
+sends `client: "native"` when creating a session, so Stripe’s `success_url` /
+`cancel_url` (and the Customer Portal `return_url`) use the custom scheme:
+
+| Event | Deep link |
+|-------|-----------|
+| Paid | `traininglab://checkout/success?plan={plan}&session_id={CHECKOUT_SESSION_ID}` |
+| Canceled | `traininglab://checkout/cancel?canceled=true` |
+| Portal return | `traininglab://portal` |
+
+`@capacitor/app` listens for `appUrlOpen` / launch URL, closes the browser, verifies
+the session when `session_id` is present, toasts, and routes to
+`/subscription/success.html` or `/pricing.html?canceled=true`.
+
+Override the scheme with `APP_DEEP_LINK_SCHEME` on the API (default `traininglab`).
+`npm run cap:sync` writes the scheme into Android/iOS projects after `npx cap add`
+(those folders are gitignored). You can also run `node scripts/apply-deeplink-config.mjs`
+on its own.
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `npm run cap:sync` | Build www + sync Android/iOS |
+| `npm run cap:sync` | Build www, sync Android/iOS, register `traininglab://` |
 | `npm run cap:open:android` | Open Android Studio |
 | `npm run cap:open:ios` | Open Xcode |
 | `npm run cap:run:android` | Run on Android with live reload |
