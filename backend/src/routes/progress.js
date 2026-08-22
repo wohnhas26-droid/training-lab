@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { prisma, getUserState } from '../lib/prisma.js';
 import { authRequired } from '../middleware/auth.js';
 import { ACHIEVEMENTS, PROGRESSION_LEVELS } from '../data/index.js';
+import { validateAchievementId } from '../services/achievements.js';
 
 const router = Router();
 
@@ -39,6 +40,9 @@ router.get('/summary', authRequired, async (req, res) => {
 
 router.post('/achievements/:id', authRequired, async (req, res) => {
   const { id } = req.params;
+  const invalid = validateAchievementId(id, ACHIEVEMENTS);
+  if (invalid) return res.status(invalid.status).json({ error: invalid.error });
+
   await prisma.userAchievement.upsert({
     where: { userId_achievementId: { userId: req.userId, achievementId: id } },
     create: { userId: req.userId, achievementId: id },

@@ -156,7 +156,7 @@
       await TrainingLab.ready();
       await TrainingLab.completeSession(`session-${Date.now()}`, exerciseIds, totalXp, minutes);
       const newState = TrainingLab.loadState();
-      const unlocked = TrainingLab.checkAchievements(newState);
+      const unlocked = await TrainingLab.checkAchievements(newState);
 
       clearInterval(timerInterval);
       TrainingLab.showToast(`Session complete! +${totalXp} XP earned`);

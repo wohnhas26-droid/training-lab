@@ -2,6 +2,7 @@ import * as local from './storage.js';
 import { api, isApiMode, getToken, setToken, initApi, checkApiHealth } from './api.js';
 import { getChallengeById } from '../data/challenges.js';
 import { isNativeApp } from '../config/appConfig.js';
+import { pendingAchievements, checkAchievements } from './progressTracker.js';
 
 function checkoutClient() {
   return isNativeApp() ? 'native' : 'web';
@@ -234,6 +235,25 @@ export async function getCoachTeamRemote() {
     }
   }
   return null;
+}
+
+export async function checkAchievementsRemote(state) {
+  const pending = pendingAchievements(state);
+  if (!pending.length) return [];
+
+  if (isApiMode()) {
+    let latest = null;
+    for (const achievement of pending) {
+      latest = await api.unlockAchievement(achievement.id);
+    }
+    if (latest) {
+      cachedState = latest;
+      syncToLocalStorage(latest);
+    }
+    return pending;
+  }
+
+  return checkAchievements(state);
 }
 
 export async function getProgressSummaryRemote() {

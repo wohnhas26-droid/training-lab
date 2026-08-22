@@ -1,33 +1,33 @@
 import { ACHIEVEMENTS, getLevelForXp } from '../data/levels.js';
 import { unlockAchievement, loadState } from './storage.js';
 
-export function checkAchievements(state) {
-  const unlocked = [];
-  const { progress, completedExercises, achievements, activeChallenges, challengeProgress } = state;
-
+export function pendingAchievements(state) {
+  const { progress, completedExercises, achievements, challengeProgress } = state || {};
+  const have = new Set(achievements || []);
   const checks = [
-    { id: 'first_session', condition: progress.skillsCompleted >= 1 },
-    { id: 'streak_7', condition: progress.streak >= 7 },
-    { id: 'streak_30', condition: progress.streak >= 30 },
-    { id: 'ball_master', condition: countCategory(completedExercises, 'bm_') >= 50 },
-    { id: 'finisher', condition: countCategory(completedExercises, 'fi_') >= 25 },
-    { id: 'weak_foot', condition: (challengeProgress.weak_foot || 0) >= 20 },
-    { id: 'speed_demon', condition: (challengeProgress.speed || 0) >= 15 },
-    { id: 'juggler', condition: (challengeProgress.juggling || 0) >= 100 },
-    { id: 'challenge_hero', condition: countCompletedChallenges(challengeProgress) >= 5 },
-    { id: 'elite_graduate', condition: getLevelForXp(progress.xp).current.id === 'elite' || getLevelForXp(progress.xp).current.minXp >= 3500 },
+    { id: 'first_session', condition: (progress?.skillsCompleted || 0) >= 1 },
+    { id: 'streak_7', condition: (progress?.streak || 0) >= 7 },
+    { id: 'streak_30', condition: (progress?.streak || 0) >= 30 },
+    { id: 'ball_master', condition: countCategory(completedExercises || [], 'bm_') >= 50 },
+    { id: 'finisher', condition: countCategory(completedExercises || [], 'fi_') >= 25 },
+    { id: 'weak_foot', condition: (challengeProgress?.weak_foot || 0) >= 20 },
+    { id: 'speed_demon', condition: (challengeProgress?.speed || 0) >= 15 },
+    { id: 'juggler', condition: (challengeProgress?.juggling || 0) >= 100 },
+    { id: 'challenge_hero', condition: countCompletedChallenges(challengeProgress || {}) >= 5 },
+    { id: 'elite_graduate', condition: getLevelForXp(progress?.xp || 0).current.id === 'elite' || getLevelForXp(progress?.xp || 0).current.minXp >= 3500 },
   ];
 
-  for (const check of checks) {
-    if (check.condition && !achievements.includes(check.id)) {
-      const achievement = ACHIEVEMENTS.find(a => a.id === check.id);
-      if (achievement) {
-        unlockAchievement(check.id);
-        unlocked.push(achievement);
-      }
-    }
-  }
+  return checks
+    .filter((check) => check.condition && !have.has(check.id))
+    .map((check) => ACHIEVEMENTS.find((a) => a.id === check.id))
+    .filter(Boolean);
+}
 
+export function checkAchievements(state) {
+  const unlocked = pendingAchievements(state);
+  for (const achievement of unlocked) {
+    unlockAchievement(achievement.id);
+  }
   return unlocked;
 }
 

@@ -47,6 +47,9 @@ globalThis.fetch = async (url, opts = {}) => {
     if (u.endsWith('/progress/summary')) {
       return { xp: 1600, streak: 5, minutesTrained: 340, skillsCompleted: 42 };
     }
+    if (u.includes('/progress/achievements/') && method === 'POST') {
+      return { achievements: ['first_session', 'speed_demon'], progress: { xp: 1600 } };
+    }
     return {};
   };
   return { ok: true, status: 200, json };
@@ -111,6 +114,18 @@ test('online: getCatalogRemote loads exercises and categories from the API', asy
   assert.equal(catalog.categories.ball_mastery.name, 'Ball Mastery');
   assert.ok(calls.find((c) => c.url.endsWith('/catalog/exercises')));
   assert.ok(calls.find((c) => c.url.endsWith('/catalog/categories')));
+});
+
+test('online: checkAchievementsRemote POSTs newly earned badges', async () => {
+  const unlocked = await ds.checkAchievementsRemote({
+    progress: { skillsCompleted: 42, streak: 5, xp: 1600 },
+    completedExercises: [],
+    achievements: ['first_session', 'streak_7'],
+    challengeProgress: { speed: 15 },
+  });
+  assert.deepEqual(unlocked.map((a) => a.id), ['speed_demon']);
+  const post = calls.find((c) => c.url.includes('/progress/achievements/speed_demon') && c.method === 'POST');
+  assert.ok(post, 'expected a POST to /progress/achievements/speed_demon');
 });
 
 test('online: getProgressSummaryRemote GETs /progress/summary', async () => {

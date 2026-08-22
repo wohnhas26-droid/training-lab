@@ -118,7 +118,7 @@
             }
           }
         }
-        TrainingLab.checkAchievements(TrainingLab.loadState());
+        await TrainingLab.checkAchievements(TrainingLab.loadState());
         renderChallenges();
       } catch (err) {
         TrainingLab.showToast(err.message || 'Could not update challenge');
