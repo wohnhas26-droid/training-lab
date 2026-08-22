@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import { prisma, getUserState, parseJson } from '../lib/prisma.js';
+import { prisma, getUserState } from '../lib/prisma.js';
 import { authRequired, requireRole } from '../middleware/auth.js';
+import { monthlyReports } from '../services/reports.js';
 
 const router = Router();
 
@@ -35,8 +36,52 @@ async function getTeamWithRoster(coachId) {
   return { team, players };
 }
 
+async function playerOnCoachTeam(coachId, playerId) {
+  const membership = await prisma.teamMember.findFirst({
+    where: { userId: playerId, team: { coachId } },
+    select: { id: true },
+  });
+  return Boolean(membership);
+}
+
 router.get('/team', async (req, res) => {
   res.json(await getTeamWithRoster(req.userId));
+});
+
+router.get('/players/:userId', async (req, res) => {
+  const onTeam = await playerOnCoachTeam(req.userId, req.params.userId);
+  if (!onTeam) return res.status(404).json({ error: 'Player not on your team' });
+
+  const state = await getUserState(req.params.userId);
+  if (!state || state.user.role !== 'player') {
+    return res.status(404).json({ error: 'Player not on your team' });
+  }
+
+  const videos = await prisma.videoSubmission.findMany({
+    where: { playerId: req.params.userId },
+    orderBy: { createdAt: 'desc' },
+    take: 10,
+  });
+
+  const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().split('T')[0];
+  const weeklySessions = (state.completedSessions || []).filter(s => s.date >= weekAgo);
+
+  res.json({
+    user: state.user,
+    profile: state.profile,
+    progress: state.progress,
+    coachFeedback: state.coachFeedback,
+    reports: monthlyReports(state.completedSessions, { months: 4 }),
+    weeklySessions: weeklySessions.length,
+    weeklyMinutes: weeklySessions.reduce((sum, s) => sum + (s.minutes || 0), 0),
+    videos: videos.map(v => ({
+      id: v.id,
+      skill: v.skill,
+      url: v.url,
+      status: v.status,
+      createdAt: v.createdAt,
+    })),
+  });
 });
 
 router.post('/team/players', async (req, res) => {

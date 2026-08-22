@@ -68,6 +68,7 @@ export const api = {
   logChallengeProgress: (id, increment = 1) => request(`/challenges/${id}/progress`, { method: 'POST', body: JSON.stringify({ increment }) }),
 
   getCoachTeam: () => request('/coach/team'),
+  getCoachPlayer: (userId) => request(`/coach/players/${encodeURIComponent(userId)}`),
   addTeamPlayer: (email) => request('/coach/team/players', { method: 'POST', body: JSON.stringify({ email }) }),
   removeTeamPlayer: (userId) => request(`/coach/team/players/${encodeURIComponent(userId)}`, { method: 'DELETE' }),
   createAssignment: (body) => request('/coach/assignments', { method: 'POST', body: JSON.stringify(body) }),

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player Report — Futbol Training Lab</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="nav"></div>
+  <div class="dashboard">
+    <div id="sidebar"></div>
+    <main class="main-content">
+      <div class="page-header">
+        <p style="margin-bottom: 0.5rem;"><a href="/coach/players.html" style="color: var(--green-400);">&larr; Back to roster</a></p>
+        <h1 id="player-name">Player Report</h1>
+        <p id="player-meta"></p>
+      </div>
+      <div class="grid grid-4" id="player-stats" style="margin-bottom: 2rem;"></div>
+      <div class="card" style="margin-bottom: 2rem;">
+        <h3 class="card-title">Monthly Report Cards</h3>
+        <div id="report-cards" class="grid grid-2" style="margin-top: 1rem;"></div>
+      </div>
+      <div class="grid grid-2">
+        <div class="card">
+          <h3 class="card-title">Coach Feedback</h3>
+          <div id="feedback-list" style="margin-top: 1rem;"></div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Skill Videos</h3>
+          <div id="video-list" style="margin-top: 1rem;"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script type="module">
+    import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
+    import '/js/app.js';
+
+    TrainingLab.requireAuth('coach');
+    document.getElementById('nav').innerHTML = renderNav();
+    document.getElementById('sidebar').innerHTML = renderSidebar('coach', 'players');
+
+    const playerId = new URLSearchParams(window.location.search).get('id');
+
+    function formatDate(value) {
+      if (!value) return '';
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return escapeHtml(value);
+      return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    if (!playerId) {
+      document.getElementById('player-meta').textContent = 'No player selected.';
+    } else {
+      await TrainingLab.ready();
+      try {
+        const detail = await TrainingLab.getCoachPlayer(playerId);
+        const name = detail.user?.name || 'Player';
+        document.title = `${name} — Futbol Training Lab`;
+        document.getElementById('player-name').textContent = name;
+        const position = detail.profile?.position || 'Player';
+        const skill = detail.profile?.skillLevel || '';
+        document.getElementById('player-meta').textContent = skill
+          ? `${position} · ${skill}`
+          : position;
+
+        const xp = detail.progress?.xp || 0;
+        const streak = detail.progress?.streak || 0;
+        document.getElementById('player-stats').innerHTML = `
+          <div class="stat-card"><div class="stat-value">${xp.toLocaleString()}</div><div class="stat-label">XP</div></div>
+          <div class="stat-card"><div class="stat-value">${streak}</div><div class="stat-label">Day Streak</div></div>
+          <div class="stat-card"><div class="stat-value">${detail.weeklySessions || 0}</div><div class="stat-label">Sessions This Week</div></div>
+          <div class="stat-card"><div class="stat-value">${detail.weeklyMinutes || 0}</div><div class="stat-label">Minutes This Week</div></div>
+        `;
+
+        const reports = detail.reports || [];
+        document.getElementById('report-cards').innerHTML = reports.length
+          ? reports.map(r => `
+            <div${r.sessions === 0 ? ' style="opacity: 0.7;"' : ''}>
+              <h3 class="card-title">${escapeHtml(r.label)}</h3>
+              <p style="font-size: 2rem; font-weight: 800; color: var(--green-400); margin: 0.75rem 0;">${Number(r.score) || 0}/10</p>
+              <ul style="color: var(--slate-400); font-size: 0.9rem; padding-left: 1.25rem;">
+                <li>Training consistency: ${escapeHtml(r.consistency)}</li>
+                <li>Sessions completed: ${Number(r.sessions) || 0}</li>
+                <li>Minutes trained: ${Number(r.minutes) || 0}</li>
+                <li>Skills practiced: ${Number(r.skills) || 0}</li>
+              </ul>
+            </div>`).join('')
+          : '<p style="color: var(--slate-500);">No monthly history yet.</p>';
+
+        const feedback = detail.coachFeedback || [];
+        document.getElementById('feedback-list').innerHTML = feedback.length
+          ? feedback.map(f => `
+            <div style="padding: 0.75rem 0; border-bottom: 1px solid var(--slate-800);">
+              <div style="display:flex; justify-content:space-between; gap: 0.75rem; flex-wrap:wrap;">
+                <strong style="color: var(--slate-200);">${escapeHtml(f.coachName || 'Coach')}</strong>
+                <span style="font-size: 0.85rem; color: var(--slate-500);">${formatDate(f.date)}${Number.isFinite(Number(f.rating)) ? ` · ${Number(f.rating)}/10` : ''}</span>
+              </div>
+              <p style="margin-top: 0.4rem; color: var(--slate-300);">${escapeHtml(f.feedback)}</p>
+            </div>`).join('')
+          : '<p style="color: var(--slate-500);">No feedback yet.</p>';
+
+        const videos = detail.videos || [];
+        document.getElementById('video-list').innerHTML = videos.length
+          ? videos.map(v => {
+              const pending = String(v.status).toLowerCase() === 'pending';
+              const skill = escapeHtml(v.skill);
+              const link = v.url
+                ? ` · <a href="${escapeHtml(v.url)}" target="_blank" rel="noopener" style="color: var(--green-400);">link</a>`
+                : '';
+              return `
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 0; border-bottom:1px solid var(--slate-800);">
+                <div><strong>${skill}</strong>${link}</div>
+                <span class="badge ${pending ? 'badge-gold' : 'badge-green'}">${pending ? 'Pending' : 'Reviewed'}</span>
+              </div>`;
+            }).join('')
+          : '<p style="color: var(--slate-500);">No skill videos submitted.</p>';
+      } catch (err) {
+        document.getElementById('player-meta').textContent = err.message || 'Could not load this player.';
+      }
+    }
+  </script>
+</body>
+</html>

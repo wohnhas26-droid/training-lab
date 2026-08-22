@@ -32,6 +32,9 @@ globalThis.fetch = async (url, opts = {}) => {
     if (u.endsWith('/coach/feedback')) {
       return { id: 'fb-1', ...JSON.parse(opts.body) };
     }
+    if (u.includes('/coach/players/')) {
+      return { user: { id: 'p-123', name: 'Alex Rivera' }, reports: [], videos: [] };
+    }
     return {};
   };
   return { ok: true, status: 200, json };
@@ -71,4 +74,11 @@ test('online: submitFeedbackRemote POSTs playerId to the API (no local write)', 
   assert.equal(sent.rating, 9);
   assert.equal(sent.feedback, 'Nice');
   assert.equal(localStorage.getItem('training_lab_app'), null);
+});
+
+test('online: getCoachPlayerRemote GETs the player report', async () => {
+  const detail = await ds.getCoachPlayerRemote('p-123');
+  assert.equal(detail.user.name, 'Alex Rivera');
+  const get = calls.find((c) => c.url.includes('/coach/players/p-123') && c.method === 'GET');
+  assert.ok(get, 'expected a GET to /coach/players/:id');
 });

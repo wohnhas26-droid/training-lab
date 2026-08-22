@@ -54,3 +54,10 @@ test('offline: submitFeedbackRemote falls back to the local state store', async 
   assert.equal(state.coachFeedback[0].feedback, 'Great scanning');
   assert.equal(state.coachFeedback[0].rating, 8);
 });
+
+test('offline: getCoachPlayerRemote requires the API', async () => {
+  await assert.rejects(
+    () => ds.getCoachPlayerRemote('player-1'),
+    /internet connection/,
+  );
+});
