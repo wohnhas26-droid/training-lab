@@ -184,6 +184,13 @@ export async function getCoachTeamRemote() {
   return null;
 }
 
+export async function getCoachPlayerRemote(userId) {
+  if (!isApiMode()) {
+    throw new Error('Player reports require an internet connection');
+  }
+  return api.getCoachPlayer(userId);
+}
+
 const LOCAL_ASSIGNMENTS_KEY = 'coach_assignments';
 
 function loadLocalAssignments() {
