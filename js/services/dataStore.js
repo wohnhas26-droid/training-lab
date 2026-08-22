@@ -1,5 +1,6 @@
 import * as local from './storage.js';
 import { api, isApiMode, getToken, setToken, initApi, checkApiHealth } from './api.js';
+import { getChallengeById } from '../data/challenges.js';
 
 let cachedState = null;
 
@@ -28,6 +29,7 @@ function syncToLocalStorage(state) {
     completedExercises: state.completedExercises,
     achievements: state.achievements,
     activeChallenges: state.activeChallenges,
+    completedChallenges: state.completedChallenges || [],
     challengeProgress: state.challengeProgress,
     weeklyPlan: state.weeklyPlan,
     coachFeedback: state.coachFeedback || [],
@@ -132,8 +134,22 @@ export async function updateChallengeProgressRemote(challengeId, increment = 1) 
     return result;
   }
   const state = local.loadState();
-  const progress = (state.challengeProgress[challengeId] || 0) + increment;
-  return local.updateChallengeProgress(challengeId, progress);
+  if ((state.completedChallenges || []).includes(challengeId)) return state;
+  const challenge = getChallengeById(challengeId);
+  const current = state.challengeProgress[challengeId] || 0;
+  const next = challenge ? Math.min(challenge.targetCount, current + increment) : current + increment;
+  let updated = local.updateChallengeProgress(challengeId, next);
+  if (challenge && next >= challenge.targetCount) {
+    updated = local.updateState({
+      activeChallenges: (updated.activeChallenges || []).filter((id) => id !== challengeId),
+      completedChallenges: [...new Set([...(updated.completedChallenges || []), challengeId])],
+      progress: {
+        ...updated.progress,
+        xp: (updated.progress?.xp || 0) + challenge.xpReward,
+      },
+    });
+  }
+  return updated;
 }
 
 export async function updateProfileRemote(profile) {

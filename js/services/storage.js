@@ -18,6 +18,7 @@ const DEFAULT_STATE = {
   achievements: [],
   activeChallenges: [],
   challengeProgress: {},
+  completedChallenges: [],
   weeklyPlan: null,
   teamAssignments: [],
   coachFeedback: [],
@@ -152,6 +153,7 @@ export function unlockAchievement(achievementId) {
 
 export function joinChallenge(challengeId) {
   const state = loadState();
+  if ((state.completedChallenges || []).includes(challengeId)) return state;
   if (state.activeChallenges.includes(challengeId)) return state;
   return updateState({
     activeChallenges: [...state.activeChallenges, challengeId],
