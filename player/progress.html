@@ -62,6 +62,7 @@
     import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
     import { videoPreviewHtml } from '/js/utils/videoEmbed.js';
     import { renderSkillVideoList } from '/js/components/skillVideos.js';
+    import { renderProgressStats, renderLevelTrack, renderAchievements } from '/js/components/playerProgress.js';
     import '/js/app.js';
     import { PROGRESSION_LEVELS } from '/js/data/levels.js';
 
@@ -71,39 +72,17 @@
     document.getElementById('nav').innerHTML = renderNav();
     document.getElementById('sidebar').innerHTML = renderSidebar('player', 'progress');
 
-    const summary = TrainingLab.getProgressSummary();
+    await TrainingLab.ready();
+    const summary = await TrainingLab.getProgressSummary();
+    const fresh = TrainingLab.loadState();
 
-    document.getElementById('level-track').innerHTML = PROGRESSION_LEVELS.map(level => {
-      const reached = summary.xp >= level.minXp;
-      return `
-        <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem 0; border-bottom: 1px solid var(--slate-800); opacity: ${reached ? 1 : 0.4};">
-          <span style="font-size: 1.5rem;">${level.icon}</span>
-          <div style="flex: 1;">
-            <div style="font-weight: 700; color: ${reached ? 'var(--green-400)' : 'var(--slate-400)'};">${level.name}</div>
-            <div style="font-size: 0.8rem; color: var(--slate-500);">${level.minXp} XP required</div>
-          </div>
-          ${reached ? '<span class="badge badge-green">Unlocked</span>' : ''}
-        </div>
-      `;
-    }).join('');
-
-    document.getElementById('progress-stats').innerHTML = `
-      <div class="stat-card"><div class="stat-value">${summary.streak}</div><div class="stat-label">Current Streak</div></div>
-      <div class="stat-card"><div class="stat-value">${summary.skillsCompleted}</div><div class="stat-label">Skills Completed</div></div>
-      <div class="stat-card"><div class="stat-value">${summary.weeklySessions}</div><div class="stat-label">Sessions This Week</div></div>
-      <div class="stat-card"><div class="stat-value">${summary.minutesTrained}</div><div class="stat-label">Total Minutes</div></div>
-    `;
-
-    document.getElementById('achievements-grid').innerHTML = TrainingLab.ACHIEVEMENTS.map(a => {
-      const unlocked = state.achievements.includes(a.id);
-      return `
-        <div class="achievement ${unlocked ? 'unlocked' : ''}">
-          <div class="achievement-icon">${a.icon}</div>
-          <div class="achievement-name">${a.name}</div>
-          <div style="font-size: 0.7rem; color: var(--slate-500); margin-top: 0.25rem;">${a.description}</div>
-        </div>
-      `;
-    }).join('');
+    document.getElementById('level-track').innerHTML = renderLevelTrack(PROGRESSION_LEVELS, summary.xp, { escapeHtml });
+    document.getElementById('progress-stats').innerHTML = renderProgressStats(summary);
+    document.getElementById('achievements-grid').innerHTML = renderAchievements(
+      TrainingLab.ACHIEVEMENTS,
+      fresh.achievements,
+      { escapeHtml },
+    );
 
     // Skill video submissions
     const videoSkill = document.getElementById('video-skill');
@@ -177,15 +156,10 @@
       }).join('');
     }
 
-    renderCoachFeedback(state.coachFeedback);
-    (async () => {
-      await TrainingLab.ready();
-      const fresh = TrainingLab.loadState();
-      renderCoachFeedback(fresh.coachFeedback);
-    })();
+    renderCoachFeedback(fresh.coachFeedback);
 
-    if (state.subscription === 'elite') {
-      const evaluation = TrainingLab.generateEvaluation(state.profile || {}, state.progress);
+    if (fresh.subscription === 'elite') {
+      const evaluation = TrainingLab.generateEvaluation(fresh.profile || {}, fresh.progress);
       document.getElementById('evaluation-card').style.display = 'block';
       document.getElementById('evaluation-content').innerHTML = `
         <p style="font-size: 2rem; font-weight: 800; color: var(--green-400);">${evaluation.overallRating}/10</p>
