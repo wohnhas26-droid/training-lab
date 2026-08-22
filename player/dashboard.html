@@ -45,6 +45,7 @@
   <script type="module">
     import { renderNav, renderSidebar, getCategoryName, escapeHtml } from '/js/components/ui.js';
     import { renderPlayerAssignmentList } from '/js/components/assignments.js';
+    import { renderDashboardStats, renderLevelInfo } from '/js/components/playerProgress.js';
     import '/js/app.js';
     import { getDayName } from '/js/services/storage.js';
     import { WEEKLY_SCHEDULE } from '/js/data/exercises.js';
@@ -57,23 +58,7 @@
     document.getElementById('sidebar').innerHTML = renderSidebar('player', 'dashboard');
     document.getElementById('user-name').textContent = state.user.name.split(' ')[0];
 
-    const summary = TrainingLab.getProgressSummary();
     const today = getDayName();
-
-    document.getElementById('stats-grid').innerHTML = `
-      <div class="stat-card"><div class="stat-value">${summary.streak}</div><div class="stat-label">Day Streak</div></div>
-      <div class="stat-card"><div class="stat-value">${summary.xp}</div><div class="stat-label">Total XP</div></div>
-      <div class="stat-card"><div class="stat-value">${summary.minutesTrained}</div><div class="stat-label">Minutes Trained</div></div>
-      <div class="stat-card"><div class="stat-value">${summary.achievementsUnlocked}/${summary.totalAchievements}</div><div class="stat-label">Achievements</div></div>
-    `;
-
-    document.getElementById('level-info').innerHTML = `
-      <div class="level-badge" style="margin-bottom: 1rem;">${summary.level.icon} ${summary.level.name}</div>
-      <div class="progress-bar" style="margin-bottom: 0.5rem;"><div class="progress-fill" style="width: ${summary.levelProgress}%"></div></div>
-      <p style="font-size: 0.85rem; color: var(--slate-400);">
-        ${summary.nextLevel ? `${Math.round(summary.levelProgress)}% to ${summary.nextLevel.name}` : 'Max level reached!'}
-      </p>
-    `;
 
     function renderSession(session) {
       document.getElementById('today-focus').textContent =
@@ -103,6 +88,10 @@
     renderWeek(state.weeklyPlan);
 
     await TrainingLab.ready();
+    const summary = await TrainingLab.getProgressSummary();
+    document.getElementById('stats-grid').innerHTML = renderDashboardStats(summary);
+    document.getElementById('level-info').innerHTML = renderLevelInfo(summary);
+
     const current = TrainingLab.loadState();
     const session = await TrainingLab.getTodayTraining();
     renderSession(session);

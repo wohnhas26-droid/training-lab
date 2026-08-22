@@ -2,7 +2,7 @@ import {
   loadState, saveState, logout, saveProfile, saveSubscription,
   completeSessionRemote, joinChallengeRemote, updateChallengeProgressRemote,
   register, loginWithCredentials, regeneratePlanRemote, getTodayTrainingRemote, updateProfileRemote,
-  getCoachTeamRemote, emptyCoachTeamSnapshot,
+  getCoachTeamRemote, emptyCoachTeamSnapshot, getProgressSummaryRemote,
   addTeamPlayerRemote, removeTeamPlayerRemote, getCoachPlayerRemote,
   getAssignmentsRemote, createAssignmentRemote, getMyAssignmentsRemote, completeAssignmentRemote, submitFeedbackRemote,
   getCoachVideosRemote, getChildReportRemote, getChildReportsRemote, addChildRemote, removeChildRemote,
@@ -11,7 +11,7 @@ import {
   getStripeConfig, bootstrap, isApiMode,
 } from './services/dataStore.js';
 import { generatePersonalizedPlan, getTodaySession, generateEvaluation } from './services/trainingPlanner.js';
-import { checkAchievements, getProgressSummary, getCoachTeamData, getParentReport } from './services/progressTracker.js';
+import { checkAchievements, getProgressSummary as getLocalProgressSummary, getCoachTeamData, getParentReport } from './services/progressTracker.js';
 import { showToast } from './components/ui.js';
 import { SUBSCRIPTION_PLANS } from './data/subscriptions.js';
 import { TRAINING_CATEGORIES, EXERCISES } from './data/exercises.js';
@@ -66,7 +66,10 @@ window.TrainingLab = {
   getTodaySession,
   generateEvaluation,
   checkAchievements,
-  getProgressSummary,
+  getProgressSummary: async () => {
+    const remote = await getProgressSummaryRemote();
+    return remote || getLocalProgressSummary();
+  },
   getCoachTeam: async () => {
     const remote = await getCoachTeamRemote();
     return remote || emptyCoachTeamSnapshot();

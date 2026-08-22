@@ -66,3 +66,8 @@ test('offline: getCatalogRemote returns null so the page can use the bundled cat
   const catalog = await ds.getCatalogRemote();
   assert.equal(catalog, null);
 });
+
+test('offline: getProgressSummaryRemote returns null so local summary is used', async () => {
+  const summary = await ds.getProgressSummaryRemote();
+  assert.equal(summary, null);
+});

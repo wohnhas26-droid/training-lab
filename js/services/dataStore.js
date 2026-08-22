@@ -236,6 +236,17 @@ export async function getCoachTeamRemote() {
   return null;
 }
 
+export async function getProgressSummaryRemote() {
+  if (isApiMode()) {
+    try {
+      return await api.getProgressSummary();
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 export async function getCoachPlayerRemote(userId) {
   if (!isApiMode()) {
     throw new Error('Player reports require an internet connection');

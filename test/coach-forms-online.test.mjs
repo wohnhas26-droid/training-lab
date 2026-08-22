@@ -44,6 +44,9 @@ globalThis.fetch = async (url, opts = {}) => {
     if (u.endsWith('/catalog/categories')) {
       return { ball_mastery: { id: 'ball_mastery', name: 'Ball Mastery' } };
     }
+    if (u.endsWith('/progress/summary')) {
+      return { xp: 1600, streak: 5, minutesTrained: 340, skillsCompleted: 42 };
+    }
     return {};
   };
   return { ok: true, status: 200, json };
@@ -108,4 +111,11 @@ test('online: getCatalogRemote loads exercises and categories from the API', asy
   assert.equal(catalog.categories.ball_mastery.name, 'Ball Mastery');
   assert.ok(calls.find((c) => c.url.endsWith('/catalog/exercises')));
   assert.ok(calls.find((c) => c.url.endsWith('/catalog/categories')));
+});
+
+test('online: getProgressSummaryRemote GETs /progress/summary', async () => {
+  const summary = await ds.getProgressSummaryRemote();
+  assert.equal(summary.xp, 1600);
+  assert.equal(summary.streak, 5);
+  assert.ok(calls.find((c) => c.url.endsWith('/progress/summary') && c.method === 'GET'));
 });
