@@ -38,6 +38,7 @@ function syncToLocalStorage(state) {
     challengeProgress: state.challengeProgress,
     weeklyPlan: state.weeklyPlan,
     coachFeedback: state.coachFeedback || [],
+    children: state.children || [],
   });
 }
 
@@ -59,6 +60,7 @@ export async function register(formData) {
       name: formData.name,
       role: formData.role || 'player',
       plan: formData.plan || 'player',
+      childEmail: formData.childEmail || undefined,
       profile: formData.role === 'player' ? {
         age: parseInt(formData.age) || 14,
         position: formData.position || 'midfielder',
@@ -316,6 +318,24 @@ export async function getCoachVideosRemote() {
     }
   }
   return DEMO_VIDEOS;
+}
+
+export async function addChildRemote(email) {
+  if (!isApiMode()) {
+    throw new Error('Linking a player requires an internet connection');
+  }
+  cachedState = await api.addChild(email);
+  syncToLocalStorage(cachedState);
+  return cachedState;
+}
+
+export async function removeChildRemote(userId) {
+  if (!isApiMode()) {
+    throw new Error('Unlinking a player requires an internet connection');
+  }
+  cachedState = await api.removeChild(userId);
+  syncToLocalStorage(cachedState);
+  return cachedState;
 }
 
 export async function getChildReportRemote(childId) {

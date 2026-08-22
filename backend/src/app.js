@@ -20,6 +20,7 @@ import subscriptionRoutes from './routes/subscriptions.js';
 import webhookRoutes from './routes/webhooks.js';
 import catalogRoutes from './routes/catalog.js';
 import videoRoutes from './routes/videos.js';
+import parentRoutes from './routes/parent.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const staticRoot = join(__dirname, '../..');
@@ -67,6 +68,7 @@ export function createApp() {
   app.use('/api/subscriptions', subscriptionRoutes);
   app.use('/api/catalog', catalogRoutes);
   app.use('/api/videos', videoRoutes);
+  app.use('/api/parent', parentRoutes);
 
   if (config.nodeEnv === 'production') {
     app.use(express.static(staticRoot, { index: false }));

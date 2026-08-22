@@ -22,6 +22,7 @@ const DEFAULT_STATE = {
   weeklyPlan: null,
   teamAssignments: [],
   coachFeedback: [],
+  children: [],
 };
 
 export function loadState() {
