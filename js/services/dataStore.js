@@ -146,6 +146,22 @@ export async function regeneratePlanRemote(profile) {
   return null;
 }
 
+export async function addTeamPlayerRemote(email) {
+  if (!isApiMode()) {
+    throw new Error('Adding players requires an internet connection');
+  }
+  const data = await api.addTeamPlayer(email);
+  return data.players || [];
+}
+
+export async function removeTeamPlayerRemote(userId) {
+  if (!isApiMode()) {
+    throw new Error('Removing players requires an internet connection');
+  }
+  const data = await api.removeTeamPlayer(userId);
+  return data.players || [];
+}
+
 export async function getCoachTeamRemote() {
   if (isApiMode()) {
     try {
