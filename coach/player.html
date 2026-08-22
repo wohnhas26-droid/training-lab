@@ -35,6 +35,8 @@
   </div>
   <script type="module">
     import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
+    import { videoPreviewHtml } from '/js/utils/videoEmbed.js';
+    import { renderSkillVideoList } from '/js/components/skillVideos.js';
     import '/js/app.js';
 
     TrainingLab.requireAuth('coach');
@@ -101,21 +103,12 @@
             </div>`).join('')
           : '<p style="color: var(--slate-500);">No feedback yet.</p>';
 
-        const videos = detail.videos || [];
-        document.getElementById('video-list').innerHTML = videos.length
-          ? videos.map(v => {
-              const pending = String(v.status).toLowerCase() === 'pending';
-              const skill = escapeHtml(v.skill);
-              const link = v.url
-                ? ` · <a href="${escapeHtml(v.url)}" target="_blank" rel="noopener" style="color: var(--green-400);">link</a>`
-                : '';
-              return `
-              <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 0; border-bottom:1px solid var(--slate-800);">
-                <div><strong>${skill}</strong>${link}</div>
-                <span class="badge ${pending ? 'badge-gold' : 'badge-green'}">${pending ? 'Pending' : 'Reviewed'}</span>
-              </div>`;
-            }).join('')
-          : '<p style="color: var(--slate-500);">No skill videos submitted.</p>';
+        document.getElementById('video-list').innerHTML = renderSkillVideoList(detail.videos, {
+          escapeHtml,
+          videoPreviewHtml,
+          emptyText: 'No skill videos submitted.',
+          pendingLabel: 'Pending',
+        });
       } catch (err) {
         document.getElementById('player-meta').textContent = err.message || 'Could not load this player.';
       }

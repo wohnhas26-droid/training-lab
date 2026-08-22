@@ -60,6 +60,8 @@
 
   <script type="module">
     import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
+    import { videoPreviewHtml } from '/js/utils/videoEmbed.js';
+    import { renderSkillVideoList } from '/js/components/skillVideos.js';
     import '/js/app.js';
     import { PROGRESSION_LEVELS } from '/js/data/levels.js';
 
@@ -106,22 +108,14 @@
     // Skill video submissions
     const videoSkill = document.getElementById('video-skill');
     videoSkill.innerHTML = Object.values(TrainingLab.TRAINING_CATEGORIES)
-      .map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+      .map(c => `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`).join('');
 
     function renderMyVideos(videos) {
-      const el = document.getElementById('my-videos');
-      if (!videos.length) {
-        el.innerHTML = '<p style="color: var(--slate-500);">No submissions yet.</p>';
-        return;
-      }
-      el.innerHTML = videos.map(v => {
-        const pending = String(v.status).toLowerCase() === 'pending';
-        return `
-        <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 0; border-bottom:1px solid var(--slate-800);">
-          <div><strong>${v.skill}</strong>${v.url ? ` · <a href="${v.url}" target="_blank" rel="noopener" style="color: var(--green-400);">link</a>` : ''}</div>
-          <span class="badge ${pending ? 'badge-gold' : 'badge-green'}">${pending ? 'Pending Review' : 'Reviewed'}</span>
-        </div>`;
-      }).join('');
+      document.getElementById('my-videos').innerHTML = renderSkillVideoList(videos, {
+        escapeHtml,
+        videoPreviewHtml,
+        emptyText: 'No submissions yet.',
+      });
     }
 
     let myVideos = [];
