@@ -62,3 +62,57 @@ jobs:
         env:
           DATABASE_URL: file:./test.db
           JWT_SECRET: ci-test-secret
+
+  docker-image:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: trainlab
+          POSTGRES_PASSWORD: trainlab_pw
+          POSTGRES_DB: trainlab
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U trainlab -d trainlab"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build production image
+        run: docker build -t training-lab:ci .
+
+      - name: Run container against PostgreSQL
+        run: |
+          docker run -d --name app --network host \
+            -e NODE_ENV=production \
+            -e PORT=3001 \
+            -e JWT_SECRET=ci-strong-secret-abcdefghijklmnop \
+            -e DATABASE_URL="postgresql://trainlab:trainlab_pw@localhost:5432/trainlab" \
+            training-lab:ci
+
+      - name: Wait for /api/health
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:3001/api/health; then echo; echo "healthy"; exit 0; fi
+            sleep 2
+          done
+          echo "API did not become healthy"; docker logs app; exit 1
+
+      - name: Seed and smoke-test login
+        run: |
+          docker exec app node prisma/seed.js
+          token=$(curl -s -X POST http://localhost:3001/api/auth/login \
+            -H 'Content-Type: application/json' \
+            -d '{"email":"player@traininglab.com","password":"demo1234"}' \
+            | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write((JSON.parse(s).token)||""))')
+          if [ -z "$token" ]; then echo "login failed"; docker logs app; exit 1; fi
+          echo "login ok (token length ${#token})"
+
+      - name: Container logs on failure
+        if: failure()
+        run: docker logs app || true

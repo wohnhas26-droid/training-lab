@@ -14,6 +14,10 @@
     "db:seed": "node prisma/seed.js",
     "db:studio": "prisma studio",
     "setup": "npm run db:generate && npm run db:push && npm run db:seed",
+    "db:postgres:schema": "node scripts/make-postgres-schema.mjs",
+    "db:postgres:generate": "npm run db:postgres:schema && prisma generate --schema=prisma/schema.postgres.prisma",
+    "db:postgres:push": "npm run db:postgres:schema && prisma db push --schema=prisma/schema.postgres.prisma",
+    "setup:postgres": "npm run db:postgres:generate && npm run db:postgres:push && npm run db:seed",
     "stripe:setup": "node scripts/stripe-setup.js",
     "stripe:webhooks": "node scripts/stripe-webhook-setup.js"
   },
