@@ -6,7 +6,7 @@ import {
   addTeamPlayerRemote, removeTeamPlayerRemote, getCoachPlayerRemote,
   getAssignmentsRemote, createAssignmentRemote, getMyAssignmentsRemote, completeAssignmentRemote, submitFeedbackRemote,
   getCoachVideosRemote, getChildReportRemote, getChildReportsRemote, addChildRemote, removeChildRemote,
-  getMyVideosRemote, submitVideoRemote,
+  getMyVideosRemote, submitVideoRemote, getCatalogRemote,
   createCheckout, openBillingPortal, getSubscriptionStatus, verifyCheckoutSession,
   getStripeConfig, bootstrap, isApiMode,
 } from './services/dataStore.js';
@@ -91,6 +91,11 @@ window.TrainingLab = {
   removeChild: removeChildRemote,
   getMyVideos: getMyVideosRemote,
   submitVideo: submitVideoRemote,
+  getCatalog: async () => {
+    const remote = await getCatalogRemote();
+    if (remote) return remote;
+    return { exercises: EXERCISES, categories: TRAINING_CATEGORIES };
+  },
   getParentReport,
   showToast,
   SUBSCRIPTION_PLANS,

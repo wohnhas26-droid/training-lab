@@ -27,40 +27,39 @@
   </div>
 
   <script type="module">
-    import { renderNav, renderSidebar, getCategoryName, difficultyBadge } from '/js/components/ui.js';
+    import { renderNav, renderSidebar, escapeHtml, getCategoryName, difficultyBadge } from '/js/components/ui.js';
+    import {
+      normalizeCategories,
+      completedExerciseIds,
+      filterExercises,
+      renderCategoryOptions,
+      renderLibraryCards,
+    } from '/js/components/library.js';
     import '/js/app.js';
-    import { TRAINING_CATEGORIES } from '/js/data/exercises.js';
 
     TrainingLab.requireAuth('player');
     document.getElementById('nav').innerHTML = renderNav();
     document.getElementById('sidebar').innerHTML = renderSidebar('player', 'library');
 
     const filter = document.getElementById('category-filter');
-    Object.values(TRAINING_CATEGORIES).forEach(cat => {
-      filter.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
-    });
-
-    document.getElementById('exercise-count').textContent = TrainingLab.EXERCISES.length;
+    let exercises = [];
+    let completedIds = new Set();
 
     function renderLibrary(category = 'all') {
-      const exercises = category === 'all'
-        ? TrainingLab.EXERCISES
-        : TrainingLab.EXERCISES.filter(e => e.category === category);
-
-      document.getElementById('library-grid').innerHTML = exercises.map(ex => `
-        <div class="card">
-          <div style="display: flex; justify-content: space-between; align-items: start;">
-            <h3 class="card-title">${ex.name}</h3>
-            ${difficultyBadge(ex.difficulty)}
-          </div>
-          <p class="card-subtitle" style="margin: 0.5rem 0;">${getCategoryName(ex.category)} · ${ex.reps} · ${ex.duration} min · +${ex.xp} XP</p>
-          <p style="font-size: 0.9rem; color: var(--slate-400);">${ex.description}</p>
-          <p style="font-size: 0.8rem; color: var(--slate-500); margin-top: 0.5rem;">Equipment: ${ex.equipment.join(', ')}</p>
-        </div>
-      `).join('');
+      document.getElementById('library-grid').innerHTML = renderLibraryCards(
+        filterExercises(exercises, category),
+        { escapeHtml, getCategoryName, difficultyBadge, completedIds },
+      );
     }
 
     filter.addEventListener('change', () => renderLibrary(filter.value));
+
+    await TrainingLab.ready();
+    const catalog = await TrainingLab.getCatalog();
+    exercises = Array.isArray(catalog.exercises) ? catalog.exercises : [];
+    completedIds = completedExerciseIds(TrainingLab.loadState());
+    filter.innerHTML = renderCategoryOptions(normalizeCategories(catalog.categories), { escapeHtml });
+    document.getElementById('exercise-count').textContent = String(exercises.length);
     renderLibrary();
   </script>
 </body>
