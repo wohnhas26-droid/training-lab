@@ -71,3 +71,9 @@ test('offline: getProgressSummaryRemote returns null so local summary is used', 
   const summary = await ds.getProgressSummaryRemote();
   assert.equal(summary, null);
 });
+
+test('offline: getCoachVideosRemote is empty and does not invent teammates', async () => {
+  const videos = await ds.getCoachVideosRemote();
+  assert.deepEqual(videos, []);
+  assert.doesNotMatch(JSON.stringify(videos), /Jordan Lee|Taylor Kim/);
+});

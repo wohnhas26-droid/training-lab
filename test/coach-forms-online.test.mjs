@@ -47,6 +47,9 @@ globalThis.fetch = async (url, opts = {}) => {
     if (u.endsWith('/progress/summary')) {
       return { xp: 1600, streak: 5, minutesTrained: 340, skillsCompleted: 42 };
     }
+    if (u.endsWith('/coach/videos')) {
+      return [];
+    }
     if (u.includes('/progress/achievements/') && method === 'POST') {
       return { achievements: ['first_session', 'speed_demon'], progress: { xp: 1600 } };
     }
@@ -133,4 +136,12 @@ test('online: getProgressSummaryRemote GETs /progress/summary', async () => {
   assert.equal(summary.xp, 1600);
   assert.equal(summary.streak, 5);
   assert.ok(calls.find((c) => c.url.endsWith('/progress/summary') && c.method === 'GET'));
+});
+
+test('online: empty API video queue stays empty (no invented teammates)', async () => {
+  const videos = await ds.getCoachVideosRemote();
+  assert.deepEqual(videos, []);
+  assert.doesNotMatch(JSON.stringify(videos), /Jordan Lee|Taylor Kim/);
+  const get = calls.find((c) => c.url.endsWith('/coach/videos') && c.method === 'GET');
+  assert.ok(get, 'expected a GET to /coach/videos');
 });
