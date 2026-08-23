@@ -421,6 +421,18 @@ function loadLocalVideos() {
   }
 }
 
+export async function getChallengesRemote() {
+  if (isApiMode()) {
+    try {
+      const list = await api.getChallenges();
+      return Array.isArray(list) ? list : [];
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 export async function getCatalogRemote() {
   if (isApiMode()) {
     try {

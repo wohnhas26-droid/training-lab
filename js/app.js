@@ -6,7 +6,7 @@ import {
   addTeamPlayerRemote, removeTeamPlayerRemote, getCoachPlayerRemote,
   getAssignmentsRemote, createAssignmentRemote, getMyAssignmentsRemote, completeAssignmentRemote, submitFeedbackRemote,
   getCoachVideosRemote, getChildReportRemote, getChildReportsRemote, addChildRemote, removeChildRemote,
-  getMyVideosRemote, submitVideoRemote, getCatalogRemote,
+  getMyVideosRemote, submitVideoRemote, getCatalogRemote, getChallengesRemote,
   createCheckout, openBillingPortal, getSubscriptionStatus, verifyCheckoutSession,
   getStripeConfig, bootstrap, isApiMode,
 } from './services/dataStore.js';
@@ -16,6 +16,7 @@ import { showToast } from './components/ui.js';
 import { SUBSCRIPTION_PLANS } from './data/subscriptions.js';
 import { TRAINING_CATEGORIES, EXERCISES } from './data/exercises.js';
 import { CHALLENGES } from './data/challenges.js';
+import { hydrateChallenges } from './components/challenges.js';
 import { ACHIEVEMENTS, getLevelForXp } from './data/levels.js';
 import { saveWeeklyPlan } from './services/storage.js';
 import { openUrl } from './utils/openUrl.js';
@@ -98,6 +99,11 @@ window.TrainingLab = {
     const remote = await getCatalogRemote();
     if (remote) return remote;
     return { exercises: EXERCISES, categories: TRAINING_CATEGORIES };
+  },
+  getChallenges: async () => {
+    const remote = await getChallengesRemote();
+    if (remote) return hydrateChallenges(remote);
+    return hydrateChallenges(CHALLENGES, loadState());
   },
   getParentReport,
   showToast,
