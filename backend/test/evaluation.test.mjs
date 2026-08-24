@@ -21,3 +21,13 @@ test('generateEvaluation recommendation uses catalog names, not snake_case ids',
   assert.match(evaluation.recommendation, /Ball Mastery, Passing/);
   assert.doesNotMatch(evaluation.recommendation, /ball_mastery/);
 });
+
+test('generateEvaluation recommendation title-cases skill level and position', () => {
+  const evaluation = generateEvaluation(
+    { skillLevel: 'elite', position: 'midfielder', improvementAreas: ['passing'] },
+    { skillsCompleted: 42, streak: 5 },
+  );
+  assert.match(evaluation.recommendation, /Based on your Elite level and Midfielder position/);
+  assert.doesNotMatch(evaluation.recommendation, /elite level/);
+  assert.doesNotMatch(evaluation.recommendation, /midfielder position/);
+});

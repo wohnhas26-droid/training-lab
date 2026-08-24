@@ -158,7 +158,8 @@ export function formatFocusAreas(areas, categories = TRAINING_CATEGORIES) {
 }
 
 export function generateEvaluation(profile, progress) {
-  const level = profile.skillLevel || 'intermediate';
+  const level = formatCategoryLabel(profile.skillLevel || 'intermediate');
+  const position = formatCategoryLabel(profile.position || 'midfielder');
   const sessionsCompleted = progress.skillsCompleted || 0;
   const consistency = progress.streak || 0;
 
@@ -183,6 +184,6 @@ export function generateEvaluation(profile, progress) {
     overallRating: Math.min(10, 5 + Math.floor(sessionsCompleted / 20) + Math.floor(consistency / 3)),
     strengths: strengths.length ? strengths : ['Good foundation to build upon'],
     improvements: improvements.length ? improvements : ['Maintain current training intensity'],
-    recommendation: `Based on your ${level} level and ${profile.position || 'midfielder'} position, focus on ${formatFocusAreas(profile.improvementAreas)} over the next 2 weeks.`,
+    recommendation: `Based on your ${level} level and ${position} position, focus on ${formatFocusAreas(profile.improvementAreas)} over the next 2 weeks.`,
   };
 }
