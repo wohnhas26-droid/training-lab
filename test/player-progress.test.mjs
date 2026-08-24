@@ -9,6 +9,8 @@ import {
   renderLevelTrack,
   renderAchievements,
   renderEvaluation,
+  isRestSession,
+  renderSessionCta,
 } from '../js/components/playerProgress.js';
 
 const apiSummary = {
@@ -103,4 +105,35 @@ test('progress page loads the level track from TrainingLab.getLevels', () => {
   assert.match(html, /TrainingLab\.getLevels\(\)/);
   assert.match(html, /renderLevelTrack\(levels,/);
   assert.doesNotMatch(html, /from '\/js\/data\/levels\.js'/);
+});
+
+test('rest sessions include planner rest days even when recovery drills exist', () => {
+  assert.equal(isRestSession({ rest: true, exercises: [{ id: 'mobility' }] }), true);
+  assert.equal(isRestSession({ rest: true, exercises: [] }), true);
+  assert.equal(isRestSession({ rest: false, exercises: [] }), true);
+  assert.equal(isRestSession({ rest: false, exercises: [{ id: 'passing' }] }), false);
+  assert.equal(isRestSession(null), false);
+});
+
+test('dashboard CTA is secondary View rest day on rest, primary Start Session otherwise', () => {
+  const rest = renderSessionCta({ rest: true, exercises: [{ id: 'mobility' }] });
+  assert.match(rest, /View rest day/);
+  assert.match(rest, /btn-secondary/);
+  assert.match(rest, /href="\/player\/training\.html"/);
+  assert.doesNotMatch(rest, /Start Session/);
+
+  const training = renderSessionCta({ rest: false, exercises: [{ id: 'passing' }] });
+  assert.match(training, /Start Session/);
+  assert.match(training, /btn-primary/);
+  assert.doesNotMatch(training, /View rest day/);
+
+  const missing = renderSessionCta(null);
+  assert.match(missing, /Start Session/);
+});
+
+test('dashboard wires Today\'s Training CTA through renderSessionCta', () => {
+  const html = readFileSync(new URL('../player/dashboard.html', import.meta.url), 'utf8');
+  assert.match(html, /id="session-cta"/);
+  assert.match(html, /renderSessionCta\(session\)/);
+  assert.doesNotMatch(html, />Start Session<\/a>/);
 });

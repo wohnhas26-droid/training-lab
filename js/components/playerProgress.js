@@ -68,6 +68,19 @@ export function renderAchievements(achievements, unlockedIds, { escapeHtml } = {
   }).join('');
 }
 
+export function isRestSession(session) {
+  if (!session) return false;
+  if (session.rest) return true;
+  return !session.exercises || session.exercises.length === 0;
+}
+
+export function renderSessionCta(session) {
+  if (isRestSession(session)) {
+    return `<a href="/player/training.html" class="btn btn-secondary btn-block" id="start-session-btn" style="margin-top: 1rem;">View rest day</a>`;
+  }
+  return `<a href="/player/training.html" class="btn btn-primary btn-block" id="start-session-btn" style="margin-top: 1rem;">Start Session</a>`;
+}
+
 export function renderEvaluation(evaluation, { escapeHtml } = {}) {
   if (!evaluation) return '';
   const esc = escapeHtml || ((v) => String(v ?? ''));
