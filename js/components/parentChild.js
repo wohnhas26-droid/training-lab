@@ -39,6 +39,22 @@ export function bindLinkPlayerForm({ onLinked }) {
   });
 }
 
+export function levelForXp(levels, xp) {
+  const list = Array.isArray(levels) ? [...levels] : [];
+  const currentXp = Number(xp) || 0;
+  list.sort((a, b) => (Number(a.minXp) || 0) - (Number(b.minXp) || 0));
+  let current = list[0] || { name: 'Rookie', minXp: 0, icon: '' };
+  for (const level of list) {
+    if (currentXp >= (Number(level.minXp) || 0)) current = level;
+  }
+  return current;
+}
+
+export function skillProgressionLabel(levels, xp) {
+  const level = levelForXp(levels, xp);
+  return `${level.name || 'Rookie'} (${Number(xp) || 0} XP)`;
+}
+
 export function renderAchievementBadges(unlockedIds, catalog, { escapeHtml } = {}) {
   const esc = escapeHtml || ((v) => String(v ?? ''));
   const ids = Array.isArray(unlockedIds) ? unlockedIds : [];
