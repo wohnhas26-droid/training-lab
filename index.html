@@ -83,20 +83,15 @@
   </footer>
 
   <script type="module">
-    import { renderNav } from '/js/components/ui.js';
-    import { TRAINING_CATEGORIES } from '/js/data/exercises.js';
+    import { renderNav, escapeHtml } from '/js/components/ui.js';
+    import { renderHomeCategoryCards } from '/js/components/homeCategories.js';
+    import '/js/app.js';
 
     document.getElementById('nav').innerHTML = renderNav('home');
 
-    document.getElementById('categories-grid').innerHTML = Object.values(TRAINING_CATEGORIES).map(cat => `
-      <div class="card">
-        <div style="font-size: 2rem; margin-bottom: 0.75rem;">${cat.icon}</div>
-        <h3 class="card-title">${cat.name}</h3>
-        <p class="card-subtitle" style="margin-top: 0.5rem;">
-          ${Object.values(cat.subcategories).flat().slice(0, 4).join(' · ')}...
-        </p>
-      </div>
-    `).join('');
+    await TrainingLab.ready();
+    const catalog = await TrainingLab.getCatalog();
+    document.getElementById('categories-grid').innerHTML = renderHomeCategoryCards(catalog.categories, { escapeHtml });
   </script>
 </body>
 </html>
