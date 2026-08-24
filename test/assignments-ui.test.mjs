@@ -105,3 +105,30 @@ test('assign page wires assigned-session labels through categoryLabel', () => {
   assert.match(html, /categories = catalog\.categories/);
   assert.match(html, /import \{ renderNav, renderSidebar, escapeHtml \}/);
 });
+
+test('player assignment list uses catalog names, not the shortened map', () => {
+  const catalog = { speed: { id: 'speed', name: 'Speed & Athletic Performance' } };
+  const html = renderPlayerAssignmentList([
+    {
+      id: 'a1',
+      title: 'COD sprint block',
+      category: 'speed',
+      dueDate: '2026-08-24',
+      notes: 'T-test cuts',
+      completed: false,
+    },
+  ], {
+    getCategoryName: (id) => categoryLabel(id, catalog),
+    escapeHtml,
+  });
+  assert.match(html, /Speed &amp; Athletic Performance/);
+  assert.doesNotMatch(html, /Speed &amp; Athletic ·/);
+});
+
+test('dashboard wires assignment labels through categoryLabel and getCatalog', () => {
+  const html = readFileSync(new URL('../player/dashboard.html', import.meta.url), 'utf8');
+  assert.match(html, /TrainingLab\.getCatalog\(\)/);
+  assert.match(html, /categoryLabel\(id, categories\)/);
+  assert.match(html, /import \{ renderNav, renderSidebar, escapeHtml \}/);
+  assert.doesNotMatch(html, /from '\/js\/data\/exercises\.js'/);
+});
