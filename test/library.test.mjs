@@ -1,8 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { escapeHtml, getCategoryName, difficultyBadge } from '../js/components/ui.js';
 import {
   normalizeCategories,
+  categoryLabel,
   completedExerciseIds,
   filterExercises,
   renderCategoryOptions,
@@ -65,4 +67,46 @@ test('category options include All and escape labels', () => {
   const html = renderCategoryOptions([{ id: 'passing', name: 'Pass <ing>' }], { escapeHtml });
   assert.match(html, /value="all"/);
   assert.match(html, /Pass &lt;ing&gt;/);
+});
+
+test('categoryLabel uses catalog names, not the shortened hardcoded map', () => {
+  const catalog = {
+    speed: { id: 'speed', name: 'Speed & Athletic Performance' },
+    goalkeeper: { id: 'goalkeeper', name: 'Goalkeeper Training' },
+    recovery: { id: 'recovery', name: 'Mobility & Recovery' },
+  };
+  assert.equal(categoryLabel('speed', catalog), 'Speed & Athletic Performance');
+  assert.equal(categoryLabel('goalkeeper', catalog), 'Goalkeeper Training');
+  assert.equal(categoryLabel('recovery', catalog), 'Mobility & Recovery');
+  assert.equal(categoryLabel('ball_mastery', catalog), 'Ball Mastery');
+});
+
+test('library cards show catalog category names on drill subtitles', () => {
+  const html = renderLibraryCards([
+    {
+      id: 'sp_cod',
+      category: 'speed',
+      name: 'Change of Direction Sprints',
+      duration: 10,
+      reps: '5x T-test',
+      difficulty: 'intermediate',
+      xp: 40,
+      equipment: ['cones'],
+      description: 'Sprint, cut, and accelerate.',
+    },
+  ], {
+    escapeHtml,
+    difficultyBadge,
+    categories: { speed: { id: 'speed', name: 'Speed & Athletic Performance' } },
+  });
+  assert.match(html, /Speed &amp; Athletic Performance/);
+  assert.doesNotMatch(html, /Speed &amp; Athletic ·/);
+});
+
+test('library page passes catalog categories into drill cards', () => {
+  const html = readFileSync(new URL('../player/library.html', import.meta.url), 'utf8');
+  assert.match(html, /TrainingLab\.getCatalog\(\)/);
+  assert.match(html, /categories = catalog\.categories/);
+  assert.match(html, /completedIds, categories/);
+  assert.doesNotMatch(html, /getCategoryName/);
 });

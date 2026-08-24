@@ -26,6 +26,14 @@ export function completedExerciseIds(state) {
   return ids;
 }
 
+export function categoryLabel(id, categories) {
+  const raw = String(id ?? '').trim();
+  if (!raw) return '';
+  const hit = normalizeCategories(categories).find((c) => c.id === raw);
+  if (hit?.name) return hit.name;
+  return raw.replace(/_/g, ' ').replace(/\b[a-z]/g, (ch) => ch.toUpperCase());
+}
+
 export function filterExercises(exercises, category = 'all') {
   const list = Array.isArray(exercises) ? exercises : [];
   if (!category || category === 'all') return list;
@@ -42,6 +50,7 @@ export function renderCategoryOptions(categories, { escapeHtml }) {
 export function renderLibraryCards(exercises, {
   escapeHtml,
   getCategoryName,
+  categories,
   difficultyBadge,
   completedIds,
 } = {}) {
@@ -50,6 +59,11 @@ export function renderLibraryCards(exercises, {
     return '<p style="color: var(--slate-500);">No exercises in this category.</p>';
   }
   const done = completedIds instanceof Set ? completedIds : new Set(completedIds || []);
+  const labelFor = (id) => (
+    categories
+      ? categoryLabel(id, categories)
+      : (getCategoryName ? getCategoryName(id) : categoryLabel(id))
+  );
   return list.map((ex) => {
     const equipment = Array.isArray(ex.equipment) && ex.equipment.length
       ? ex.equipment.map((item) => escapeHtml(item)).join(', ')
@@ -64,7 +78,7 @@ export function renderLibraryCards(exercises, {
               ${difficultyBadge(ex.difficulty)}
             </div>
           </div>
-          <p class="card-subtitle" style="margin: 0.5rem 0;">${escapeHtml(getCategoryName(ex.category))} · ${escapeHtml(ex.reps)} · ${Number(ex.duration) || 0} min · +${Number(ex.xp) || 0} XP</p>
+          <p class="card-subtitle" style="margin: 0.5rem 0;">${escapeHtml(labelFor(ex.category))} · ${escapeHtml(ex.reps)} · ${Number(ex.duration) || 0} min · +${Number(ex.xp) || 0} XP</p>
           <p style="font-size: 0.9rem; color: var(--slate-400);">${escapeHtml(ex.description)}</p>
           <p style="font-size: 0.8rem; color: var(--slate-500); margin-top: 0.5rem;">Equipment: ${equipment}</p>
         </div>
