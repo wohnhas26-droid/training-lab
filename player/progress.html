@@ -61,7 +61,7 @@
   <script type="module">
     import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
     import { videoPreviewHtml } from '/js/utils/videoEmbed.js';
-    import { renderSkillVideoList } from '/js/components/skillVideos.js';
+    import { renderSkillVideoList, renderVideoSkillOptions } from '/js/components/skillVideos.js';
     import { renderProgressStats, renderLevelTrack, renderAchievements, renderEvaluation } from '/js/components/playerProgress.js';
     import '/js/app.js';
 
@@ -75,6 +75,7 @@
     const summary = await TrainingLab.getProgressSummary();
     const badges = await TrainingLab.getAchievements();
     const levels = await TrainingLab.getLevels();
+    const catalog = await TrainingLab.getCatalog();
     const fresh = TrainingLab.loadState();
 
     document.getElementById('level-track').innerHTML = renderLevelTrack(levels, summary.xp, { escapeHtml });
@@ -87,8 +88,7 @@
 
     // Skill video submissions
     const videoSkill = document.getElementById('video-skill');
-    videoSkill.innerHTML = Object.values(TrainingLab.TRAINING_CATEGORIES)
-      .map(c => `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`).join('');
+    videoSkill.innerHTML = renderVideoSkillOptions(catalog.categories, { escapeHtml });
 
     function renderMyVideos(videos) {
       document.getElementById('my-videos').innerHTML = renderSkillVideoList(videos, {

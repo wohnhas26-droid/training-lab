@@ -1,8 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { escapeHtml } from '../js/components/ui.js';
 import { videoPreviewHtml } from '../js/utils/videoEmbed.js';
-import { renderSkillVideoList } from '../js/components/skillVideos.js';
+import { renderSkillVideoList, renderVideoSkillOptions } from '../js/components/skillVideos.js';
 
 const helpers = { escapeHtml, videoPreviewHtml };
 
@@ -34,4 +35,22 @@ test('direct mp4 links render a video player', () => {
   assert.match(html, /ForBiggerEscapes\.mp4/);
   assert.match(html, /Reviewed/);
   assert.doesNotMatch(html, /Pending/);
+});
+
+test('video skill options use catalog names and escape labels', () => {
+  const html = renderVideoSkillOptions({
+    first_touch: { id: 'first_touch', name: 'First <Touch>' },
+    passing: { id: 'passing', name: 'Passing' },
+  }, { escapeHtml });
+  assert.match(html, /value="First &lt;Touch&gt;"/);
+  assert.match(html, />First &lt;Touch&gt;</);
+  assert.match(html, /value="Passing"/);
+  assert.doesNotMatch(html, /First <Touch>/);
+});
+
+test('progress page loads video skill options from TrainingLab.getCatalog', () => {
+  const html = readFileSync(new URL('../player/progress.html', import.meta.url), 'utf8');
+  assert.match(html, /TrainingLab\.getCatalog\(\)/);
+  assert.match(html, /renderVideoSkillOptions\(catalog\.categories/);
+  assert.doesNotMatch(html, /TRAINING_CATEGORIES/);
 });
