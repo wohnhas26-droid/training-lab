@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { escapeHtml } from '../js/components/ui.js';
 import { renderCoachAssignmentList, renderPlayerAssignmentList, renderAssignPlayerOptions, renderAssignCategoryOptions } from '../js/components/assignments.js';
+import { categoryLabel } from '../js/components/library.js';
 
 const names = { getCategoryName: (id) => id, escapeHtml };
 
@@ -75,4 +76,32 @@ test('assign page loads categories from TrainingLab.getCatalog', () => {
   assert.match(html, /TrainingLab\.getCatalog\(\)/);
   assert.match(html, /renderAssignCategoryOptions\(catalog\.categories/);
   assert.doesNotMatch(html, /from '\/js\/data\/exercises\.js'/);
+});
+
+test('coach assignment list uses catalog names, not the shortened map', () => {
+  const catalog = { speed: { id: 'speed', name: 'Speed & Athletic Performance' } };
+  const html = renderCoachAssignmentList([
+    {
+      id: 'a1',
+      title: 'COD sprints',
+      category: 'speed',
+      dueDate: '2026-08-25',
+      assignTo: 'all',
+      completedCount: 0,
+      assigneeCount: 1,
+    },
+  ], {
+    getCategoryName: (id) => categoryLabel(id, catalog),
+    escapeHtml,
+    assignToLabel: () => 'Entire Team',
+  });
+  assert.match(html, /Speed &amp; Athletic Performance/);
+  assert.doesNotMatch(html, /Speed &amp; Athletic ·/);
+});
+
+test('assign page wires assigned-session labels through categoryLabel', () => {
+  const html = readFileSync(new URL('../coach/assign.html', import.meta.url), 'utf8');
+  assert.match(html, /categoryLabel\(id, categories\)/);
+  assert.match(html, /categories = catalog\.categories/);
+  assert.match(html, /import \{ renderNav, renderSidebar, escapeHtml \}/);
 });

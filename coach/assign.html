@@ -48,8 +48,9 @@
   </div>
 
   <script type="module">
-    import { renderNav, renderSidebar, getCategoryName, escapeHtml } from '/js/components/ui.js';
+    import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
     import { renderCoachAssignmentList, renderAssignPlayerOptions, renderAssignCategoryOptions } from '/js/components/assignments.js';
+    import { categoryLabel } from '/js/components/library.js';
     import '/js/app.js';
 
     TrainingLab.requireAuth('coach');
@@ -58,6 +59,8 @@
 
     let players = [];
     let assignments = [];
+    let categories = {};
+    const getCategoryName = (id) => categoryLabel(id, categories);
 
     document.getElementById('player-select').innerHTML = renderAssignPlayerOptions([], { escapeHtml });
     document.getElementById('category-select').innerHTML = renderAssignCategoryOptions([], { escapeHtml });
@@ -109,6 +112,7 @@
     players = await TrainingLab.getCoachTeamData();
     document.getElementById('player-select').innerHTML = renderAssignPlayerOptions(players, { escapeHtml });
     const catalog = await TrainingLab.getCatalog();
+    categories = catalog.categories;
     document.getElementById('category-select').innerHTML =
       renderAssignCategoryOptions(catalog.categories, { escapeHtml });
     assignments = await TrainingLab.getAssignments();
