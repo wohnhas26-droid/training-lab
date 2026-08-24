@@ -21,9 +21,8 @@
 
   <script type="module">
     import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
-    import { bindLinkPlayerForm, renderLinkPlayerCard, renderAchievementBadges } from '/js/components/parentChild.js';
+    import { bindLinkPlayerForm, renderLinkPlayerCard, renderAchievementBadges, skillProgressionLabel } from '/js/components/parentChild.js';
     import '/js/app.js';
-    import { getLevelForXp } from '/js/data/levels.js';
 
     const state = TrainingLab.requireAuth('parent');
     if (!state) throw new Error('Auth required');
@@ -39,16 +38,15 @@
       bindLinkPlayerForm({ onLinked: () => load() });
     }
 
-    function renderReport(child, childReport, catalog) {
+    function renderReport(child, childReport, catalog, levels) {
       const xp = childReport.player.progress.xp;
-      const level = getLevelForXp(xp).current;
       const report = {
         weeklyCompletion: childReport.weeklyCompletion,
         streak: childReport.streak,
         consistency: childReport.consistency,
         goalsAchieved: childReport.goalsAchieved,
         minutesThisWeek: childReport.minutesThisWeek,
-        skillProgression: `${level.name} (${xp} XP)`,
+        skillProgression: skillProgressionLabel(levels, xp),
       };
       const achievements = childReport.player.achievements || [];
       const feedback = childReport.player.coachFeedback || [];
@@ -131,7 +129,8 @@
         return;
       }
       const catalog = await TrainingLab.getCatalogAchievements();
-      renderReport(child, childReport, catalog);
+      const levels = await TrainingLab.getLevels();
+      renderReport(child, childReport, catalog, levels);
     }
 
     load();
