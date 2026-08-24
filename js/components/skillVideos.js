@@ -1,3 +1,13 @@
+export function renderVideoSkillOptions(categories, { escapeHtml } = {}) {
+  const esc = escapeHtml || ((v) => String(v ?? ''));
+  const list = Array.isArray(categories) ? categories : Object.values(categories || {});
+  return list.map((c) => {
+    const label = c?.name || c?.id || '';
+    if (!label) return '';
+    return `<option value="${esc(label)}">${esc(label)}</option>`;
+  }).filter(Boolean).join('');
+}
+
 export function renderSkillVideoList(videos, {
   escapeHtml,
   videoPreviewHtml,
