@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { escapeHtml } from '../js/components/ui.js';
 import { renderCoachAssignmentList, renderPlayerAssignmentList, renderAssignPlayerOptions, renderAssignCategoryOptions } from '../js/components/assignments.js';
 
@@ -57,4 +58,21 @@ test('assign category options escape labels', () => {
   }, { escapeHtml });
   assert.match(html, /value="pass&lt;ing&gt;"/);
   assert.match(html, /Pass &lt;ing&gt;/);
+});
+
+test('assign category options accept an API category map', () => {
+  const html = renderAssignCategoryOptions({
+    ball_mastery: { id: 'ball_mastery', name: 'Ball Mastery' },
+    passing: { id: 'passing', name: 'Passing' },
+  }, { escapeHtml });
+  assert.match(html, /value="ball_mastery"/);
+  assert.match(html, /Ball Mastery/);
+  assert.match(html, /value="passing"/);
+});
+
+test('assign page loads categories from TrainingLab.getCatalog', () => {
+  const html = readFileSync(new URL('../coach/assign.html', import.meta.url), 'utf8');
+  assert.match(html, /TrainingLab\.getCatalog\(\)/);
+  assert.match(html, /renderAssignCategoryOptions\(catalog\.categories/);
+  assert.doesNotMatch(html, /from '\/js\/data\/exercises\.js'/);
 });
