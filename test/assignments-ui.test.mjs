@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { escapeHtml } from '../js/components/ui.js';
-import { renderCoachAssignmentList, renderPlayerAssignmentList } from '../js/components/assignments.js';
+import { renderCoachAssignmentList, renderPlayerAssignmentList, renderAssignPlayerOptions, renderAssignCategoryOptions } from '../js/components/assignments.js';
 
 const names = { getCategoryName: (id) => id, escapeHtml };
 
@@ -39,4 +39,22 @@ test('coach list shows completion counts and notes', () => {
   assert.match(html, /1\/2 complete/);
   assert.match(html, /Stay low/);
   assert.match(html, /Entire Team/);
+});
+
+test('assign player options escape names and ids', () => {
+  const html = renderAssignPlayerOptions([
+    { id: 'p>"1', name: 'Alex <Rivera>' },
+  ], { escapeHtml });
+  assert.match(html, /Entire Team/);
+  assert.match(html, /value="p&gt;&quot;1"/);
+  assert.match(html, /Alex &lt;Rivera&gt;/);
+  assert.doesNotMatch(html, /Alex <Rivera>/);
+});
+
+test('assign category options escape labels', () => {
+  const html = renderAssignCategoryOptions({
+    passing: { id: 'pass<ing>', name: 'Pass <ing>' },
+  }, { escapeHtml });
+  assert.match(html, /value="pass&lt;ing&gt;"/);
+  assert.match(html, /Pass &lt;ing&gt;/);
 });

@@ -58,3 +58,16 @@ export function renderCoachAssignmentList(assignments, { getCategoryName, escape
       </div>`;
   }).join('');
 }
+
+export function renderAssignPlayerOptions(players, { escapeHtml } = {}) {
+  const esc = escapeHtml || ((v) => String(v ?? ''));
+  const list = Array.isArray(players) ? players : [];
+  return '<option value="all">Entire Team</option>' +
+    list.map((p) => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+}
+
+export function renderAssignCategoryOptions(categories, { escapeHtml } = {}) {
+  const esc = escapeHtml || ((v) => String(v ?? ''));
+  const list = Array.isArray(categories) ? categories : Object.values(categories || {});
+  return list.map((c) => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');
+}

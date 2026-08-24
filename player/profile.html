@@ -66,7 +66,8 @@
   </div>
 
   <script type="module">
-    import { renderNav, renderSidebar, capitalize } from '/js/components/ui.js';
+    import { renderNav, renderSidebar, capitalize, escapeHtml } from '/js/components/ui.js';
+    import { renderProfileCard, renderSubscriptionCard } from '/js/components/playerProfile.js';
     import { openUrl } from '/js/utils/openUrl.js';
     import '/js/app.js';
     const state = TrainingLab.requireAuth('player');
@@ -75,37 +76,14 @@
     document.getElementById('nav').innerHTML = renderNav();
     document.getElementById('sidebar').innerHTML = renderSidebar('player', 'profile');
 
-    let profile = state.profile || {};
-    const planNames = {
-      player: 'Player Membership',
-      elite: 'Elite Membership',
-      team: 'Team Membership',
-    };
-
-    function statusBadge(status) {
-      const labels = {
-        active: ['Active', 'badge-green'],
-        trialing: ['Free Trial', 'badge-gold'],
-        past_due: ['Past Due', 'badge-purple'],
-        canceled: ['Canceled', 'badge-blue'],
-      };
-      const [label, cls] = labels[status] || ['Unknown', 'badge-blue'];
-      return `<span class="badge ${cls}">${label}</span>`;
-    }
+    await TrainingLab.ready();
+    const fresh = TrainingLab.loadState();
+    let user = fresh.user || state.user;
+    let profile = fresh.profile || {};
+    let weeklyPlan = fresh.weeklyPlan;
 
     function renderProfileInfo() {
-      document.getElementById('profile-info').innerHTML = `
-      <h3 class="card-title">${state.user.name}</h3>
-      <p class="card-subtitle" style="margin-bottom: 1rem;">${state.user.email}</p>
-      <div style="display: grid; gap: 0.75rem;">
-        <div><span style="color: var(--slate-500);">Age:</span> ${profile.age || '—'}</div>
-        <div><span style="color: var(--slate-500);">Position:</span> ${capitalize(profile.position || '—')}</div>
-        <div><span style="color: var(--slate-500);">Skill Level:</span> ${capitalize(profile.skillLevel || '—')}</div>
-        <div><span style="color: var(--slate-500);">Training Days:</span> ${profile.trainingDays || '—'} / week</div>
-        <div><span style="color: var(--slate-500);">Goals:</span> ${(profile.goals || []).join(', ') || '—'}</div>
-        <div><span style="color: var(--slate-500);">Equipment:</span> ${(profile.equipment || []).join(', ') || '—'}</div>
-      </div>
-    `;
+      document.getElementById('profile-info').innerHTML = renderProfileCard(user, profile, { escapeHtml, capitalize });
     }
     renderProfileInfo();
 
@@ -141,6 +119,7 @@
           equipment: csvToArr(fd.get('equipment')),
         });
         profile = (updated && updated.profile) ? updated.profile : profile;
+        if (updated?.user) user = updated.user;
         renderProfileInfo();
         pform_prefill();
         TrainingLab.showToast('Profile updated!');
@@ -152,31 +131,11 @@
     });
 
     async function renderSubscription() {
-      await TrainingLab.ready();
       const sub = await TrainingLab.getSubscriptionStatus();
-      const plan = sub.plan || state.subscription || 'player';
-      const periodEnd = sub.currentPeriodEnd
-        ? new Date(sub.currentPeriodEnd).toLocaleDateString()
-        : null;
-
-      document.getElementById('plan-info').innerHTML = `
-        <h3 class="card-title">Subscription</h3>
-        <p style="font-size: 1.5rem; font-weight: 700; color: var(--green-400); margin: 1rem 0;">${planNames[plan] || plan}</p>
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
-          ${statusBadge(sub.status)}
-          ${plan === 'elite' ? '<span class="badge badge-gold">AI Personal Training</span>' : ''}
-        </div>
-        ${periodEnd ? `<p style="color: var(--slate-400); font-size: 0.9rem;">Current period ends: ${periodEnd}</p>` : ''}
-        <p style="color: var(--slate-400); margin-top: 1rem; font-size: 0.9rem;" id="plan-generated">
-          Weekly plan generated: ${state.weeklyPlan?.generatedAt ? new Date(state.weeklyPlan.generatedAt).toLocaleDateString() : 'Not yet'}
-        </p>
-        <div style="display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap;">
-          <a href="/pricing.html" class="btn btn-secondary btn-sm">Change Plan</a>
-          ${sub.hasBillingAccount && sub.stripeConfigured
-            ? '<button class="btn btn-ghost btn-sm" id="manage-billing-btn">Manage Billing</button>'
-            : ''}
-        </div>
-      `;
+      document.getElementById('plan-info').innerHTML = renderSubscriptionCard(sub, {
+        weeklyPlan,
+        escapeHtml,
+      });
 
       document.getElementById('manage-billing-btn')?.addEventListener('click', async () => {
         try {
