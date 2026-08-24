@@ -22,7 +22,7 @@
         <div class="card">
           <h3 class="card-title">Today's Training</h3>
           <div id="today-session" style="margin-top: 1rem;"></div>
-          <a href="/player/training.html" class="btn btn-primary btn-block" style="margin-top: 1rem;">Start Session</a>
+          <div id="session-cta"></div>
         </div>
         <div class="card">
           <h3 class="card-title">Your Level</h3>
@@ -45,7 +45,7 @@
   <script type="module">
     import { renderNav, renderSidebar, getCategoryName, escapeHtml } from '/js/components/ui.js';
     import { renderPlayerAssignmentList } from '/js/components/assignments.js';
-    import { renderDashboardStats, renderLevelInfo } from '/js/components/playerProgress.js';
+    import { renderDashboardStats, renderLevelInfo, renderSessionCta } from '/js/components/playerProgress.js';
     import '/js/app.js';
     import { getDayName } from '/js/services/storage.js';
     import { WEEKLY_SCHEDULE } from '/js/data/exercises.js';
@@ -72,6 +72,8 @@
           exercises.slice(0, 3).map(e => `<div style="padding: 0.5rem 0; border-bottom: 1px solid var(--slate-800);">${escapeHtml(e.name)}</div>`).join('') +
           (exercises.length > 3 ? `<p style="color: var(--slate-500); margin-top: 0.5rem; font-size: 0.85rem;">+${exercises.length - 3} more</p>` : '')
         : '<p style="color: var(--slate-400);">Rest and recovery day. Light mobility work recommended.</p>';
+
+      document.getElementById('session-cta').innerHTML = renderSessionCta(session);
     }
 
     function renderWeek(weeklyPlan) {
