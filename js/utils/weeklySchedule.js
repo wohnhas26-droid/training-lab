@@ -12,3 +12,25 @@ export function daysFromWeeklyPlan(weeklyPlan, fallback = {}) {
     return { day, rest, focus, estimatedMinutes: sched.estimatedMinutes || 0 };
   });
 }
+
+export function renderWeeklySchedule(days, today, { escapeHtml } = {}) {
+  const list = Array.isArray(days) ? days : [];
+  if (!list.length) {
+    return '<p style="color: var(--slate-400);">No weekly plan yet.</p>';
+  }
+  const esc = escapeHtml || ((v) => String(v ?? ''));
+  return list.map(({ day, rest, focus }) => {
+    const name = String(day || '');
+    const label = name ? name.charAt(0).toUpperCase() + name.slice(1) : '';
+    const focusText = rest
+      ? 'Rest'
+      : (Array.isArray(focus) ? focus.slice(0, 2).join(', ') : '') || '—';
+    return `
+        <div class="day-card ${day === today ? 'today' : ''}">
+          <div class="day-name">${esc(label)}</div>
+          <div class="day-focus">${esc(focusText)}</div>
+        </div>
+      `;
+  }).join('');
+}
+
