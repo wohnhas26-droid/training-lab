@@ -21,9 +21,9 @@
 
   <script type="module">
     import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
-    import { bindLinkPlayerForm, renderLinkPlayerCard } from '/js/components/parentChild.js';
+    import { bindLinkPlayerForm, renderLinkPlayerCard, renderAchievementBadges } from '/js/components/parentChild.js';
     import '/js/app.js';
-    import { ACHIEVEMENTS, getLevelForXp } from '/js/data/levels.js';
+    import { getLevelForXp } from '/js/data/levels.js';
 
     const state = TrainingLab.requireAuth('parent');
     if (!state) throw new Error('Auth required');
@@ -39,7 +39,7 @@
       bindLinkPlayerForm({ onLinked: () => load() });
     }
 
-    function renderReport(child, childReport) {
+    function renderReport(child, childReport, catalog) {
       const xp = childReport.player.progress.xp;
       const level = getLevelForXp(xp).current;
       const report = {
@@ -82,10 +82,7 @@
         <div class="card" style="margin-top: 1.5rem;">
           <h3 class="card-title">Goals Achieved</h3>
           <div style="margin-top: 1rem;">
-            ${achievements.map(id => {
-              const a = ACHIEVEMENTS.find(x => x.id === id);
-              return a ? `<span class="badge badge-green" style="margin: 0.25rem;">${escapeHtml(a.icon)} ${escapeHtml(a.name)}</span>` : '';
-            }).join('') || '<p style="color: var(--slate-500);">No achievements yet.</p>'}
+            ${renderAchievementBadges(achievements, catalog, { escapeHtml })}
           </div>
         </div>
         <div class="card" style="margin-top: 1.5rem;">
@@ -133,7 +130,8 @@
         content.innerHTML = '<div class="card"><p style="color: var(--slate-500);">Try again in a moment.</p></div>';
         return;
       }
-      renderReport(child, childReport);
+      const catalog = await TrainingLab.getCatalogAchievements();
+      renderReport(child, childReport, catalog);
     }
 
     load();

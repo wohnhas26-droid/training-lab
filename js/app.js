@@ -7,7 +7,7 @@ import {
   getAssignmentsRemote, createAssignmentRemote, getMyAssignmentsRemote, completeAssignmentRemote, submitFeedbackRemote,
   getCoachVideosRemote, getChildReportRemote, getChildReportsRemote, addChildRemote, removeChildRemote,
   getMyVideosRemote, submitVideoRemote, getCatalogRemote, getChallengesRemote, getEvaluationRemote, getAchievementsRemote,
-  getLevelsRemote,
+  getLevelsRemote, getCatalogAchievementsRemote,
   createCheckout, openBillingPortal, getSubscriptionStatus, verifyCheckoutSession,
   getStripeConfig, bootstrap, isApiMode,
 } from './services/dataStore.js';
@@ -130,6 +130,11 @@ window.TrainingLab = {
     const remote = await getLevelsRemote();
     if (Array.isArray(remote) && remote.length) return remote;
     return PROGRESSION_LEVELS;
+  },
+  getCatalogAchievements: async () => {
+    const remote = await getCatalogAchievementsRemote();
+    if (Array.isArray(remote) && remote.length) return remote;
+    return ACHIEVEMENTS;
   },
   getParentReport,
   showToast,

@@ -51,6 +51,12 @@ globalThis.fetch = async (url, opts = {}) => {
         { id: 'advanced', name: 'Advanced', minXp: 1500, icon: '🔥' },
       ];
     }
+    if (u.endsWith('/catalog/achievements')) {
+      return [
+        { id: 'first_session', name: 'First Steps', icon: '🎯' },
+        { id: 'speed_demon', name: 'Speed Demon', icon: '⚡' },
+      ];
+    }
     if (u.endsWith('/progress/summary')) {
       return { xp: 1600, streak: 5, minutesTrained: 340, skillsCompleted: 42 };
     }
@@ -199,4 +205,12 @@ test('online: getLevelsRemote GETs /catalog/levels', async () => {
   assert.equal(levels[2].minXp, 1500);
   const get = calls.find((c) => c.url.endsWith('/catalog/levels') && c.method === 'GET');
   assert.ok(get, 'expected a GET to /catalog/levels');
+});
+
+test('online: getCatalogAchievementsRemote GETs /catalog/achievements', async () => {
+  const catalog = await ds.getCatalogAchievementsRemote();
+  assert.equal(catalog[0].id, 'first_session');
+  assert.equal(catalog[1].name, 'Speed Demon');
+  const get = calls.find((c) => c.url.endsWith('/catalog/achievements') && c.method === 'GET');
+  assert.ok(get, 'expected a GET to /catalog/achievements');
 });

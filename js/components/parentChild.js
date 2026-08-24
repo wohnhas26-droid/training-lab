@@ -38,3 +38,19 @@ export function bindLinkPlayerForm({ onLinked }) {
     }
   });
 }
+
+export function renderAchievementBadges(unlockedIds, catalog, { escapeHtml } = {}) {
+  const esc = escapeHtml || ((v) => String(v ?? ''));
+  const ids = Array.isArray(unlockedIds) ? unlockedIds : [];
+  const list = Array.isArray(catalog) ? catalog : [];
+  const byId = new Map(list.filter((a) => a && a.id).map((a) => [a.id, a]));
+  const badges = ids.map((id) => {
+    const a = byId.get(id);
+    if (!a) return '';
+    return `<span class="badge badge-green" style="margin: 0.25rem;">${esc(a.icon || '')} ${esc(a.name || id)}</span>`;
+  }).filter(Boolean);
+  if (!badges.length) {
+    return '<p style="color: var(--slate-500);">No achievements yet.</p>';
+  }
+  return badges.join('');
+}
