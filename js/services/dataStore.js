@@ -485,6 +485,18 @@ export async function getLevelsRemote() {
   return null;
 }
 
+export async function getCatalogAchievementsRemote() {
+  if (isApiMode()) {
+    try {
+      const list = await api.getCatalogAchievements();
+      return Array.isArray(list) ? list : [];
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 export async function getMyVideosRemote() {
   if (isApiMode()) {
     try {

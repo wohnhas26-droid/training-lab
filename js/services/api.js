@@ -93,6 +93,7 @@ export const api = {
   getExercises: () => request('/catalog/exercises'),
   getCategories: () => request('/catalog/categories'),
   getLevels: () => request('/catalog/levels'),
+  getCatalogAchievements: () => request('/catalog/achievements'),
 
   getMyVideos: () => request('/videos'),
   submitVideo: (body) => request('/videos', { method: 'POST', body: JSON.stringify(body) }),
