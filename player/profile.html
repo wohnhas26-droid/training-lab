@@ -51,7 +51,7 @@
             </div>
           </div>
           <div class="form-group"><label class="form-label">Goals (comma-separated)</label><input type="text" class="form-input" name="goals" placeholder="passing, first touch"></div>
-          <div class="form-group"><label class="form-label">Improvement Areas (comma-separated)</label><input type="text" class="form-input" name="improvementAreas" placeholder="ball_mastery, passing"></div>
+          <div class="form-group"><label class="form-label">Improvement Areas (comma-separated)</label><input type="text" class="form-input" name="improvementAreas" placeholder="ball mastery, passing"></div>
           <div class="form-group"><label class="form-label">Equipment (comma-separated)</label><input type="text" class="form-input" name="equipment" placeholder="ball, cones, wall"></div>
           <button type="submit" class="btn btn-primary" style="justify-self: start;">Save Profile</button>
         </form>
@@ -68,6 +68,7 @@
   <script type="module">
     import { renderNav, renderSidebar, capitalize, escapeHtml } from '/js/components/ui.js';
     import { renderProfileCard, renderSubscriptionCard } from '/js/components/playerProfile.js';
+    import { focusListToCsv, csvToCategoryIds } from '/js/services/trainingPlanner.js';
     import { openUrl } from '/js/utils/openUrl.js';
     import '/js/app.js';
     const state = TrainingLab.requireAuth('player');
@@ -97,7 +98,7 @@
       pform().skillLevel.value = profile.skillLevel || 'intermediate';
       pform().trainingDays.value = String(profile.trainingDays || 5);
       pform().goals.value = toCsv(profile.goals);
-      pform().improvementAreas.value = toCsv(profile.improvementAreas);
+      pform().improvementAreas.value = focusListToCsv(profile.improvementAreas);
       pform().equipment.value = toCsv(profile.equipment);
     }
     pform_prefill();
@@ -115,7 +116,7 @@
           skillLevel: fd.get('skillLevel'),
           trainingDays: parseInt(fd.get('trainingDays'), 10) || 5,
           goals: csvToArr(fd.get('goals')),
-          improvementAreas: csvToArr(fd.get('improvementAreas')),
+          improvementAreas: csvToCategoryIds(fd.get('improvementAreas')),
           equipment: csvToArr(fd.get('equipment')),
         });
         profile = (updated && updated.profile) ? updated.profile : profile;

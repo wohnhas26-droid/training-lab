@@ -152,6 +152,31 @@ export function formatCategoryLabel(raw, categories = TRAINING_CATEGORIES) {
   return id.replace(/_/g, ' ').replace(/\b[a-z]/g, (ch) => ch.toUpperCase());
 }
 
+export function toCategoryId(raw, categories = TRAINING_CATEGORIES) {
+  const text = String(raw ?? '').trim();
+  if (!text) return '';
+  if (categories[text]) return categories[text].id || text;
+  const asId = text.toLowerCase().replace(/\s+/g, '_');
+  if (categories[asId]) return categories[asId].id || asId;
+  const spaced = text.toLowerCase().replace(/_/g, ' ');
+  for (const cat of Object.values(categories)) {
+    if (cat?.name && String(cat.name).toLowerCase() === spaced) return cat.id || cat.name;
+  }
+  return text;
+}
+
+export function focusListToCsv(items, categories = TRAINING_CATEGORIES) {
+  const list = Array.isArray(items) ? items : [];
+  return list.map((raw) => formatCategoryLabel(raw, categories)).filter(Boolean).join(', ');
+}
+
+export function csvToCategoryIds(value, categories = TRAINING_CATEGORIES) {
+  return String(value || '')
+    .split(',')
+    .map((part) => toCategoryId(part, categories))
+    .filter(Boolean);
+}
+
 export function formatFocusAreas(areas, categories = TRAINING_CATEGORIES) {
   const list = Array.isArray(areas) && areas.length ? areas : ['ball mastery'];
   return list.map((raw) => formatCategoryLabel(raw, categories)).filter(Boolean).join(', ');
