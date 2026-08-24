@@ -125,20 +125,21 @@ export function getTodaySession(plan) {
   return { day, ...plan.plan[day] };
 }
 
+export function formatCategoryLabel(raw, categories = TRAINING_CATEGORIES) {
+  const id = String(raw ?? '').trim();
+  if (!id) return '';
+  if (categories[id]?.name) return categories[id].name;
+  return id.replace(/_/g, ' ').replace(/\b[a-z]/g, (ch) => ch.toUpperCase());
+}
+
 export function formatFocusAreas(areas, categories = TRAINING_CATEGORIES) {
   const list = Array.isArray(areas) && areas.length ? areas : ['ball mastery'];
-  return list
-    .map((raw) => {
-      const id = String(raw ?? '').trim();
-      if (!id) return '';
-      if (categories[id]?.name) return categories[id].name;
-      return id.replace(/_/g, ' ').replace(/\b[a-z]/g, (ch) => ch.toUpperCase());
-    })
-    .filter(Boolean)
-    .join(', ');
+  return list.map((raw) => formatCategoryLabel(raw, categories)).filter(Boolean).join(', ');
 }
 
 export function generateEvaluation(profile, progress) {
+  const level = formatCategoryLabel(profile.skillLevel || 'intermediate');
+  const position = formatCategoryLabel(profile.position || 'midfielder');
   const sessionsCompleted = progress.skillsCompleted || 0;
   const consistency = progress.streak || 0;
 
@@ -156,6 +157,6 @@ export function generateEvaluation(profile, progress) {
     overallRating: Math.min(10, 5 + Math.floor(sessionsCompleted / 20) + Math.floor(consistency / 3)),
     strengths: strengths.length ? strengths : ['Good foundation to build upon'],
     improvements: improvements.length ? improvements : ['Maintain current training intensity'],
-    recommendation: `Based on your ${profile.skillLevel || 'intermediate'} level and ${profile.position || 'midfielder'} position, focus on ${formatFocusAreas(profile.improvementAreas)} over the next 2 weeks.`,
+    recommendation: `Based on your ${level} level and ${position} position, focus on ${formatFocusAreas(profile.improvementAreas)} over the next 2 weeks.`,
   };
 }
