@@ -61,6 +61,12 @@ globalThis.fetch = async (url, opts = {}) => {
         improvements: ['Build a more consistent training routine'],
       };
     }
+    if (u.endsWith('/progress/achievements') && method === 'GET') {
+      return {
+        unlocked: ['first_session', 'speed_demon'],
+        all: [{ id: 'first_session', name: 'First Steps' }, { id: 'speed_demon', name: 'Speed Demon' }],
+      };
+    }
     if (u.includes('/progress/achievements/') && method === 'POST') {
       return { achievements: ['first_session', 'speed_demon'], progress: { xp: 1600 } };
     }
@@ -169,4 +175,12 @@ test('online: getEvaluationRemote GETs /training/evaluation', async () => {
   assert.equal(evaluation.overallRating, 8);
   assert.match(evaluation.recommendation, /ball_mastery/);
   assert.ok(calls.find((c) => c.url.endsWith('/training/evaluation') && c.method === 'GET'));
+});
+
+test('online: getAchievementsRemote GETs /progress/achievements', async () => {
+  const badges = await ds.getAchievementsRemote();
+  assert.deepEqual(badges.unlocked, ['first_session', 'speed_demon']);
+  assert.equal(badges.all[1].id, 'speed_demon');
+  const get = calls.find((c) => c.url.endsWith('/progress/achievements') && c.method === 'GET');
+  assert.ok(get, 'expected a GET to /progress/achievements');
 });

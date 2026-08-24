@@ -70,6 +70,15 @@ test('achievements mark only unlocked ids', () => {
   assert.match(html, /Speed Demon/);
 });
 
+test('achievements from the API catalog still escape names', () => {
+  const html = renderAchievements([
+    { id: 'first_session', name: 'First <Steps>', description: 'Complete <session>', icon: '🎯' },
+  ], ['first_session'], { escapeHtml });
+  assert.match(html, /First &lt;Steps&gt;/);
+  assert.match(html, /Complete &lt;session&gt;/);
+  assert.doesNotMatch(html, /First <Steps>/);
+});
+
 test('evaluation render escapes recommendation and list items', () => {
   const html = renderEvaluation({
     overallRating: 8,

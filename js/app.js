@@ -6,7 +6,7 @@ import {
   addTeamPlayerRemote, removeTeamPlayerRemote, getCoachPlayerRemote,
   getAssignmentsRemote, createAssignmentRemote, getMyAssignmentsRemote, completeAssignmentRemote, submitFeedbackRemote,
   getCoachVideosRemote, getChildReportRemote, getChildReportsRemote, addChildRemote, removeChildRemote,
-  getMyVideosRemote, submitVideoRemote, getCatalogRemote, getChallengesRemote, getEvaluationRemote,
+  getMyVideosRemote, submitVideoRemote, getCatalogRemote, getChallengesRemote, getEvaluationRemote, getAchievementsRemote,
   createCheckout, openBillingPortal, getSubscriptionStatus, verifyCheckoutSession,
   getStripeConfig, bootstrap, isApiMode,
 } from './services/dataStore.js';
@@ -113,6 +113,17 @@ window.TrainingLab = {
       return generateEvaluation(state.profile || {}, state.progress || {});
     }
     return null;
+  },
+  getAchievements: async () => {
+    const remote = await getAchievementsRemote();
+    if (remote && Array.isArray(remote.all)) {
+      return {
+        all: remote.all,
+        unlocked: Array.isArray(remote.unlocked) ? remote.unlocked : [],
+      };
+    }
+    const state = loadState();
+    return { all: ACHIEVEMENTS, unlocked: state.achievements || [] };
   },
   getParentReport,
   showToast,

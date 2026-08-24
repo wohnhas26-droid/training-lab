@@ -421,6 +421,17 @@ function loadLocalVideos() {
   }
 }
 
+export async function getAchievementsRemote() {
+  if (isApiMode()) {
+    try {
+      return await api.getAchievements();
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 export async function getEvaluationRemote() {
   if (isApiMode()) {
     try {
