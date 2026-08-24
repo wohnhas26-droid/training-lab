@@ -20,16 +20,31 @@ test('profile card escapes name, email, goals, and equipment', () => {
   );
   assert.match(html, /Alex &lt;Rivera&gt;/);
   assert.match(html, /a&lt;@test.com/);
-  assert.match(html, /&lt;touch&gt;/);
+  assert.match(html, /&lt;Touch&gt;/);
   assert.match(html, /cones&lt;script&gt;/);
   assert.match(html, /Midfielder/);
   assert.doesNotMatch(html, /<touch>/);
   assert.doesNotMatch(html, /<script>/);
 });
 
+test('profile card shows humanized improvement areas and goals', () => {
+  const html = renderProfileCard(
+    { name: 'Alex', email: 'a@test.com' },
+    {
+      goals: ['passing', 'first touch'],
+      improvementAreas: ['ball_mastery', 'passing'],
+    },
+    helpers,
+  );
+  assert.match(html, /Goals:<\/span> Passing, First Touch/);
+  assert.match(html, /Improvement Areas:<\/span> Ball Mastery, Passing/);
+  assert.doesNotMatch(html, /ball_mastery/);
+});
+
 test('empty profile lists show an em dash instead of leftover copy', () => {
   const html = renderProfileCard({ name: 'Alex', email: 'a@test.com' }, {}, helpers);
   assert.match(html, /Goals:<\/span> —/);
+  assert.match(html, /Improvement Areas:<\/span> —/);
   assert.match(html, /Equipment:<\/span> —/);
 });
 

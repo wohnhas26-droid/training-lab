@@ -1,6 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { formatFocusAreas, generateEvaluation } from '../js/services/trainingPlanner.js';
+import { formatCategoryLabel, formatFocusAreas, generateEvaluation } from '../js/services/trainingPlanner.js';
+
+test('formatCategoryLabel maps catalog ids and title-cases phrases', () => {
+  assert.equal(formatCategoryLabel('ball_mastery'), 'Ball Mastery');
+  assert.equal(formatCategoryLabel('first touch'), 'First Touch');
+  assert.equal(formatCategoryLabel(''), '');
+});
 
 test('formatFocusAreas maps catalog ids to display names', () => {
   assert.equal(formatFocusAreas(['ball_mastery', 'passing']), 'Ball Mastery, Passing');

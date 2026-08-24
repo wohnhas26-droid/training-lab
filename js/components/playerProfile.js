@@ -1,7 +1,9 @@
-function listText(items, escapeHtml) {
+import { formatCategoryLabel } from '../services/trainingPlanner.js';
+
+function listText(items, escapeHtml, formatItem) {
   const list = Array.isArray(items) ? items.filter((v) => v != null && String(v).trim()) : [];
   if (!list.length) return '—';
-  return list.map((item) => escapeHtml(item)).join(', ');
+  return list.map((item) => escapeHtml(formatItem ? formatItem(item) : item)).join(', ');
 }
 
 export function renderProfileCard(user, profile, { escapeHtml, capitalize } = {}) {
@@ -11,6 +13,7 @@ export function renderProfileCard(user, profile, { escapeHtml, capitalize } = {}
   const days = Number(p.trainingDays);
   const daysLabel = Number.isFinite(days) && days > 0 ? String(days) : '—';
   const age = p.age == null || p.age === '' ? '—' : esc(p.age);
+  const focusLabel = (item) => formatCategoryLabel(item);
   return `
       <h3 class="card-title">${esc(user?.name)}</h3>
       <p class="card-subtitle" style="margin-bottom: 1rem;">${esc(user?.email)}</p>
@@ -19,7 +22,8 @@ export function renderProfileCard(user, profile, { escapeHtml, capitalize } = {}
         <div><span style="color: var(--slate-500);">Position:</span> ${esc(cap(p.position || '—'))}</div>
         <div><span style="color: var(--slate-500);">Skill Level:</span> ${esc(cap(p.skillLevel || '—'))}</div>
         <div><span style="color: var(--slate-500);">Training Days:</span> ${daysLabel} / week</div>
-        <div><span style="color: var(--slate-500);">Goals:</span> ${listText(p.goals, esc)}</div>
+        <div><span style="color: var(--slate-500);">Goals:</span> ${listText(p.goals, esc, focusLabel)}</div>
+        <div><span style="color: var(--slate-500);">Improvement Areas:</span> ${listText(p.improvementAreas, esc, focusLabel)}</div>
         <div><span style="color: var(--slate-500);">Equipment:</span> ${listText(p.equipment, esc)}</div>
       </div>
     `;

@@ -145,17 +145,16 @@ function generateFallbackSession(day) {
   };
 }
 
+export function formatCategoryLabel(raw, categories = TRAINING_CATEGORIES) {
+  const id = String(raw ?? '').trim();
+  if (!id) return '';
+  if (categories[id]?.name) return categories[id].name;
+  return id.replace(/_/g, ' ').replace(/\b[a-z]/g, (ch) => ch.toUpperCase());
+}
+
 export function formatFocusAreas(areas, categories = TRAINING_CATEGORIES) {
   const list = Array.isArray(areas) && areas.length ? areas : ['ball mastery'];
-  return list
-    .map((raw) => {
-      const id = String(raw ?? '').trim();
-      if (!id) return '';
-      if (categories[id]?.name) return categories[id].name;
-      return id.replace(/_/g, ' ').replace(/\b[a-z]/g, (ch) => ch.toUpperCase());
-    })
-    .filter(Boolean)
-    .join(', ');
+  return list.map((raw) => formatCategoryLabel(raw, categories)).filter(Boolean).join(', ');
 }
 
 export function generateEvaluation(profile, progress) {
