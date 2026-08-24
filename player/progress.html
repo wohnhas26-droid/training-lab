@@ -62,7 +62,7 @@
     import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
     import { videoPreviewHtml } from '/js/utils/videoEmbed.js';
     import { renderSkillVideoList } from '/js/components/skillVideos.js';
-    import { renderProgressStats, renderLevelTrack, renderAchievements } from '/js/components/playerProgress.js';
+    import { renderProgressStats, renderLevelTrack, renderAchievements, renderEvaluation } from '/js/components/playerProgress.js';
     import '/js/app.js';
     import { PROGRESSION_LEVELS } from '/js/data/levels.js';
 
@@ -158,17 +158,10 @@
 
     renderCoachFeedback(fresh.coachFeedback);
 
-    if (fresh.subscription === 'elite') {
-      const evaluation = TrainingLab.generateEvaluation(fresh.profile || {}, fresh.progress);
+    const evaluation = await TrainingLab.getEvaluation();
+    if (evaluation) {
       document.getElementById('evaluation-card').style.display = 'block';
-      document.getElementById('evaluation-content').innerHTML = `
-        <p style="font-size: 2rem; font-weight: 800; color: var(--green-400);">${evaluation.overallRating}/10</p>
-        <p style="margin: 1rem 0; color: var(--slate-300);">${evaluation.recommendation}</p>
-        <div class="grid grid-2" style="margin-top: 1rem;">
-          <div><strong style="color: var(--green-400);">Strengths</strong><ul style="margin-top: 0.5rem; padding-left: 1.25rem; color: var(--slate-400);">${evaluation.strengths.map(s => `<li>${s}</li>`).join('')}</ul></div>
-          <div><strong style="color: var(--gold);">Improve</strong><ul style="margin-top: 0.5rem; padding-left: 1.25rem; color: var(--slate-400);">${evaluation.improvements.map(s => `<li>${s}</li>`).join('')}</ul></div>
-        </div>
-      `;
+      document.getElementById('evaluation-content').innerHTML = renderEvaluation(evaluation, { escapeHtml });
     }
   </script>
 </body>

@@ -82,3 +82,8 @@ test('offline: getChallengesRemote returns null so the page can use the bundled 
   const list = await ds.getChallengesRemote();
   assert.equal(list, null);
 });
+
+test('offline: getEvaluationRemote returns null so elite pages can use the local planner', async () => {
+  const evaluation = await ds.getEvaluationRemote();
+  assert.equal(evaluation, null);
+});

@@ -67,3 +67,26 @@ export function renderAchievements(achievements, unlockedIds, { escapeHtml } = {
       `;
   }).join('');
 }
+
+export function renderEvaluation(evaluation, { escapeHtml } = {}) {
+  if (!evaluation) return '';
+  const esc = escapeHtml || ((v) => String(v ?? ''));
+  const rating = Number(evaluation.overallRating);
+  const score = Number.isFinite(rating) ? String(rating) : '—';
+  const strengths = Array.isArray(evaluation.strengths) ? evaluation.strengths : [];
+  const improvements = Array.isArray(evaluation.improvements) ? evaluation.improvements : [];
+  const strengthList = strengths.length
+    ? strengths.map((s) => `<li>${esc(s)}</li>`).join('')
+    : '<li>Good foundation to build upon</li>';
+  const improveList = improvements.length
+    ? improvements.map((s) => `<li>${esc(s)}</li>`).join('')
+    : '<li>Maintain current training intensity</li>';
+  return `
+        <p style="font-size: 2rem; font-weight: 800; color: var(--green-400);">${esc(score)}/10</p>
+        <p style="margin: 1rem 0; color: var(--slate-300);">${esc(evaluation.recommendation)}</p>
+        <div class="grid grid-2" style="margin-top: 1rem;">
+          <div><strong style="color: var(--green-400);">Strengths</strong><ul style="margin-top: 0.5rem; padding-left: 1.25rem; color: var(--slate-400);">${strengthList}</ul></div>
+          <div><strong style="color: var(--gold);">Improve</strong><ul style="margin-top: 0.5rem; padding-left: 1.25rem; color: var(--slate-400);">${improveList}</ul></div>
+        </div>
+      `;
+}
