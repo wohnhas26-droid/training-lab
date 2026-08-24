@@ -53,6 +53,14 @@ globalThis.fetch = async (url, opts = {}) => {
     if (u.endsWith('/challenges')) {
       return [{ id: 'speed', name: 'Speed Challenge', progress: 15, joined: true, completed: true }];
     }
+    if (u.endsWith('/training/evaluation')) {
+      return {
+        overallRating: 8,
+        recommendation: 'Focus on ball_mastery, passing',
+        strengths: ['Good foundation to build upon'],
+        improvements: ['Build a more consistent training routine'],
+      };
+    }
     if (u.includes('/progress/achievements/') && method === 'POST') {
       return { achievements: ['first_session', 'speed_demon'], progress: { xp: 1600 } };
     }
@@ -154,4 +162,11 @@ test('online: getChallengesRemote GETs /challenges', async () => {
   assert.equal(list[0].id, 'speed');
   assert.equal(list[0].completed, true);
   assert.ok(calls.find((c) => c.url.endsWith('/challenges') && c.method === 'GET'));
+});
+
+test('online: getEvaluationRemote GETs /training/evaluation', async () => {
+  const evaluation = await ds.getEvaluationRemote();
+  assert.equal(evaluation.overallRating, 8);
+  assert.match(evaluation.recommendation, /ball_mastery/);
+  assert.ok(calls.find((c) => c.url.endsWith('/training/evaluation') && c.method === 'GET'));
 });

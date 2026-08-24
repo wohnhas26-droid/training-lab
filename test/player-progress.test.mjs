@@ -7,6 +7,7 @@ import {
   renderProgressStats,
   renderLevelTrack,
   renderAchievements,
+  renderEvaluation,
 } from '../js/components/playerProgress.js';
 
 const apiSummary = {
@@ -67,4 +68,22 @@ test('achievements mark only unlocked ids', () => {
   assert.match(html, /achievement unlocked/);
   assert.match(html, /First Steps/);
   assert.match(html, /Speed Demon/);
+});
+
+test('evaluation render escapes recommendation and list items', () => {
+  const html = renderEvaluation({
+    overallRating: 8,
+    recommendation: 'Focus on <finishing>',
+    strengths: ['Good <touch>'],
+    improvements: ['Work on <weak foot>'],
+  }, { escapeHtml });
+  assert.match(html, /8\/10/);
+  assert.match(html, /Focus on &lt;finishing&gt;/);
+  assert.match(html, /Good &lt;touch&gt;/);
+  assert.match(html, /Work on &lt;weak foot&gt;/);
+  assert.doesNotMatch(html, /<finishing>/);
+});
+
+test('missing evaluation renders nothing', () => {
+  assert.equal(renderEvaluation(null, { escapeHtml }), '');
 });
