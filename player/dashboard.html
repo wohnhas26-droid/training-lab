@@ -48,8 +48,7 @@
     import { renderDashboardStats, renderLevelInfo, renderSessionCta } from '/js/components/playerProgress.js';
     import '/js/app.js';
     import { getDayName } from '/js/services/storage.js';
-    import { WEEKLY_SCHEDULE } from '/js/data/exercises.js';
-    import { daysFromWeeklyPlan } from '/js/utils/weeklySchedule.js';
+    import { daysFromWeeklyPlan, renderWeeklySchedule } from '/js/utils/weeklySchedule.js';
 
     const state = TrainingLab.requireAuth('player');
     if (!state) throw new Error('Auth required');
@@ -77,13 +76,8 @@
     }
 
     function renderWeek(weeklyPlan) {
-      const days = daysFromWeeklyPlan(weeklyPlan, WEEKLY_SCHEDULE);
-      document.getElementById('weekly-schedule').innerHTML = days.map(({ day, rest, focus }) => `
-        <div class="day-card ${day === today ? 'today' : ''}">
-          <div class="day-name">${day.charAt(0).toUpperCase() + day.slice(1)}</div>
-          <div class="day-focus">${escapeHtml(rest ? 'Rest' : focus.slice(0, 2).join(', ') || '—')}</div>
-        </div>
-      `).join('');
+      const days = daysFromWeeklyPlan(weeklyPlan);
+      document.getElementById('weekly-schedule').innerHTML = renderWeeklySchedule(days, today, { escapeHtml });
     }
 
     renderSession(TrainingLab.getTodaySession(state.weeklyPlan));
