@@ -64,7 +64,6 @@
     import { renderSkillVideoList } from '/js/components/skillVideos.js';
     import { renderProgressStats, renderLevelTrack, renderAchievements, renderEvaluation } from '/js/components/playerProgress.js';
     import '/js/app.js';
-    import { PROGRESSION_LEVELS } from '/js/data/levels.js';
 
     const state = TrainingLab.requireAuth('player');
     if (!state) throw new Error('Auth required');
@@ -75,9 +74,10 @@
     await TrainingLab.ready();
     const summary = await TrainingLab.getProgressSummary();
     const badges = await TrainingLab.getAchievements();
+    const levels = await TrainingLab.getLevels();
     const fresh = TrainingLab.loadState();
 
-    document.getElementById('level-track').innerHTML = renderLevelTrack(PROGRESSION_LEVELS, summary.xp, { escapeHtml });
+    document.getElementById('level-track').innerHTML = renderLevelTrack(levels, summary.xp, { escapeHtml });
     document.getElementById('progress-stats').innerHTML = renderProgressStats(summary);
     document.getElementById('achievements-grid').innerHTML = renderAchievements(
       badges.all,

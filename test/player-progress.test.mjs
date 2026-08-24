@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { escapeHtml } from '../js/components/ui.js';
 import {
   renderDashboardStats,
@@ -95,4 +96,11 @@ test('evaluation render escapes recommendation and list items', () => {
 
 test('missing evaluation renders nothing', () => {
   assert.equal(renderEvaluation(null, { escapeHtml }), '');
+});
+
+test('progress page loads the level track from TrainingLab.getLevels', () => {
+  const html = readFileSync(new URL('../player/progress.html', import.meta.url), 'utf8');
+  assert.match(html, /TrainingLab\.getLevels\(\)/);
+  assert.match(html, /renderLevelTrack\(levels,/);
+  assert.doesNotMatch(html, /from '\/js\/data\/levels\.js'/);
 });

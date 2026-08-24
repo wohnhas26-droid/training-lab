@@ -44,6 +44,13 @@ globalThis.fetch = async (url, opts = {}) => {
     if (u.endsWith('/catalog/categories')) {
       return { ball_mastery: { id: 'ball_mastery', name: 'Ball Mastery' } };
     }
+    if (u.endsWith('/catalog/levels')) {
+      return [
+        { id: 'rookie', name: 'Rookie', minXp: 0, icon: '🌱' },
+        { id: 'academy', name: 'Academy', minXp: 500, icon: '⚽' },
+        { id: 'advanced', name: 'Advanced', minXp: 1500, icon: '🔥' },
+      ];
+    }
     if (u.endsWith('/progress/summary')) {
       return { xp: 1600, streak: 5, minutesTrained: 340, skillsCompleted: 42 };
     }
@@ -183,4 +190,13 @@ test('online: getAchievementsRemote GETs /progress/achievements', async () => {
   assert.equal(badges.all[1].id, 'speed_demon');
   const get = calls.find((c) => c.url.endsWith('/progress/achievements') && c.method === 'GET');
   assert.ok(get, 'expected a GET to /progress/achievements');
+});
+
+test('online: getLevelsRemote GETs /catalog/levels', async () => {
+  const levels = await ds.getLevelsRemote();
+  assert.equal(levels[0].id, 'rookie');
+  assert.equal(levels[2].name, 'Advanced');
+  assert.equal(levels[2].minXp, 1500);
+  const get = calls.find((c) => c.url.endsWith('/catalog/levels') && c.method === 'GET');
+  assert.ok(get, 'expected a GET to /catalog/levels');
 });

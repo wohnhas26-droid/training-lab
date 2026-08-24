@@ -92,3 +92,8 @@ test('offline: getAchievementsRemote returns null so the page can use the bundle
   const badges = await ds.getAchievementsRemote();
   assert.equal(badges, null);
 });
+
+test('offline: getLevelsRemote returns null so the page can use the bundled catalog', async () => {
+  const levels = await ds.getLevelsRemote();
+  assert.equal(levels, null);
+});

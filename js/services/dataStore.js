@@ -473,6 +473,18 @@ export async function getCatalogRemote() {
   return null;
 }
 
+export async function getLevelsRemote() {
+  if (isApiMode()) {
+    try {
+      const list = await api.getLevels();
+      return Array.isArray(list) ? list : [];
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 export async function getMyVideosRemote() {
   if (isApiMode()) {
     try {
