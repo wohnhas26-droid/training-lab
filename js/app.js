@@ -7,6 +7,7 @@ import {
   getAssignmentsRemote, createAssignmentRemote, getMyAssignmentsRemote, completeAssignmentRemote, submitFeedbackRemote,
   getCoachVideosRemote, getChildReportRemote, getChildReportsRemote, addChildRemote, removeChildRemote,
   getMyVideosRemote, submitVideoRemote, getCatalogRemote, getChallengesRemote, getEvaluationRemote, getAchievementsRemote,
+  getLevelsRemote,
   createCheckout, openBillingPortal, getSubscriptionStatus, verifyCheckoutSession,
   getStripeConfig, bootstrap, isApiMode,
 } from './services/dataStore.js';
@@ -17,7 +18,7 @@ import { SUBSCRIPTION_PLANS } from './data/subscriptions.js';
 import { TRAINING_CATEGORIES, EXERCISES } from './data/exercises.js';
 import { CHALLENGES } from './data/challenges.js';
 import { hydrateChallenges } from './components/challenges.js';
-import { ACHIEVEMENTS, getLevelForXp } from './data/levels.js';
+import { ACHIEVEMENTS, PROGRESSION_LEVELS, getLevelForXp } from './data/levels.js';
 import { saveWeeklyPlan } from './services/storage.js';
 import { openUrl } from './utils/openUrl.js';
 import { startCheckoutReturnListener } from './utils/listenCheckoutReturn.js';
@@ -124,6 +125,11 @@ window.TrainingLab = {
     }
     const state = loadState();
     return { all: ACHIEVEMENTS, unlocked: state.achievements || [] };
+  },
+  getLevels: async () => {
+    const remote = await getLevelsRemote();
+    if (Array.isArray(remote) && remote.length) return remote;
+    return PROGRESSION_LEVELS;
   },
   getParentReport,
   showToast,
