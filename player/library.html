@@ -27,7 +27,7 @@
   </div>
 
   <script type="module">
-    import { renderNav, renderSidebar, escapeHtml, getCategoryName, difficultyBadge } from '/js/components/ui.js';
+    import { renderNav, renderSidebar, escapeHtml, difficultyBadge } from '/js/components/ui.js';
     import {
       normalizeCategories,
       completedExerciseIds,
@@ -44,11 +44,12 @@
     const filter = document.getElementById('category-filter');
     let exercises = [];
     let completedIds = new Set();
+    let categories = {};
 
     function renderLibrary(category = 'all') {
       document.getElementById('library-grid').innerHTML = renderLibraryCards(
         filterExercises(exercises, category),
-        { escapeHtml, getCategoryName, difficultyBadge, completedIds },
+        { escapeHtml, difficultyBadge, completedIds, categories },
       );
     }
 
@@ -57,6 +58,7 @@
     await TrainingLab.ready();
     const catalog = await TrainingLab.getCatalog();
     exercises = Array.isArray(catalog.exercises) ? catalog.exercises : [];
+    categories = catalog.categories;
     completedIds = completedExerciseIds(TrainingLab.loadState());
     filter.innerHTML = renderCategoryOptions(normalizeCategories(catalog.categories), { escapeHtml });
     document.getElementById('exercise-count').textContent = String(exercises.length);
