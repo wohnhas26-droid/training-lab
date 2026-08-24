@@ -77,3 +77,8 @@ test('offline: getCoachVideosRemote is empty and does not invent teammates', asy
   assert.deepEqual(videos, []);
   assert.doesNotMatch(JSON.stringify(videos), /Jordan Lee|Taylor Kim/);
 });
+
+test('offline: getChallengesRemote returns null so the page can use the bundled catalog', async () => {
+  const list = await ds.getChallengesRemote();
+  assert.equal(list, null);
+});
