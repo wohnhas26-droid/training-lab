@@ -39,7 +39,7 @@
     </main>
   </div>
   <script type="module">
-    import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
+    import { renderNav, renderSidebar, escapeHtml, formatProfileLabel } from '/js/components/ui.js';
     import '/js/app.js';
     TrainingLab.requireAuth('coach');
     document.getElementById('nav').innerHTML = renderNav();
@@ -54,7 +54,7 @@
       tbody.innerHTML = players.map(p => `
       <tr>
         <td><strong>${escapeHtml(p.name)}</strong></td>
-        <td>${escapeHtml(p.position)}</td>
+        <td>${escapeHtml(formatProfileLabel(p.position) || 'Player')}</td>
         <td>${Number(p.xp).toLocaleString()}</td>
         <td>${Number(p.streak)} days</td>
         <td><div class="progress-bar" style="width: 80px; display: inline-block; vertical-align: middle;"><div class="progress-fill" style="width: ${Number(p.completion) || 0}%"></div></div> ${Number(p.completion) || 0}%</td>
