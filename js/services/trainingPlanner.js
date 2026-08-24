@@ -1,4 +1,4 @@
-import { EXERCISES, WEEKLY_SCHEDULE, POSITION_FOCUS, getExercisesByCategory } from '../data/exercises.js';
+import { EXERCISES, WEEKLY_SCHEDULE, POSITION_FOCUS, TRAINING_CATEGORIES, getExercisesByCategory } from '../data/exercises.js';
 import { getDayName } from './storage.js';
 
 const DIFFICULTY_MAP = {
@@ -145,6 +145,19 @@ function generateFallbackSession(day) {
   };
 }
 
+export function formatFocusAreas(areas, categories = TRAINING_CATEGORIES) {
+  const list = Array.isArray(areas) && areas.length ? areas : ['ball mastery'];
+  return list
+    .map((raw) => {
+      const id = String(raw ?? '').trim();
+      if (!id) return '';
+      if (categories[id]?.name) return categories[id].name;
+      return id.replace(/_/g, ' ').replace(/\b[a-z]/g, (ch) => ch.toUpperCase());
+    })
+    .filter(Boolean)
+    .join(', ');
+}
+
 export function generateEvaluation(profile, progress) {
   const level = profile.skillLevel || 'intermediate';
   const sessionsCompleted = progress.skillsCompleted || 0;
@@ -171,6 +184,6 @@ export function generateEvaluation(profile, progress) {
     overallRating: Math.min(10, 5 + Math.floor(sessionsCompleted / 20) + Math.floor(consistency / 3)),
     strengths: strengths.length ? strengths : ['Good foundation to build upon'],
     improvements: improvements.length ? improvements : ['Maintain current training intensity'],
-    recommendation: `Based on your ${level} level and ${profile.position || 'midfielder'} position, focus on ${(profile.improvementAreas || ['ball mastery']).join(', ')} over the next 2 weeks.`,
+    recommendation: `Based on your ${level} level and ${profile.position || 'midfielder'} position, focus on ${formatFocusAreas(profile.improvementAreas)} over the next 2 weeks.`,
   };
 }
