@@ -49,7 +49,7 @@
 
   <script type="module">
     import { renderNav, renderSidebar, getCategoryName, escapeHtml } from '/js/components/ui.js';
-    import { renderCoachAssignmentList } from '/js/components/assignments.js';
+    import { renderCoachAssignmentList, renderAssignPlayerOptions, renderAssignCategoryOptions } from '/js/components/assignments.js';
     import '/js/app.js';
     import { TRAINING_CATEGORIES } from '/js/data/exercises.js';
 
@@ -60,9 +60,9 @@
     let players = [];
     let assignments = [];
 
-    document.getElementById('player-select').innerHTML = '<option value="all">Entire Team</option>';
+    document.getElementById('player-select').innerHTML = renderAssignPlayerOptions([], { escapeHtml });
     document.getElementById('category-select').innerHTML =
-      Object.values(TRAINING_CATEGORIES).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      renderAssignCategoryOptions(TRAINING_CATEGORIES, { escapeHtml });
 
     document.querySelector('[name="dueDate"]').value = new Date().toISOString().split('T')[0];
 
@@ -109,9 +109,7 @@
 
     await TrainingLab.ready();
     players = await TrainingLab.getCoachTeamData();
-    document.getElementById('player-select').innerHTML =
-      '<option value="all">Entire Team</option>' +
-      players.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    document.getElementById('player-select').innerHTML = renderAssignPlayerOptions(players, { escapeHtml });
     assignments = await TrainingLab.getAssignments();
     renderAssignments();
   </script>
