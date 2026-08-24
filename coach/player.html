@@ -34,7 +34,7 @@
     </main>
   </div>
   <script type="module">
-    import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
+    import { renderNav, renderSidebar, escapeHtml, formatProfileLabel } from '/js/components/ui.js';
     import { videoPreviewHtml } from '/js/utils/videoEmbed.js';
     import { renderSkillVideoList } from '/js/components/skillVideos.js';
     import '/js/app.js';
@@ -61,8 +61,8 @@
         const name = detail.user?.name || 'Player';
         document.title = `${name} — Futbol Training Lab`;
         document.getElementById('player-name').textContent = name;
-        const position = detail.profile?.position || 'Player';
-        const skill = detail.profile?.skillLevel || '';
+        const position = formatProfileLabel(detail.profile?.position) || 'Player';
+        const skill = formatProfileLabel(detail.profile?.skillLevel);
         document.getElementById('player-meta').textContent = skill
           ? `${position} · ${skill}`
           : position;

@@ -1,3 +1,5 @@
+import { formatProfileLabel } from './ui.js';
+
 export function emptyCoachTeamSnapshot() {
   return {
     players: [],
@@ -53,7 +55,7 @@ export function renderCoachLeaderboardRows(players, { escapeHtml }) {
         <td><span class="leaderboard-rank rank-${i < 3 ? i + 1 : 'other'}">${i + 1}</span></td>
         <td>
           <a href="${playerHref(p.id)}"><strong>${escapeHtml(p.name)}</strong></a>
-          <br><span style="font-size: 0.8rem; color: var(--slate-500);">${escapeHtml(p.position)}</span>
+          <br><span style="font-size: 0.8rem; color: var(--slate-500);">${escapeHtml(formatProfileLabel(p.position) || 'Player')}</span>
         </td>
         <td>${Number(p.xp).toLocaleString()}</td>
         <td>${Number(p.streak) || 0} days</td>
@@ -93,7 +95,7 @@ export function renderCoachLeaderboardPage(players, { escapeHtml }) {
         <span class="leaderboard-rank rank-${i < 3 ? i + 1 : 'other'}">${i + 1}</span>
         <div style="flex: 1;">
           <a href="${playerHref(p.id)}"><strong>${escapeHtml(p.name)}</strong></a>
-          <div style="font-size: 0.85rem; color: var(--slate-500);">${escapeHtml(p.position)}</div>
+          <div style="font-size: 0.85rem; color: var(--slate-500);">${escapeHtml(formatProfileLabel(p.position) || 'Player')}</div>
         </div>
         <div style="text-align: right;">
           <div style="font-weight: 700; color: var(--green-400);">${Number(p.xp).toLocaleString()} XP</div>
