@@ -74,13 +74,14 @@
 
     await TrainingLab.ready();
     const summary = await TrainingLab.getProgressSummary();
+    const badges = await TrainingLab.getAchievements();
     const fresh = TrainingLab.loadState();
 
     document.getElementById('level-track').innerHTML = renderLevelTrack(PROGRESSION_LEVELS, summary.xp, { escapeHtml });
     document.getElementById('progress-stats').innerHTML = renderProgressStats(summary);
     document.getElementById('achievements-grid').innerHTML = renderAchievements(
-      TrainingLab.ACHIEVEMENTS,
-      fresh.achievements,
+      badges.all,
+      badges.unlocked,
       { escapeHtml },
     );
 

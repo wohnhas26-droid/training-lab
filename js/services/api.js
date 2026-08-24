@@ -61,6 +61,7 @@ export const api = {
   getEvaluation: () => request('/training/evaluation'),
 
   getProgressSummary: () => request('/progress/summary'),
+  getAchievements: () => request('/progress/achievements'),
   unlockAchievement: (id) => request(`/progress/achievements/${id}`, { method: 'POST' }),
 
   getChallenges: () => request('/challenges'),

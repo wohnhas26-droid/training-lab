@@ -87,3 +87,8 @@ test('offline: getEvaluationRemote returns null so elite pages can use the local
   const evaluation = await ds.getEvaluationRemote();
   assert.equal(evaluation, null);
 });
+
+test('offline: getAchievementsRemote returns null so the page can use the bundled catalog', async () => {
+  const badges = await ds.getAchievementsRemote();
+  assert.equal(badges, null);
+});
