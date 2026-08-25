@@ -28,7 +28,10 @@ export function generatePersonalizedPlan(profile) {
   const positionCategories = POSITION_FOCUS[position] || POSITION_FOCUS.midfielder;
 
   const priorityCategories = [...new Set([
-    ...improvementAreas,
+    ...improvementAreas.map((a) => {
+      const id = toCategoryId(a);
+      return TRAINING_CATEGORIES[id] ? id : null;
+    }),
     ...positionCategories,
     ...goals.map(g => mapGoalToCategory(g)),
   ])].filter(Boolean);
