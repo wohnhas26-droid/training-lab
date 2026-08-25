@@ -7,9 +7,8 @@ function listText(items, escapeHtml, formatItem) {
   return list.map((item) => escapeHtml(formatItem ? formatItem(item) : item)).join(', ');
 }
 
-export function renderProfileCard(user, profile, { escapeHtml, capitalize } = {}) {
+export function renderProfileCard(user, profile, { escapeHtml } = {}) {
   const esc = escapeHtml || ((v) => String(v ?? ''));
-  const cap = capitalize || ((s) => String(s ?? ''));
   const p = profile || {};
   const days = Number(p.trainingDays);
   const daysLabel = Number.isFinite(days) && days > 0 ? String(days) : '—';
@@ -20,8 +19,8 @@ export function renderProfileCard(user, profile, { escapeHtml, capitalize } = {}
       <p class="card-subtitle" style="margin-bottom: 1rem;">${esc(user?.email)}</p>
       <div style="display: grid; gap: 0.75rem;">
         <div><span style="color: var(--slate-500);">Age:</span> ${age}</div>
-        <div><span style="color: var(--slate-500);">Position:</span> ${esc(cap(p.position || '—'))}</div>
-        <div><span style="color: var(--slate-500);">Skill Level:</span> ${esc(cap(p.skillLevel || '—'))}</div>
+        <div><span style="color: var(--slate-500);">Position:</span> ${esc(formatProfileLabel(p.position) || '—')}</div>
+        <div><span style="color: var(--slate-500);">Skill Level:</span> ${esc(formatProfileLabel(p.skillLevel) || '—')}</div>
         <div><span style="color: var(--slate-500);">Training Days:</span> ${daysLabel} / week</div>
         <div><span style="color: var(--slate-500);">Goals:</span> ${listText(p.goals, esc, focusLabel)}</div>
         <div><span style="color: var(--slate-500);">Improvement Areas:</span> ${listText(p.improvementAreas, esc, focusLabel)}</div>

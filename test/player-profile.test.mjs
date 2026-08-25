@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { escapeHtml, capitalize } from '../js/components/ui.js';
+import { escapeHtml } from '../js/components/ui.js';
 import { renderProfileCard, renderSubscriptionCard } from '../js/components/playerProfile.js';
 
-const helpers = { escapeHtml, capitalize };
+const helpers = { escapeHtml };
 
 test('profile card escapes name, email, goals, and equipment', () => {
   const html = renderProfileCard(
@@ -26,6 +26,17 @@ test('profile card escapes name, email, goals, and equipment', () => {
   assert.match(html, /Midfielder/);
   assert.doesNotMatch(html, /<touch>/);
   assert.doesNotMatch(html, /<script>/);
+});
+
+test('profile card title-cases underscored position and skill tokens', () => {
+  const html = renderProfileCard(
+    { name: 'Alex', email: 'a@test.com' },
+    { position: 'attacking_midfielder', skillLevel: 'intermediate' },
+    helpers,
+  );
+  assert.match(html, /Position:<\/span> Attacking Midfielder/);
+  assert.match(html, /Skill Level:<\/span> Intermediate/);
+  assert.doesNotMatch(html, /attacking_midfielder/);
 });
 
 test('profile card shows humanized improvement areas, goals, and equipment', () => {
