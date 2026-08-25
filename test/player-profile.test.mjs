@@ -22,24 +22,27 @@ test('profile card escapes name, email, goals, and equipment', () => {
   assert.match(html, /Alex &lt;Rivera&gt;/);
   assert.match(html, /a&lt;@test.com/);
   assert.match(html, /&lt;Touch&gt;/);
-  assert.match(html, /cones&lt;script&gt;/);
+  assert.match(html, /Cones&lt;script&gt;/);
   assert.match(html, /Midfielder/);
   assert.doesNotMatch(html, /<touch>/);
   assert.doesNotMatch(html, /<script>/);
 });
 
-test('profile card shows humanized improvement areas and goals', () => {
+test('profile card shows humanized improvement areas, goals, and equipment', () => {
   const html = renderProfileCard(
     { name: 'Alex', email: 'a@test.com' },
     {
       goals: ['passing', 'first touch'],
       improvementAreas: ['ball_mastery', 'passing'],
+      equipment: ['ball', 'cones', 'wall'],
     },
     helpers,
   );
   assert.match(html, /Goals:<\/span> Passing, First Touch/);
   assert.match(html, /Improvement Areas:<\/span> Ball Mastery, Passing/);
+  assert.match(html, /Equipment:<\/span> Ball, Cones, Wall/);
   assert.doesNotMatch(html, /ball_mastery/);
+  assert.doesNotMatch(html, />ball, cones/);
 });
 
 test('empty profile lists show an em dash instead of leftover copy', () => {
@@ -75,4 +78,12 @@ test('profile edit form shows title-cased goals, not leftover lowercase phrases'
   assert.doesNotMatch(html, /placeholder="passing, first touch"/);
   assert.match(html, /focusListToCsv\(profile\.goals\)/);
   assert.match(html, /csvToArr\(fd\.get\('goals'\)\)\.map\(\(g\) => g\.toLowerCase\(\)\)/);
+});
+
+test('profile edit form shows title-cased equipment, not leftover lowercase tokens', () => {
+  const html = readFileSync(new URL('../player/profile.html', import.meta.url), 'utf8');
+  assert.match(html, /placeholder="Ball, Cones, Wall"/);
+  assert.doesNotMatch(html, /placeholder="ball, cones, wall"/);
+  assert.match(html, /formatProfileLabel\(item\)/);
+  assert.match(html, /csvToArr\(fd\.get\('equipment'\)\)\.map\(\(item\) => item\.toLowerCase\(\)\)/);
 });
