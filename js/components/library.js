@@ -1,3 +1,5 @@
+import { formatProfileLabel } from './ui.js';
+
 export function normalizeCategories(raw) {
   if (Array.isArray(raw)) {
     return raw
@@ -66,7 +68,7 @@ export function renderLibraryCards(exercises, {
   );
   return list.map((ex) => {
     const equipment = Array.isArray(ex.equipment) && ex.equipment.length
-      ? ex.equipment.map((item) => escapeHtml(item)).join(', ')
+      ? ex.equipment.map((item) => escapeHtml(formatProfileLabel(item))).filter(Boolean).join(', ')
       : 'None';
     const finished = done.has(ex.id);
     return `
