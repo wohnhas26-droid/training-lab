@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { formatCategoryLabel, formatFocusAreas, generateEvaluation, toCategoryId, focusListToCsv, csvToCategoryIds } from '../js/services/trainingPlanner.js';
+import { formatCategoryLabel, formatFocusAreas, generateEvaluation, generatePersonalizedPlan, toCategoryId, focusListToCsv, csvToCategoryIds } from '../js/services/trainingPlanner.js';
 
 test('formatCategoryLabel maps catalog ids and title-cases phrases', () => {
   assert.equal(formatCategoryLabel('ball_mastery'), 'Ball Mastery');
@@ -49,4 +49,16 @@ test('focus list CSV round-trips stored ids through display names', () => {
   assert.equal(focusListToCsv(['ball_mastery', 'passing']), 'Ball Mastery, Passing');
   assert.deepEqual(csvToCategoryIds('Ball Mastery, Passing'), ['ball_mastery', 'passing']);
   assert.deepEqual(csvToCategoryIds('ball_mastery, passing'), ['ball_mastery', 'passing']);
+});
+
+test('personalized plan maps improvement phrases to catalog category ids', () => {
+  const plan = generatePersonalizedPlan({
+    improvementAreas: ['ball mastery', 'first touch'],
+    equipment: ['ball'],
+  });
+  const cats = Object.values(plan.plan).flatMap((day) => day.categories || []);
+  assert.equal(cats.includes('ball_mastery'), true);
+  assert.equal(cats.includes('first_touch'), true);
+  assert.equal(cats.includes('ball mastery'), false);
+  assert.equal(cats.includes('first touch'), false);
 });

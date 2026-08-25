@@ -73,7 +73,10 @@ export function generatePersonalizedPlan(profile) {
   const positionCategories = POSITION_FOCUS[position] || POSITION_FOCUS.midfielder;
 
   const priorityCategories = [...new Set([
-    ...improvementAreas,
+    ...improvementAreas.map((a) => {
+      const id = toCategoryId(a);
+      return TRAINING_CATEGORIES[id] ? id : null;
+    }),
     ...positionCategories,
     ...goals.map(g => mapGoalToCategory(g)),
   ])].filter(Boolean);
@@ -130,6 +133,19 @@ export function formatCategoryLabel(raw, categories = TRAINING_CATEGORIES) {
   if (!id) return '';
   if (categories[id]?.name) return categories[id].name;
   return id.replace(/_/g, ' ').replace(/\b[a-z]/g, (ch) => ch.toUpperCase());
+}
+
+export function toCategoryId(raw, categories = TRAINING_CATEGORIES) {
+  const text = String(raw ?? '').trim();
+  if (!text) return '';
+  if (categories[text]) return categories[text].id || text;
+  const asId = text.toLowerCase().replace(/\s+/g, '_');
+  if (categories[asId]) return categories[asId].id || asId;
+  const spaced = text.toLowerCase().replace(/_/g, ' ');
+  for (const cat of Object.values(categories)) {
+    if (cat?.name && String(cat.name).toLowerCase() === spaced) return cat.id || cat.name;
+  }
+  return text;
 }
 
 export function formatFocusAreas(areas, categories = TRAINING_CATEGORIES) {

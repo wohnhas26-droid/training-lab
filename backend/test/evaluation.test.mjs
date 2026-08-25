@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { formatFocusAreas, generateEvaluation } from '../src/services/trainingPlanner.js';
+import { formatFocusAreas, generateEvaluation, generatePersonalizedPlan, toCategoryId } from '../src/services/trainingPlanner.js';
 
 test('formatFocusAreas maps catalog ids to display names', () => {
   assert.equal(formatFocusAreas(['ball_mastery', 'passing']), 'Ball Mastery, Passing');
@@ -30,4 +30,22 @@ test('generateEvaluation recommendation title-cases skill level and position', (
   assert.match(evaluation.recommendation, /Based on your Elite level and Midfielder position/);
   assert.doesNotMatch(evaluation.recommendation, /elite level/);
   assert.doesNotMatch(evaluation.recommendation, /midfielder position/);
+});
+
+test('toCategoryId maps catalog names and phrases back to ids', () => {
+  assert.equal(toCategoryId('ball_mastery'), 'ball_mastery');
+  assert.equal(toCategoryId('Ball Mastery'), 'ball_mastery');
+  assert.equal(toCategoryId('first touch'), 'first_touch');
+});
+
+test('personalized plan maps improvement phrases to catalog category ids', () => {
+  const plan = generatePersonalizedPlan({
+    improvementAreas: ['ball mastery', 'first touch'],
+    equipment: ['ball'],
+  });
+  const cats = Object.values(plan.plan).flatMap((day) => day.categories || []);
+  assert.equal(cats.includes('ball_mastery'), true);
+  assert.equal(cats.includes('first_touch'), true);
+  assert.equal(cats.includes('ball mastery'), false);
+  assert.equal(cats.includes('first touch'), false);
 });
