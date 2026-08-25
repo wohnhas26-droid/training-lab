@@ -74,5 +74,5 @@ test('profile edit form shows title-cased goals, not leftover lowercase phrases'
   assert.match(html, /placeholder="Passing, First Touch"/);
   assert.doesNotMatch(html, /placeholder="passing, first touch"/);
   assert.match(html, /focusListToCsv\(profile\.goals\)/);
-  assert.match(html, /csvToArr\(fd\.get\('goals'\)\)/);
+  assert.match(html, /csvToArr\(fd\.get\('goals'\)\)\.map\(\(g\) => g\.toLowerCase\(\)\)/);
 });

@@ -115,7 +115,7 @@
           position: fd.get('position'),
           skillLevel: fd.get('skillLevel'),
           trainingDays: parseInt(fd.get('trainingDays'), 10) || 5,
-          goals: csvToArr(fd.get('goals')),
+          goals: csvToArr(fd.get('goals')).map((g) => g.toLowerCase()),
           improvementAreas: csvToCategoryIds(fd.get('improvementAreas')),
           equipment: csvToArr(fd.get('equipment')),
         });
