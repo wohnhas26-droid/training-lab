@@ -50,7 +50,7 @@
               </select>
             </div>
           </div>
-          <div class="form-group"><label class="form-label">Goals (comma-separated)</label><input type="text" class="form-input" name="goals" placeholder="passing, first touch"></div>
+          <div class="form-group"><label class="form-label">Goals (comma-separated)</label><input type="text" class="form-input" name="goals" placeholder="Passing, First Touch"></div>
           <div class="form-group"><label class="form-label">Improvement Areas (comma-separated)</label><input type="text" class="form-input" name="improvementAreas" placeholder="ball mastery, passing"></div>
           <div class="form-group"><label class="form-label">Equipment (comma-separated)</label><input type="text" class="form-input" name="equipment" placeholder="ball, cones, wall"></div>
           <button type="submit" class="btn btn-primary" style="justify-self: start;">Save Profile</button>
@@ -97,7 +97,7 @@
       pform().position.value = profile.position || 'midfielder';
       pform().skillLevel.value = profile.skillLevel || 'intermediate';
       pform().trainingDays.value = String(profile.trainingDays || 5);
-      pform().goals.value = toCsv(profile.goals);
+      pform().goals.value = focusListToCsv(profile.goals);
       pform().improvementAreas.value = focusListToCsv(profile.improvementAreas);
       pform().equipment.value = toCsv(profile.equipment);
     }

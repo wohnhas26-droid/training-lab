@@ -68,3 +68,11 @@ test('profile edit form shows human improvement areas, not snake_case ids', () =
   assert.match(html, /focusListToCsv\(profile\.improvementAreas\)/);
   assert.match(html, /csvToCategoryIds\(fd\.get\('improvementAreas'\)\)/);
 });
+
+test('profile edit form shows title-cased goals, not leftover lowercase phrases', () => {
+  const html = readFileSync(new URL('../player/profile.html', import.meta.url), 'utf8');
+  assert.match(html, /placeholder="Passing, First Touch"/);
+  assert.doesNotMatch(html, /placeholder="passing, first touch"/);
+  assert.match(html, /focusListToCsv\(profile\.goals\)/);
+  assert.match(html, /csvToArr\(fd\.get\('goals'\)\)/);
+});
