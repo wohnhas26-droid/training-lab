@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { escapeHtml, capitalize } from '../js/components/ui.js';
 import { renderProfileCard, renderSubscriptionCard } from '../js/components/playerProfile.js';
 
@@ -58,4 +59,12 @@ test('subscription card uses known plan names and escapes unknown plans', () => 
   assert.match(unknown, /gold&lt;script&gt;/);
   assert.doesNotMatch(unknown, /gold<script>/);
   assert.match(unknown, /Free Trial/);
+});
+
+test('profile edit form shows human improvement areas, not snake_case ids', () => {
+  const html = readFileSync(new URL('../player/profile.html', import.meta.url), 'utf8');
+  assert.match(html, /placeholder="ball mastery, passing"/);
+  assert.doesNotMatch(html, /ball_mastery, passing/);
+  assert.match(html, /focusListToCsv\(profile\.improvementAreas\)/);
+  assert.match(html, /csvToCategoryIds\(fd\.get\('improvementAreas'\)\)/);
 });
