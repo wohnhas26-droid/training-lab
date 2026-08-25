@@ -12,3 +12,14 @@ test('onboarding improvement pills use human phrases, not snake_case ids', () =>
   assert.doesNotMatch(improvement.slice(0, 600), /ball_mastery/);
   assert.doesNotMatch(improvement.slice(0, 600), /first_touch/);
 });
+
+test('onboarding equipment pills use title-case labels and lowercase stored values', () => {
+  const html = readFileSync(new URL('../onboarding.html', import.meta.url), 'utf8');
+  const equipment = html.slice(html.indexOf("renderPills('equipment-group'"));
+  assert.match(equipment, /value: 'ball'/);
+  assert.match(equipment, /label: 'Ball'/);
+  assert.match(equipment, /value: 'agility ladder'/);
+  assert.match(equipment, /label: 'Agility Ladder'/);
+  assert.doesNotMatch(equipment.slice(0, 700), /label: 'ball'/);
+  assert.doesNotMatch(equipment.slice(0, 700), /label: 'agility ladder'/);
+});
