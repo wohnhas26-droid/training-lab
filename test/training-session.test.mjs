@@ -27,6 +27,7 @@ test('session exercises show catalog category names, not the shortened map', () 
   assert.match(html, /Speed &amp; Athletic Performance/);
   assert.doesNotMatch(html, /Speed &amp; Athletic ·/);
   assert.match(html, /Change of Direction Sprints/);
+  assert.match(html, /Equipment: None/);
 });
 
 test('session exercises escape names and descriptions', () => {
@@ -45,6 +46,25 @@ test('session exercises escape names and descriptions', () => {
   assert.match(html, /Wall &lt;pass&gt;/);
   assert.match(html, /Hit the &lt;wall&gt;/);
   assert.doesNotMatch(html, /Wall <pass>/);
+});
+
+test('session exercises title-case equipment and still escape it', () => {
+  const html = renderSessionExercises([
+    {
+      id: 'pa_one_touch',
+      category: 'passing',
+      name: 'One-Touch Passing',
+      duration: 8,
+      reps: '3x15',
+      difficulty: 'intermediate',
+      xp: 40,
+      equipment: ['ball', 'wall', 'agility ladder', 'cones<script>'],
+      description: 'One-touch wall passes.',
+    },
+  ], helpers);
+  assert.match(html, /Equipment: Ball, Wall, Agility Ladder, Cones&lt;script&gt;/);
+  assert.doesNotMatch(html, /Equipment: ball, wall/);
+  assert.doesNotMatch(html, /cones<script>/);
 });
 
 test('empty session shows rest-day copy instead of leftover drills', () => {
