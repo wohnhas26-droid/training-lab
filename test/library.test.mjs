@@ -53,6 +53,7 @@ test('library cards escape names and mark completed drills', () => {
   assert.match(html, /Quick &lt;toe&gt; taps/);
   assert.match(html, /Completed/);
   assert.match(html, /Ball Mastery/);
+  assert.match(html, /Equipment: Ball/);
 });
 
 test('empty category filter shows an empty state instead of leftover cards', () => {
@@ -101,6 +102,25 @@ test('library cards show catalog category names on drill subtitles', () => {
   });
   assert.match(html, /Speed &amp; Athletic Performance/);
   assert.doesNotMatch(html, /Speed &amp; Athletic ·/);
+});
+
+test('library cards title-case equipment and still escape it', () => {
+  const html = renderLibraryCards([
+    {
+      id: 'dr_1v1',
+      category: 'dribbling',
+      name: '1v1 Moves',
+      duration: 10,
+      reps: '5 attempts',
+      difficulty: 'intermediate',
+      xp: 45,
+      equipment: ['ball', 'cones', 'agility ladder', 'wall<script>'],
+      description: 'Practice feints.',
+    },
+  ], { escapeHtml, difficultyBadge });
+  assert.match(html, /Equipment: Ball, Cones, Agility Ladder, Wall&lt;script&gt;/);
+  assert.doesNotMatch(html, /Equipment: ball, cones/);
+  assert.doesNotMatch(html, /wall<script>/);
 });
 
 test('library page passes catalog categories into drill cards', () => {
