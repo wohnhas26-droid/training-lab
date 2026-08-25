@@ -1,4 +1,5 @@
 import { formatCategoryLabel } from '../services/trainingPlanner.js';
+import { formatProfileLabel } from './ui.js';
 
 function listText(items, escapeHtml, formatItem) {
   const list = Array.isArray(items) ? items.filter((v) => v != null && String(v).trim()) : [];
@@ -24,7 +25,7 @@ export function renderProfileCard(user, profile, { escapeHtml, capitalize } = {}
         <div><span style="color: var(--slate-500);">Training Days:</span> ${daysLabel} / week</div>
         <div><span style="color: var(--slate-500);">Goals:</span> ${listText(p.goals, esc, focusLabel)}</div>
         <div><span style="color: var(--slate-500);">Improvement Areas:</span> ${listText(p.improvementAreas, esc, focusLabel)}</div>
-        <div><span style="color: var(--slate-500);">Equipment:</span> ${listText(p.equipment, esc)}</div>
+        <div><span style="color: var(--slate-500);">Equipment:</span> ${listText(p.equipment, esc, formatProfileLabel)}</div>
       </div>
     `;
 }

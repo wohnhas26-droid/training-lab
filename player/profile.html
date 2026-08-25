@@ -52,7 +52,7 @@
           </div>
           <div class="form-group"><label class="form-label">Goals (comma-separated)</label><input type="text" class="form-input" name="goals" placeholder="Passing, First Touch"></div>
           <div class="form-group"><label class="form-label">Improvement Areas (comma-separated)</label><input type="text" class="form-input" name="improvementAreas" placeholder="ball mastery, passing"></div>
-          <div class="form-group"><label class="form-label">Equipment (comma-separated)</label><input type="text" class="form-input" name="equipment" placeholder="ball, cones, wall"></div>
+          <div class="form-group"><label class="form-label">Equipment (comma-separated)</label><input type="text" class="form-input" name="equipment" placeholder="Ball, Cones, Wall"></div>
           <button type="submit" class="btn btn-primary" style="justify-self: start;">Save Profile</button>
         </form>
       </div>
@@ -66,7 +66,7 @@
   </div>
 
   <script type="module">
-    import { renderNav, renderSidebar, capitalize, escapeHtml } from '/js/components/ui.js';
+    import { renderNav, renderSidebar, capitalize, escapeHtml, formatProfileLabel } from '/js/components/ui.js';
     import { renderProfileCard, renderSubscriptionCard } from '/js/components/playerProfile.js';
     import { focusListToCsv, csvToCategoryIds } from '/js/services/trainingPlanner.js';
     import { openUrl } from '/js/utils/openUrl.js';
@@ -89,7 +89,6 @@
     renderProfileInfo();
 
     // Prefill and wire the edit form.
-    const toCsv = (arr) => (Array.isArray(arr) ? arr.join(', ') : (arr || ''));
     const csvToArr = (s) => String(s || '').split(',').map(x => x.trim()).filter(Boolean);
     function pform() { return document.getElementById('profile-form'); }
     function pform_prefill() {
@@ -99,7 +98,10 @@
       pform().trainingDays.value = String(profile.trainingDays || 5);
       pform().goals.value = focusListToCsv(profile.goals);
       pform().improvementAreas.value = focusListToCsv(profile.improvementAreas);
-      pform().equipment.value = toCsv(profile.equipment);
+      pform().equipment.value = (Array.isArray(profile.equipment) ? profile.equipment : [])
+        .map((item) => formatProfileLabel(item))
+        .filter(Boolean)
+        .join(', ');
     }
     pform_prefill();
 
@@ -117,7 +119,7 @@
           trainingDays: parseInt(fd.get('trainingDays'), 10) || 5,
           goals: csvToArr(fd.get('goals')).map((g) => g.toLowerCase()),
           improvementAreas: csvToCategoryIds(fd.get('improvementAreas')),
-          equipment: csvToArr(fd.get('equipment')),
+          equipment: csvToArr(fd.get('equipment')).map((item) => item.toLowerCase()),
         });
         profile = (updated && updated.profile) ? updated.profile : profile;
         if (updated?.user) user = updated.user;
