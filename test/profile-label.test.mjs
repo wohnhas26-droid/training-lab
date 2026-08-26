@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { formatProfileLabel } from '../js/components/ui.js';
+import { formatProfileLabel, titleCasePhrase } from '../js/components/ui.js';
 
 test('formatProfileLabel title-cases stored profile tokens', () => {
   assert.equal(formatProfileLabel('midfielder'), 'Midfielder');
@@ -15,4 +15,14 @@ test('formatProfileLabel trims and ignores empty values', () => {
   assert.equal(formatProfileLabel(''), '');
   assert.equal(formatProfileLabel(null), '');
   assert.equal(formatProfileLabel(undefined), '');
+});
+
+test('titleCasePhrase title-cases words and keeps hyphens and slashes', () => {
+  assert.equal(titleCasePhrase('Toe taps'), 'Toe Taps');
+  assert.equal(titleCasePhrase('Pull-push'), 'Pull-Push');
+  assert.equal(titleCasePhrase('1v1 moves'), '1v1 Moves');
+  assert.equal(titleCasePhrase('Inside/outside touches'), 'Inside/Outside Touches');
+  assert.equal(titleCasePhrase('Cruyff turns'), 'Cruyff Turns');
+  assert.equal(titleCasePhrase(''), '');
+  assert.equal(titleCasePhrase(null), '');
 });
