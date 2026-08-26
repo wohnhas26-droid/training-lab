@@ -14,11 +14,10 @@ import {
 import { generatePersonalizedPlan, getTodaySession, generateEvaluation } from './services/trainingPlanner.js';
 import { checkAchievements, getProgressSummary as getLocalProgressSummary, getCoachTeamData, getParentReport } from './services/progressTracker.js';
 import { showToast } from './components/ui.js';
-import { SUBSCRIPTION_PLANS } from './data/subscriptions.js';
 import { TRAINING_CATEGORIES, EXERCISES } from './data/exercises.js';
 import { CHALLENGES } from './data/challenges.js';
 import { hydrateChallenges } from './components/challenges.js';
-import { ACHIEVEMENTS, PROGRESSION_LEVELS, getLevelForXp } from './data/levels.js';
+import { ACHIEVEMENTS, PROGRESSION_LEVELS } from './data/levels.js';
 import { saveWeeklyPlan } from './services/storage.js';
 import { openUrl } from './utils/openUrl.js';
 import { startCheckoutReturnListener } from './utils/listenCheckoutReturn.js';
@@ -138,8 +137,6 @@ window.TrainingLab = {
   },
   getParentReport,
   showToast,
-  SUBSCRIPTION_PLANS,
-  getLevelForXp,
 
   async initOnboarding(formData) {
     await initPromise;
