@@ -1,0 +1,48 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { dirname, join, extname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const app = readFileSync(join(root, 'js/app.js'), 'utf8');
+const publicObj = app.slice(app.indexOf('window.TrainingLab = {'));
+
+function htmlFiles(dir = root, acc = []) {
+  for (const name of readdirSync(dir)) {
+    if (name === 'node_modules' || name === '.git' || name === 'www' || name === 'android' || name === 'ios') continue;
+    const full = join(dir, name);
+    const st = statSync(full);
+    if (st.isDirectory()) htmlFiles(full, acc);
+    else if (extname(name) === '.html') acc.push(full);
+  }
+  return acc;
+}
+
+test('getLevels still falls back to bundled PROGRESSION_LEVELS', () => {
+  assert.match(app, /return PROGRESSION_LEVELS;/);
+});
+
+test('window.TrainingLab does not re-export SUBSCRIPTION_PLANS or getLevelForXp', () => {
+  assert.match(publicObj, /window\.TrainingLab = \{/);
+  assert.doesNotMatch(publicObj, /^\s*SUBSCRIPTION_PLANS,/m);
+  assert.doesNotMatch(publicObj, /^\s*getLevelForXp,/m);
+});
+
+test('HTML pages do not read plans or level helpers off TrainingLab', () => {
+  const files = htmlFiles();
+  assert.ok(files.length > 0);
+  for (const file of files) {
+    const html = readFileSync(file, 'utf8');
+    assert.doesNotMatch(html, /TrainingLab\.SUBSCRIPTION_PLANS/);
+    assert.doesNotMatch(html, /TrainingLab\.getLevelForXp/);
+  }
+});
+
+test('pricing and checkout success import plans from the subscriptions data file', () => {
+  const pricing = readFileSync(join(root, 'pricing.html'), 'utf8');
+  const success = readFileSync(join(root, 'subscription/success.html'), 'utf8');
+  assert.match(pricing, /from '\/js\/data\/subscriptions\.js'/);
+  assert.match(success, /from '\/js\/data\/subscriptions\.js'/);
+  assert.match(pricing, /SUBSCRIPTION_PLANS\.map\(renderPlan\)/);
+});
