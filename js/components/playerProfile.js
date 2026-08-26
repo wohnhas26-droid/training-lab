@@ -58,7 +58,7 @@ export function renderSubscriptionCard(sub, { planNames = PLAN_NAMES, weeklyPlan
         <p style="font-size: 1.5rem; font-weight: 700; color: var(--green-400); margin: 1rem 0;">${esc(planLabel)}</p>
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
           <span class="badge ${statusCls}">${esc(statusLabel)}</span>
-          ${plan === 'elite' ? '<span class="badge badge-gold">AI Personal Training</span>' : ''}
+          ${plan === 'elite' ? '<span class="badge badge-gold">Personalized Training</span>' : ''}
         </div>
         ${periodEnd ? `<p style="color: var(--slate-400); font-size: 0.9rem;">Current period ends: ${esc(periodEnd)}</p>` : ''}
         <p style="color: var(--slate-400); margin-top: 1rem; font-size: 0.9rem;" id="plan-generated">
