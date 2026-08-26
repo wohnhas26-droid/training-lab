@@ -55,7 +55,6 @@ export const SUBSCRIPTION_PLANS = [
       'Team leaderboards',
       'Attendance tracking',
       'Player progress reports',
-      'Team communication',
     ],
   },
 ];
