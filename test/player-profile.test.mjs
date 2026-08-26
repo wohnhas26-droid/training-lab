@@ -66,13 +66,26 @@ test('empty profile lists show an em dash instead of leftover copy', () => {
 test('subscription card uses known plan names and escapes unknown plans', () => {
   const elite = renderSubscriptionCard({ plan: 'elite', status: 'active' }, helpers);
   assert.match(elite, /Elite Membership/);
-  assert.match(elite, /AI Personal Training/);
+  assert.match(elite, /Personalized Training/);
+  assert.doesNotMatch(elite, /AI Personal Training/);
   assert.match(elite, />Active</);
+
+  const player = renderSubscriptionCard({ plan: 'player', status: 'active' }, helpers);
+  assert.match(player, /Player Membership/);
+  assert.doesNotMatch(player, /Personalized Training/);
+  assert.doesNotMatch(player, /AI Personal Training/);
 
   const unknown = renderSubscriptionCard({ plan: 'gold<script>', status: 'trialing' }, helpers);
   assert.match(unknown, /gold&lt;script&gt;/);
   assert.doesNotMatch(unknown, /gold<script>/);
   assert.match(unknown, /Free Trial/);
+});
+
+test('profile regenerate copy does not claim an AI plan', () => {
+  const html = readFileSync(new URL('../player/profile.html', import.meta.url), 'utf8');
+  assert.match(html, /rebuild your 4-week development plan/);
+  assert.doesNotMatch(html, /AI development plan/);
+  assert.doesNotMatch(html, /4-week AI/);
 });
 
 test('profile edit form shows title-cased improvement areas, not leftover lowercase phrases', () => {
