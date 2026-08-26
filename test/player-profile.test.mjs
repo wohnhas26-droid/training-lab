@@ -75,9 +75,10 @@ test('subscription card uses known plan names and escapes unknown plans', () => 
   assert.match(unknown, /Free Trial/);
 });
 
-test('profile edit form shows human improvement areas, not snake_case ids', () => {
+test('profile edit form shows title-cased improvement areas, not leftover lowercase phrases', () => {
   const html = readFileSync(new URL('../player/profile.html', import.meta.url), 'utf8');
-  assert.match(html, /placeholder="ball mastery, passing"/);
+  assert.match(html, /placeholder="Ball Mastery, Passing"/);
+  assert.doesNotMatch(html, /placeholder="ball mastery, passing"/);
   assert.doesNotMatch(html, /ball_mastery, passing/);
   assert.match(html, /focusListToCsv\(profile\.improvementAreas\)/);
   assert.match(html, /csvToCategoryIds\(fd\.get\('improvementAreas'\)\)/);
