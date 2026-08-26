@@ -12,7 +12,7 @@ import {
   getStripeConfig, bootstrap, isApiMode,
 } from './services/dataStore.js';
 import { generatePersonalizedPlan, getTodaySession, generateEvaluation } from './services/trainingPlanner.js';
-import { checkAchievements, getProgressSummary as getLocalProgressSummary, getCoachTeamData, getParentReport } from './services/progressTracker.js';
+import { checkAchievements, getProgressSummary as getLocalProgressSummary, getCoachTeamData } from './services/progressTracker.js';
 import { showToast } from './components/ui.js';
 import { TRAINING_CATEGORIES, EXERCISES } from './data/exercises.js';
 import { CHALLENGES } from './data/challenges.js';
@@ -50,9 +50,7 @@ window.TrainingLab = {
     showToast('Logged out successfully');
     setTimeout(() => window.location.href = '/index.html', 500);
   },
-  saveProfile,
   updateProfile: updateProfileRemote,
-  saveSubscription,
   completeSession: completeSessionRemote,
   joinChallenge: joinChallengeRemote,
   updateChallengeProgress: updateChallengeProgressRemote,
@@ -61,11 +59,9 @@ window.TrainingLab = {
   getSubscriptionStatus,
   verifyCheckoutSession,
   getStripeConfig,
-  generatePersonalizedPlan,
   regeneratePlan: regeneratePlanRemote,
   getTodayTraining: getTodayTrainingRemote,
   getTodaySession,
-  generateEvaluation,
   checkAchievements: checkAchievementsRemote,
   getProgressSummary: async () => {
     const remote = await getProgressSummaryRemote();
@@ -135,7 +131,6 @@ window.TrainingLab = {
     if (Array.isArray(remote) && remote.length) return remote;
     return ACHIEVEMENTS;
   },
-  getParentReport,
   showToast,
 
   async initOnboarding(formData) {
