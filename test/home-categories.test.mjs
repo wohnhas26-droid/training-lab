@@ -77,3 +77,10 @@ test('homepage How It Works copy does not claim an AI plan', () => {
   assert.match(html, /We build your personalized plan from that profile/);
   assert.doesNotMatch(html, /Our AI builds your personalized plan/);
 });
+
+test('homepage CTA does not invent thousands of players', () => {
+  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  assert.match(html, /Start training smarter every day/);
+  assert.doesNotMatch(html, /Join thousands of players/);
+  assert.doesNotMatch(html, /thousands of players/);
+});
