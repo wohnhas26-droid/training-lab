@@ -56,3 +56,15 @@ test('elite plan copy does not claim AI-generated plans', async () => {
   assert.doesNotMatch(elite.description, /AI-powered|AI-generated/i);
   assert.equal(elite.features.filter((f) => /AI-powered|AI-generated/i.test(f)).length, 0);
 });
+
+test('elite plan does not list features the app does not ship', async () => {
+  const { SUBSCRIPTION_PLANS } = await import('../js/data/subscriptions.js');
+  const elite = SUBSCRIPTION_PLANS.find((p) => p.id === 'elite');
+  const features = elite.features.join('\n');
+  assert.match(features, /Video skill assessments/);
+  assert.match(features, /Monthly player evaluations/);
+  assert.doesNotMatch(features, /Nutrition guidance/);
+  assert.doesNotMatch(features, /Mental performance training/);
+  assert.doesNotMatch(features, /Exclusive masterclasses/);
+  assert.doesNotMatch(features, /Priority support/);
+});

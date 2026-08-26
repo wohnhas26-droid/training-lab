@@ -38,10 +38,6 @@ export const SUBSCRIPTION_PLANS = [
       'Monthly player evaluations',
       'Advanced position-specific training',
       'Strength and conditioning programs',
-      'Nutrition guidance',
-      'Mental performance training',
-      'Exclusive masterclasses',
-      'Priority support',
     ],
   },
   {
