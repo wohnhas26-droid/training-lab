@@ -1,4 +1,6 @@
-export function renderPlayerAssignmentList(assignments, { getCategoryName, escapeHtml }) {
+import { categoryLabel } from './library.js';
+
+export function renderPlayerAssignmentList(assignments, { categories, escapeHtml }) {
   if (!assignments.length) {
     return '<p style="color: var(--slate-500);">No coach assignments yet.</p>';
   }
@@ -18,7 +20,7 @@ export function renderPlayerAssignmentList(assignments, { getCategoryName, escap
           <div>
             <strong>${escapeHtml(a.title)}</strong>
             <p style="font-size: 0.85rem; ${dueClass} margin-top: 0.25rem;">
-              ${escapeHtml(getCategoryName(a.category))} · Due ${escapeHtml(a.dueDate)}${a.overdue && !a.completed ? ' · Overdue' : ''}
+              ${escapeHtml(categoryLabel(a.category, categories))} · Due ${escapeHtml(a.dueDate)}${a.overdue && !a.completed ? ' · Overdue' : ''}
             </p>
             ${notes}
           </div>
@@ -28,7 +30,7 @@ export function renderPlayerAssignmentList(assignments, { getCategoryName, escap
   }).join('');
 }
 
-export function renderCoachAssignmentList(assignments, { getCategoryName, escapeHtml, assignToLabel }) {
+export function renderCoachAssignmentList(assignments, { categories, escapeHtml, assignToLabel }) {
   if (!assignments.length) {
     return '<p style="color: var(--slate-500);">No assignments yet.</p>';
   }
@@ -49,7 +51,7 @@ export function renderCoachAssignmentList(assignments, { getCategoryName, escape
           <div>
             <strong>${escapeHtml(a.title)}</strong>
             <p style="font-size: 0.85rem; color: var(--slate-400); margin-top: 0.25rem;">
-              ${escapeHtml(getCategoryName(a.category))} · Due ${escapeHtml(a.dueDate)} · Assigned to ${escapeHtml(assignToLabel(a.assignTo))}
+              ${escapeHtml(categoryLabel(a.category, categories))} · Due ${escapeHtml(a.dueDate)} · Assigned to ${escapeHtml(assignToLabel(a.assignTo))}
             </p>
             ${notes}
           </div>

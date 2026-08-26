@@ -42,7 +42,6 @@
   <script type="module">
     import { renderNav, renderSidebar, difficultyBadge, escapeHtml } from '/js/components/ui.js';
     import { renderPlayerAssignmentList } from '/js/components/assignments.js';
-    import { categoryLabel } from '/js/components/library.js';
     import { renderSessionExercises } from '/js/components/trainingSession.js';
     import '/js/app.js';
 
@@ -55,7 +54,6 @@
     await TrainingLab.ready();
     const catalog = await TrainingLab.getCatalog();
     const categories = catalog.categories;
-    const getCategoryName = (id) => categoryLabel(id, categories);
     const current = TrainingLab.loadState();
     const session = await TrainingLab.getTodayTraining();
     const completed = new Set(
@@ -125,7 +123,7 @@
     async function loadAssignments() {
       await TrainingLab.ready();
       const items = await TrainingLab.getMyAssignments();
-      assignmentList.innerHTML = renderPlayerAssignmentList(items, { getCategoryName, escapeHtml });
+      assignmentList.innerHTML = renderPlayerAssignmentList(items, { categories, escapeHtml });
     }
 
     assignmentList.addEventListener('click', async (e) => {

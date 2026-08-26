@@ -50,7 +50,6 @@
   <script type="module">
     import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
     import { renderCoachAssignmentList, renderAssignPlayerOptions, renderAssignCategoryOptions } from '/js/components/assignments.js';
-    import { categoryLabel } from '/js/components/library.js';
     import '/js/app.js';
 
     TrainingLab.requireAuth('coach');
@@ -60,7 +59,6 @@
     let players = [];
     let assignments = [];
     let categories = {};
-    const getCategoryName = (id) => categoryLabel(id, categories);
 
     document.getElementById('player-select').innerHTML = renderAssignPlayerOptions([], { escapeHtml });
     document.getElementById('category-select').innerHTML = renderAssignCategoryOptions([], { escapeHtml });
@@ -74,7 +72,7 @@
 
     function renderAssignments() {
       document.getElementById('assignments-list').innerHTML = renderCoachAssignmentList(assignments, {
-        getCategoryName,
+        categories,
         escapeHtml,
         assignToLabel,
       });

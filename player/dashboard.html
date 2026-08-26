@@ -46,7 +46,6 @@
     import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
     import { renderPlayerAssignmentList } from '/js/components/assignments.js';
     import { renderDashboardStats, renderLevelInfo, renderSessionCta } from '/js/components/playerProgress.js';
-    import { categoryLabel } from '/js/components/library.js';
     import '/js/app.js';
     import { getDayName } from '/js/services/storage.js';
     import { daysFromWeeklyPlan, renderWeeklySchedule } from '/js/utils/weeklySchedule.js';
@@ -87,7 +86,6 @@
     await TrainingLab.ready();
     const catalog = await TrainingLab.getCatalog();
     const categories = catalog.categories;
-    const getCategoryName = (id) => categoryLabel(id, categories);
     const summary = await TrainingLab.getProgressSummary();
     document.getElementById('stats-grid').innerHTML = renderDashboardStats(summary);
     document.getElementById('level-info').innerHTML = renderLevelInfo(summary);
@@ -102,7 +100,7 @@
     async function loadAssignments() {
       await TrainingLab.ready();
       const items = await TrainingLab.getMyAssignments();
-      assignmentList.innerHTML = renderPlayerAssignmentList(items, { getCategoryName, escapeHtml });
+      assignmentList.innerHTML = renderPlayerAssignmentList(items, { categories, escapeHtml });
     }
 
     assignmentList.addEventListener('click', async (e) => {
