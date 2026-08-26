@@ -46,3 +46,13 @@ test('pricing and checkout success import plans from the subscriptions data file
   assert.match(success, /from '\/js\/data\/subscriptions\.js'/);
   assert.match(pricing, /SUBSCRIPTION_PLANS\.map\(renderPlan\)/);
 });
+
+test('elite plan copy does not claim AI-generated plans', async () => {
+  const { SUBSCRIPTION_PLANS } = await import('../js/data/subscriptions.js');
+  const elite = SUBSCRIPTION_PLANS.find((p) => p.id === 'elite');
+  assert.ok(elite);
+  assert.equal(elite.description, 'Personalized training for serious players.');
+  assert.ok(elite.features.includes('Personalized training plans from your profile'));
+  assert.doesNotMatch(elite.description, /AI-powered|AI-generated/i);
+  assert.equal(elite.features.filter((f) => /AI-powered|AI-generated/i.test(f)).length, 0);
+});

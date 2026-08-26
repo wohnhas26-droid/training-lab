@@ -28,11 +28,11 @@ export const SUBSCRIPTION_PLANS = [
     name: 'Elite Membership',
     price: 59.99,
     period: 'month',
-    description: 'AI-powered personalization for serious players.',
+    description: 'Personalized training for serious players.',
     featured: true,
     features: [
       'Everything in Player Membership',
-      'AI-generated personalized training plans',
+      'Personalized training plans from your profile',
       'Video skill assessments',
       'Personalized feedback',
       'Monthly player evaluations',
