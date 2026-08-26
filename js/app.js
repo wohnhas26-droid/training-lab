@@ -139,10 +139,6 @@ window.TrainingLab = {
   getParentReport,
   showToast,
   SUBSCRIPTION_PLANS,
-  TRAINING_CATEGORIES,
-  EXERCISES,
-  CHALLENGES,
-  ACHIEVEMENTS,
   getLevelForXp,
 
   async initOnboarding(formData) {
