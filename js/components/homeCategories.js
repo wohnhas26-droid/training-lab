@@ -1,3 +1,5 @@
+import { titleCasePhrase } from './ui.js';
+
 export function listHomeCategories(raw) {
   const list = Array.isArray(raw) ? raw : Object.values(raw || {});
   return list.filter((c) => c && (c.id || c.name));
@@ -16,7 +18,7 @@ export function renderHomeCategoryCards(categories, { escapeHtml } = {}) {
     return '<p style="color: var(--slate-500);">Training categories will appear when the catalog loads.</p>';
   }
   return list.map((cat) => {
-    const preview = subcategoryPreview(cat).map(esc).join(' · ');
+    const preview = subcategoryPreview(cat).map((item) => esc(titleCasePhrase(item))).join(' · ');
     return `
       <div class="card">
         <div style="font-size: 2rem; margin-bottom: 0.75rem;">${esc(cat.icon || '')}</div>

@@ -99,6 +99,11 @@ export function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+function titleCaseChunk(part) {
+  if (!part) return part;
+  return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+}
+
 /** Title-case a stored profile token (position, skill level). */
 export function formatProfileLabel(raw) {
   const text = String(raw ?? '').trim();
@@ -107,7 +112,18 @@ export function formatProfileLabel(raw) {
     .replace(/[_-]+/g, ' ')
     .split(/\s+/)
     .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .map(titleCaseChunk)
+    .join(' ');
+}
+
+/** Title-case a display phrase, keeping hyphens and slashes (Pull-Push, Inside/Outside). */
+export function titleCasePhrase(raw) {
+  const text = String(raw ?? '').trim();
+  if (!text) return '';
+  return text
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((word) => word.replace(/[^\s/-]+/g, titleCaseChunk))
     .join(' ');
 }
 

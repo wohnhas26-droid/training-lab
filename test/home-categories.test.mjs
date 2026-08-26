@@ -37,6 +37,28 @@ test('home category cards escape names and drill previews', () => {
   assert.doesNotMatch(html, /Toe <taps>/);
 });
 
+test('home category cards title-case drill previews to match library names', () => {
+  const html = renderHomeCategoryCards({
+    ball_mastery: {
+      id: 'ball_mastery',
+      name: 'Ball Mastery',
+      icon: '⚽',
+      subcategories: { foundations: ['Toe taps', 'Pull-push', 'V-cuts', 'L-turns', 'Cruyff turns'] },
+    },
+    dribbling: {
+      id: 'dribbling',
+      name: 'Dribbling',
+      icon: '🏃',
+      subcategories: { moves: ['1v1 moves', 'Change of direction'] },
+    },
+  }, { escapeHtml });
+  assert.match(html, /Toe Taps · Pull-Push · V-Cuts · L-Turns/);
+  assert.match(html, /1v1 Moves · Change Of Direction/);
+  assert.doesNotMatch(html, /Toe taps/);
+  assert.doesNotMatch(html, /Pull-push/);
+  assert.doesNotMatch(html, /1v1 moves/);
+});
+
 test('empty catalog shows a loading empty state instead of leftover cards', () => {
   const html = renderHomeCategoryCards({}, { escapeHtml });
   assert.match(html, /Training categories will appear/);
