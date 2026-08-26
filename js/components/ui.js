@@ -111,20 +111,6 @@ export function formatProfileLabel(raw) {
     .join(' ');
 }
 
-export function getCategoryName(id) {
-  const names = {
-    ball_mastery: 'Ball Mastery',
-    dribbling: 'Dribbling',
-    first_touch: 'First Touch',
-    passing: 'Passing',
-    finishing: 'Finishing',
-    speed: 'Speed & Athletic',
-    goalkeeper: 'Goalkeeper',
-    recovery: 'Recovery',
-  };
-  return names[id] || id;
-}
-
 export function difficultyBadge(difficulty) {
   const colors = {
     beginner: 'badge-green',

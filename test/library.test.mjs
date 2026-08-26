@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { escapeHtml, getCategoryName, difficultyBadge } from '../js/components/ui.js';
+import { escapeHtml, difficultyBadge } from '../js/components/ui.js';
 import {
   normalizeCategories,
   categoryLabel,
@@ -11,7 +11,7 @@ import {
   renderLibraryCards,
 } from '../js/components/library.js';
 
-const helpers = { escapeHtml, getCategoryName, difficultyBadge };
+const helpers = { escapeHtml, difficultyBadge };
 
 test('normalizeCategories accepts API objects and arrays', () => {
   assert.deepEqual(normalizeCategories({
@@ -102,6 +102,32 @@ test('library cards show catalog category names on drill subtitles', () => {
   });
   assert.match(html, /Speed &amp; Athletic Performance/);
   assert.doesNotMatch(html, /Speed &amp; Athletic ·/);
+});
+
+test('library cards without a catalog do not use the leftover shortened speed map', () => {
+  const html = renderLibraryCards([
+    {
+      id: 'sp_cod',
+      category: 'speed',
+      name: 'Change of Direction Sprints',
+      duration: 10,
+      reps: '5x T-test',
+      difficulty: 'intermediate',
+      xp: 40,
+      equipment: ['cones'],
+      description: 'Sprint, cut, and accelerate.',
+    },
+  ], { escapeHtml, difficultyBadge });
+  assert.match(html, /Speed ·/);
+  assert.doesNotMatch(html, /Speed &amp; Athletic/);
+});
+
+test('shortened getCategoryName map is gone from ui and library cards', () => {
+  const ui = readFileSync(new URL('../js/components/ui.js', import.meta.url), 'utf8');
+  const library = readFileSync(new URL('../js/components/library.js', import.meta.url), 'utf8');
+  assert.doesNotMatch(ui, /getCategoryName/);
+  assert.doesNotMatch(ui, /Speed & Athletic'/);
+  assert.doesNotMatch(library, /getCategoryName/);
 });
 
 test('library cards title-case equipment and still escape it', () => {

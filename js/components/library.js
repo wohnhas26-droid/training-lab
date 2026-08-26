@@ -51,7 +51,6 @@ export function renderCategoryOptions(categories, { escapeHtml }) {
 
 export function renderLibraryCards(exercises, {
   escapeHtml,
-  getCategoryName,
   categories,
   difficultyBadge,
   completedIds,
@@ -61,11 +60,7 @@ export function renderLibraryCards(exercises, {
     return '<p style="color: var(--slate-500);">No exercises in this category.</p>';
   }
   const done = completedIds instanceof Set ? completedIds : new Set(completedIds || []);
-  const labelFor = (id) => (
-    categories
-      ? categoryLabel(id, categories)
-      : (getCategoryName ? getCategoryName(id) : categoryLabel(id))
-  );
+  const labelFor = (id) => categoryLabel(id, categories);
   return list.map((ex) => {
     const equipment = Array.isArray(ex.equipment) && ex.equipment.length
       ? ex.equipment.map((item) => escapeHtml(formatProfileLabel(item))).filter(Boolean).join(', ')
