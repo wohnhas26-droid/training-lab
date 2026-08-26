@@ -85,7 +85,8 @@ test('training page loads category names from TrainingLab.getCatalog', () => {
   const html = readFileSync(new URL('../player/training.html', import.meta.url), 'utf8');
   assert.match(html, /TrainingLab\.getCatalog\(\)/);
   assert.match(html, /renderSessionExercises/);
-  assert.match(html, /categoryLabel\(id, categories\)/);
+  assert.match(html, /categories,/);
   assert.match(html, /import \{ renderNav, renderSidebar, difficultyBadge, escapeHtml \}/);
+  assert.doesNotMatch(html, /getCategoryName/);
   assert.doesNotMatch(html, /from '\/js\/data\/exercises\.js'/);
 });

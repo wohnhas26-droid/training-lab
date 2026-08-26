@@ -3,9 +3,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { escapeHtml } from '../js/components/ui.js';
 import { renderCoachAssignmentList, renderPlayerAssignmentList, renderAssignPlayerOptions, renderAssignCategoryOptions } from '../js/components/assignments.js';
-import { categoryLabel } from '../js/components/library.js';
 
-const names = { getCategoryName: (id) => id, escapeHtml };
+const names = { escapeHtml };
 
 test('player list shows Mark complete until finished', () => {
   const html = renderPlayerAssignmentList([
@@ -91,7 +90,7 @@ test('coach assignment list uses catalog names, not the shortened map', () => {
       assigneeCount: 1,
     },
   ], {
-    getCategoryName: (id) => categoryLabel(id, catalog),
+    categories: catalog,
     escapeHtml,
     assignToLabel: () => 'Entire Team',
   });
@@ -99,10 +98,13 @@ test('coach assignment list uses catalog names, not the shortened map', () => {
   assert.doesNotMatch(html, /Speed &amp; Athletic ·/);
 });
 
-test('assign page wires assigned-session labels through categoryLabel', () => {
+test('assign page wires assigned-session labels through catalog categories', () => {
   const html = readFileSync(new URL('../coach/assign.html', import.meta.url), 'utf8');
-  assert.match(html, /categoryLabel\(id, categories\)/);
   assert.match(html, /categories = catalog\.categories/);
+  assert.match(html, /renderCoachAssignmentList\(assignments, \{/);
+  assert.match(html, /categories,/);
+  assert.doesNotMatch(html, /getCategoryName/);
+  assert.doesNotMatch(html, /categoryLabel/);
   assert.match(html, /import \{ renderNav, renderSidebar, escapeHtml \}/);
 });
 
@@ -118,17 +120,34 @@ test('player assignment list uses catalog names, not the shortened map', () => {
       completed: false,
     },
   ], {
-    getCategoryName: (id) => categoryLabel(id, catalog),
+    categories: catalog,
     escapeHtml,
   });
   assert.match(html, /Speed &amp; Athletic Performance/);
   assert.doesNotMatch(html, /Speed &amp; Athletic ·/);
 });
 
-test('dashboard wires assignment labels through categoryLabel and getCatalog', () => {
+test('dashboard wires assignment labels through catalog categories and getCatalog', () => {
   const html = readFileSync(new URL('../player/dashboard.html', import.meta.url), 'utf8');
   assert.match(html, /TrainingLab\.getCatalog\(\)/);
-  assert.match(html, /categoryLabel\(id, categories\)/);
+  assert.match(html, /categories = catalog\.categories/);
+  assert.match(html, /renderPlayerAssignmentList\(items, \{ categories, escapeHtml \}\)/);
   assert.match(html, /import \{ renderNav, renderSidebar, escapeHtml \}/);
+  assert.doesNotMatch(html, /getCategoryName/);
+  assert.doesNotMatch(html, /categoryLabel/);
   assert.doesNotMatch(html, /from '\/js\/data\/exercises\.js'/);
+});
+
+test('training page wires assignment labels through catalog categories', () => {
+  const html = readFileSync(new URL('../player/training.html', import.meta.url), 'utf8');
+  assert.match(html, /TrainingLab\.getCatalog\(\)/);
+  assert.match(html, /renderPlayerAssignmentList\(items, \{ categories, escapeHtml \}\)/);
+  assert.doesNotMatch(html, /getCategoryName/);
+});
+
+test('assignment lists label categories through categoryLabel, not getCategoryName', () => {
+  const src = readFileSync(new URL('../js/components/assignments.js', import.meta.url), 'utf8');
+  assert.match(src, /import \{ categoryLabel \} from '\.\/library\.js'/);
+  assert.match(src, /categoryLabel\(a\.category, categories\)/);
+  assert.doesNotMatch(src, /getCategoryName/);
 });
