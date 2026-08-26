@@ -71,3 +71,9 @@ test('homepage loads categories from TrainingLab.getCatalog', () => {
   assert.match(html, /renderHomeCategoryCards\(catalog\.categories/);
   assert.doesNotMatch(html, /from '\/js\/data\/exercises\.js'/);
 });
+
+test('homepage How It Works copy does not claim an AI plan', () => {
+  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  assert.match(html, /We build your personalized plan from that profile/);
+  assert.doesNotMatch(html, /Our AI builds your personalized plan/);
+});
