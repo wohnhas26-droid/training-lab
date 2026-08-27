@@ -20,7 +20,7 @@ export const SUBSCRIPTION_PLANS = [
       'Progress tracking',
       'Monthly skill challenges',
       'Achievement badges',
-      'Complete training video library',
+      'Complete training drill library',
     ],
   },
   {

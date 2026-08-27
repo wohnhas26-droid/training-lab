@@ -79,6 +79,14 @@ test('team plan does not list team communication', async () => {
   assert.doesNotMatch(features, /Team communication/);
 });
 
+test('player plan lists a drill library instead of a video library', async () => {
+  const { SUBSCRIPTION_PLANS } = await import('../js/data/subscriptions.js');
+  const player = SUBSCRIPTION_PLANS.find((p) => p.id === 'player');
+  const features = player.features.join('\n');
+  assert.match(features, /Complete training drill library/);
+  assert.doesNotMatch(features, /video library/i);
+});
+
 test('team plan does not list attendance tracking', async () => {
   const { SUBSCRIPTION_PLANS } = await import('../js/data/subscriptions.js');
   const team = SUBSCRIPTION_PLANS.find((p) => p.id === 'team');
