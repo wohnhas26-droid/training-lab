@@ -53,7 +53,6 @@ export const SUBSCRIPTION_PLANS = [
       'Assign training sessions',
       'Track completion',
       'Team leaderboards',
-      'Attendance tracking',
       'Player progress reports',
     ],
   },
