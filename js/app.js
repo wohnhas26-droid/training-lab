@@ -1,5 +1,5 @@
 import {
-  loadState, saveState, logout, saveProfile, saveSubscription,
+  loadState, logout, saveProfile, saveSubscription,
   completeSessionRemote, joinChallengeRemote, updateChallengeProgressRemote,
   register, loginWithCredentials, regeneratePlanRemote, getTodayTrainingRemote, updateProfileRemote,
   getCoachTeamRemote, emptyCoachTeamSnapshot, getProgressSummaryRemote, checkAchievementsRemote,
@@ -43,7 +43,6 @@ window.TrainingLab = {
   ready: () => initPromise,
   isApiMode,
   loadState,
-  saveState,
   loginWithCredentials,
   logout: () => {
     logout();

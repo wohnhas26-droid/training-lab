@@ -38,6 +38,12 @@ test('window.TrainingLab does not re-export unused planner helpers', () => {
   assert.doesNotMatch(publicObj, /^\s*getParentReport,/m);
 });
 
+test('window.TrainingLab does not re-export unused saveState', () => {
+  assert.match(publicObj, /window\.TrainingLab = \{/);
+  assert.match(publicObj, /^\s*loadState,/m);
+  assert.doesNotMatch(publicObj, /^\s*saveState,/m);
+});
+
 test('HTML pages use catalog getters instead of leftover planner helpers', () => {
   const files = htmlFiles();
   assert.ok(files.length > 0);
@@ -48,5 +54,6 @@ test('HTML pages use catalog getters instead of leftover planner helpers', () =>
     assert.doesNotMatch(html, /TrainingLab\.generatePersonalizedPlan/);
     assert.doesNotMatch(html, /TrainingLab\.generateEvaluation/);
     assert.doesNotMatch(html, /TrainingLab\.getParentReport/);
+    assert.doesNotMatch(html, /TrainingLab\.saveState/);
   }
 });
