@@ -68,3 +68,13 @@ test('elite plan does not list features the app does not ship', async () => {
   assert.doesNotMatch(features, /Exclusive masterclasses/);
   assert.doesNotMatch(features, /Priority support/);
 });
+
+test('team plan does not list team communication', async () => {
+  const { SUBSCRIPTION_PLANS } = await import('../js/data/subscriptions.js');
+  const team = SUBSCRIPTION_PLANS.find((p) => p.id === 'team');
+  const features = team.features.join('\n');
+  assert.match(features, /Coach dashboard/);
+  assert.match(features, /Assign training sessions/);
+  assert.match(features, /Player progress reports/);
+  assert.doesNotMatch(features, /Team communication/);
+});
