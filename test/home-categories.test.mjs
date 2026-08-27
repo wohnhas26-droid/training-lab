@@ -84,3 +84,9 @@ test('homepage CTA does not invent thousands of players', () => {
   assert.doesNotMatch(html, /Join thousands of players/);
   assert.doesNotMatch(html, /thousands of players/);
 });
+
+test('homepage How It Works does not tell players to climb leaderboards', () => {
+  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  assert.match(html, /Earn XP, unlock achievements, and watch your skills progress from Rookie to Professional/);
+  assert.doesNotMatch(html, /climb leaderboards/);
+});
