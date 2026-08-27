@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Futbol Training Lab</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="nav"></div>
+
+  <article class="legal">
+    <h1>Privacy Policy</h1>
+    <p class="legal-meta">Effective August 27, 2026 · Futbol Training Lab · www.futbol-training-lab.com</p>
+
+    <p>This policy describes how Futbol Training Lab (“we”) handles information when you use our website, API, and optional iOS/Android app.</p>
+
+    <h2>What we collect</h2>
+    <ul>
+      <li>Account details you provide: name, email, password (stored as a hash), and role (player, coach, or parent).</li>
+      <li>Player profile details you choose to save: age, position, skill level, goals, improvement areas, equipment, and training days.</li>
+      <li>Training activity: completed sessions, XP, streaks, achievements, challenges, and coach assignments.</li>
+      <li>Skill videos and links you submit for coach review, plus feedback a coach writes.</li>
+      <li>Parent–player links when a parent connects to a player account.</li>
+      <li>Billing metadata from Stripe (plan, status, customer and subscription IDs). We do not store full card numbers.</li>
+    </ul>
+
+    <h2>How we use it</h2>
+    <p>We use this information to run the training product: sign you in, build your plan from your profile, track progress, let coaches assign work and review videos, let parents see a linked player’s attendance and reports, and bill subscriptions.</p>
+
+    <h2>Who we share it with</h2>
+    <p>We share data with the services that actually run the product:</p>
+    <ul>
+      <li>Stripe, to process trials, payments, and the customer billing portal.</li>
+      <li>The host that runs our API and database (for example Railway or another server you configure).</li>
+    </ul>
+    <p>Coaches on a team see roster, completion, and videos for their players. Parents see reports for a player they have linked. We do not sell personal information.</p>
+
+    <h2>Children</h2>
+    <p>The product includes parent accounts so an adult can follow a player. If you are under 13, a parent or guardian should create the parent account and manage the player link. Do not create an account for a child under 13 without that adult’s involvement.</p>
+
+    <h2>Retention and your choices</h2>
+    <p>We keep account and training records while the account is active so progress and coach history still work. You can update profile fields in the app. To close an account or ask us to delete personal data, email us from the address on the account.</p>
+    <p>Cancel or change a paid plan in the Stripe customer portal from your Profile page (Manage Billing).</p>
+
+    <h2>Contact</h2>
+    <p>Privacy requests: <a href="mailto:privacy@futbol-training-lab.com">privacy@futbol-training-lab.com</a>.</p>
+  </article>
+
+  <footer class="footer">
+    <p>&copy; 2026 Futbol Training Lab.</p>
+    <p class="footer-links">
+      <a href="/privacy.html">Privacy Policy</a>
+      <span aria-hidden="true"> · </span>
+      <a href="/terms.html">Terms of Service</a>
+    </p>
+  </footer>
+
+  <script type="module">
+    import { renderNav } from '/js/components/ui.js';
+    document.getElementById('nav').innerHTML = renderNav();
+  </script>
+</body>
+</html>

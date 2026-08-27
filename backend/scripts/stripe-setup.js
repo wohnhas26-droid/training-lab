@@ -16,7 +16,7 @@ dotenv.config({ path: join(__dirname, '../.env') });
 
 const PLANS = [
   { id: 'player', name: 'Player Membership', amount: 2999, description: 'Daily guided training, progress tracking, challenges' },
-  { id: 'elite', name: 'Elite Membership', amount: 5999, description: 'AI plans, video assessments, personalized feedback' },
+  { id: 'elite', name: 'Elite Membership', amount: 5999, description: 'Personalized training plans, video assessments, personalized feedback' },
   { id: 'team', name: 'Team Membership', amount: 19900, description: 'Unlimited players, coach dashboard, team tools' },
 ];
 

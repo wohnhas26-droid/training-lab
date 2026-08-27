@@ -88,7 +88,10 @@ Your domain currently serves a Webador page. To use the full app:
 3. Run `npm run stripe:setup` with live keys (creates live price IDs)
 4. Run `npm run stripe:webhooks -- https://www.futbol-training-lab.com` with live keys
 5. Activate Customer Portal in Stripe (live mode)
-6. Add Terms of Service + Privacy Policy pages
+6. Terms of Service and Privacy Policy are at:
+   - https://www.futbol-training-lab.com/privacy.html
+   - https://www.futbol-training-lab.com/terms.html
+   Create the `privacy@futbol-training-lab.com` mailbox (or change that address on both pages) before live payments. Have a lawyer review the pages if you need a jurisdiction-specific policy.
 
 ---
 

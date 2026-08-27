@@ -10,6 +10,7 @@ const www = join(root, 'www');
 
 const copyItems = [
   'index.html', 'login.html', 'onboarding.html', 'pricing.html',
+  'privacy.html', 'terms.html',
   'css', 'js', 'player', 'coach', 'parent', 'subscription',
 ];
 

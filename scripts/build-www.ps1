@@ -9,6 +9,7 @@ New-Item -ItemType Directory -Path $www | Out-Null
 
 $copyItems = @(
   "index.html", "login.html", "onboarding.html", "pricing.html",
+  "privacy.html", "terms.html",
   "css", "js", "player", "coach", "parent", "subscription"
 )
 foreach ($item in $copyItems) {

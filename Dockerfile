@@ -14,7 +14,7 @@ RUN node scripts/make-postgres-schema.mjs && npx prisma generate --schema=prisma
 
 # Frontend static files (served by Express in production)
 WORKDIR /app
-COPY index.html login.html onboarding.html pricing.html ./
+COPY index.html login.html onboarding.html pricing.html privacy.html terms.html ./
 COPY css ./css
 COPY js ./js
 COPY player ./player
