@@ -22,7 +22,7 @@ export function showToast(message, duration = 3000) {
 
 export function renderNav(activePage = '') {
   const state = JSON.parse(localStorage.getItem('training_lab_app') || '{}');
-  const loggedIn = state.user !== null;
+  const loggedIn = Boolean(state.user);
   const role = state.user?.role || 'player';
 
   const dashboardLinks = {
@@ -42,7 +42,7 @@ export function renderNav(activePage = '') {
         <a href="/pricing.html" ${activePage === 'pricing' ? 'class="active"' : ''}>Pricing</a>
         ${loggedIn
           ? `<a href="${dashboardLinks[role] || dashboardLinks.player}">Dashboard</a>
-             <button class="btn btn-ghost btn-sm" onclick="TrainingLab.logout()">Log Out</button>`
+             <button type="button" class="btn btn-ghost btn-sm" data-action="logout">Log Out</button>`
           : `<a href="/login.html">Log In</a>
              <a href="/onboarding.html" class="btn btn-primary btn-sm">Get Started</a>`
         }

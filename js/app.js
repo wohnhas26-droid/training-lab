@@ -136,51 +136,55 @@ window.TrainingLab = {
   async initOnboarding(formData) {
     await initPromise;
 
-    if (isApiMode()) {
-      await register(formData);
+    try {
+      if (isApiMode()) {
+        await register(formData);
 
-      if (formData.plan) {
-        try {
-          const checkout = await createCheckout(formData.plan);
-          if (checkout.url) {
-            await openUrl(checkout.url);
-            return;
+        if (formData.plan) {
+          try {
+            const checkout = await createCheckout(formData.plan);
+            if (checkout.url) {
+              await openUrl(checkout.url);
+              return;
+            }
+          } catch (err) {
+            console.warn('Checkout redirect failed:', err.message);
           }
-        } catch (err) {
-          console.warn('Checkout redirect failed:', err.message);
         }
+
+        showToast('Welcome to Futbol Training Lab!');
+        const routes = { player: '/player/dashboard.html', coach: '/coach/dashboard.html', parent: '/parent/dashboard.html' };
+        setTimeout(() => window.location.href = routes[formData.role || 'player'] || routes.player, 800);
+        return;
       }
+
+      const user = { name: formData.name, email: formData.email, role: formData.role || 'player' };
+      const { login } = await import('./services/storage.js');
+      login(user);
+
+      if (formData.role === 'player') {
+        const profile = {
+          age: parseInt(formData.age) || 14,
+          position: formData.position || 'midfielder',
+          skillLevel: formData.skillLevel || 'intermediate',
+          goals: formData.goals || [],
+          improvementAreas: formData.improvementAreas || [],
+          trainingDays: parseInt(formData.trainingDays) || 5,
+          equipment: formData.equipment || ['ball'],
+        };
+        saveProfile(profile);
+        const plan = generatePersonalizedPlan(profile);
+        saveWeeklyPlan(plan);
+      }
+
+      if (formData.plan) saveSubscription(formData.plan);
 
       showToast('Welcome to Futbol Training Lab!');
       const routes = { player: '/player/dashboard.html', coach: '/coach/dashboard.html', parent: '/parent/dashboard.html' };
-      setTimeout(() => window.location.href = routes[formData.role || 'player'] || routes.player, 800);
-      return;
+      setTimeout(() => window.location.href = routes[user.role] || routes.player, 800);
+    } catch (err) {
+      showToast(err.message || 'Could not create account');
     }
-
-    const user = { name: formData.name, email: formData.email, role: formData.role || 'player' };
-    const { login } = await import('./services/storage.js');
-    login(user);
-
-    if (formData.role === 'player') {
-      const profile = {
-        age: parseInt(formData.age) || 14,
-        position: formData.position || 'midfielder',
-        skillLevel: formData.skillLevel || 'intermediate',
-        goals: formData.goals || [],
-        improvementAreas: formData.improvementAreas || [],
-        trainingDays: parseInt(formData.trainingDays) || 5,
-        equipment: formData.equipment || ['ball'],
-      };
-      saveProfile(profile);
-      const plan = generatePersonalizedPlan(profile);
-      saveWeeklyPlan(plan);
-    }
-
-    if (formData.plan) saveSubscription(formData.plan);
-
-    showToast('Welcome to Futbol Training Lab!');
-    const routes = { player: '/player/dashboard.html', coach: '/coach/dashboard.html', parent: '/parent/dashboard.html' };
-    setTimeout(() => window.location.href = routes[user.role] || routes.player, 800);
   },
 
   requireAuth(role) {
@@ -197,5 +201,11 @@ window.TrainingLab = {
     return state;
   },
 };
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('[data-action="logout"]')) return;
+  e.preventDefault();
+  window.TrainingLab.logout();
+});
 
 export default window.TrainingLab;
