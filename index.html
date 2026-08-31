@@ -75,7 +75,7 @@
   <section class="section container" style="text-align: center;">
     <h2 class="section-title">Ready to Elevate Your Game?</h2>
     <p class="section-subtitle">Start training smarter every day</p>
-    <a href="/onboarding.html" class="btn btn-primary btn-lg">Get Started — $29.99/mo</a>
+      <a href="/onboarding.html" class="btn btn-primary btn-lg" id="closing-cta">Get Started</a>
   </section>
 
   <footer class="footer">
@@ -90,7 +90,7 @@
   <script type="module">
     import { renderNav, escapeHtml } from '/js/components/ui.js';
     import { renderHomeCategoryCards } from '/js/components/homeCategories.js';
-    import { heroCtaCopy } from '/js/components/billingCopy.js';
+    import { heroCtaCopy, closingCtaCopy } from '/js/components/billingCopy.js';
     import '/js/app.js';
 
     document.getElementById('nav').innerHTML = renderNav('home');
@@ -100,6 +100,7 @@
     document.getElementById('categories-grid').innerHTML = renderHomeCategoryCards(catalog.categories, { escapeHtml });
     const stripeConfig = await TrainingLab.getStripeConfig();
     document.getElementById('hero-cta').textContent = heroCtaCopy(Boolean(stripeConfig.configured));
+    document.getElementById('closing-cta').textContent = closingCtaCopy(Boolean(stripeConfig.configured));
   </script>
 </body>
 </html>
