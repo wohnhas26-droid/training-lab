@@ -41,6 +41,19 @@ test('applyCheckoutReturn verifies once then navigates to success', async () => 
   assert.deepEqual(calls, ['cs_test_123', 'Subscription active!', '/subscription/success.html?plan=elite']);
 });
 
+test('applyCheckoutReturn keeps demo=true on the success URL', async () => {
+  const calls = [];
+  const result = await applyCheckoutReturn(
+    { type: 'success', plan: 'player', sessionId: null, demo: true },
+    {
+      showToast: (msg) => { calls.push(msg); },
+      navigate: (path) => { calls.push(path); },
+    },
+  );
+  assert.deepEqual(result, { handled: true, type: 'success' });
+  assert.deepEqual(calls, ['Subscription active!', '/subscription/success.html?plan=player&demo=true']);
+});
+
 test('applyCheckoutReturn cancel goes to pricing', async () => {
   const calls = [];
   const result = await applyCheckoutReturn(

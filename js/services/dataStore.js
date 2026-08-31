@@ -521,7 +521,7 @@ export async function submitVideoRemote({ skill, url }) {
 
 export async function createCheckout(plan) {
   if (isApiMode()) return api.createCheckout(plan, checkoutClient());
-  return { demo: true, url: '/subscription/success.html?plan=' + plan };
+  return { demo: true, url: '/subscription/success.html?plan=' + encodeURIComponent(plan) + '&demo=true' };
 }
 
 export async function openBillingPortal() {
