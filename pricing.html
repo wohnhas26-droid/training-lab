@@ -35,9 +35,9 @@
   </footer>
 
   <script type="module">
-    import { renderNav, formatPrice } from '/js/components/ui.js';
+    import { renderNav, formatPrice, hasSavedUser } from '/js/components/ui.js';
     import { SUBSCRIPTION_PLANS } from '/js/data/subscriptions.js';
-    import { getToken } from '/js/services/api.js';
+    import { setToken } from '/js/services/api.js';
     import { openUrl } from '/js/utils/openUrl.js';
     import '/js/app.js';
 
@@ -62,7 +62,7 @@
             ${plan.features.map(f => `<li>${f}</li>`).join('')}
           </ul>
           <button type="button" class="btn ${plan.featured ? 'btn-primary' : 'btn-secondary'} btn-block checkout-btn" data-plan="${plan.id}">
-            ${getToken() ? 'Subscribe' : 'Get Started'}
+            ${hasSavedUser() ? 'Subscribe' : 'Get Started'}
           </button>
         </div>
       `;
@@ -74,7 +74,7 @@
     async function handleCheckout(plan) {
       await TrainingLab.ready();
 
-      if (!getToken()) {
+      if (!hasSavedUser()) {
         window.location.href = `/onboarding.html?plan=${plan}`;
         return;
       }
@@ -93,7 +93,13 @@
           throw new Error(result.message || 'Checkout unavailable');
         }
       } catch (err) {
-        TrainingLab.showToast(err.message || 'Checkout failed');
+        const message = err.message || 'Checkout failed';
+        TrainingLab.showToast(message);
+        if (/auth|session expired|invalid or expired token/i.test(message)) {
+          setToken(null);
+          window.location.href = `/onboarding.html?plan=${plan}`;
+          return;
+        }
         if (btn) {
           btn.disabled = false;
           btn.textContent = 'Subscribe';

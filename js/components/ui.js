@@ -8,6 +8,15 @@ export function escapeHtml(value) {
   }[ch]));
 }
 
+export function hasSavedUser() {
+  try {
+    const state = JSON.parse(localStorage.getItem('training_lab_app') || '{}');
+    return Boolean(state.user);
+  } catch {
+    return false;
+  }
+}
+
 export function showToast(message, duration = 3000) {
   const existing = document.querySelector('.toast');
   if (existing) existing.remove();
