@@ -78,7 +78,22 @@ test('subscription card uses known plan names and escapes unknown plans', () => 
   const unknown = renderSubscriptionCard({ plan: 'gold<script>', status: 'trialing' }, helpers);
   assert.match(unknown, /gold&lt;script&gt;/);
   assert.doesNotMatch(unknown, /gold<script>/);
-  assert.match(unknown, /Free Trial/);
+  assert.match(unknown, />Demo</);
+  assert.doesNotMatch(unknown, /Free Trial/);
+});
+
+test('subscription card shows Free Trial only when Stripe is configured', () => {
+  const demo = renderSubscriptionCard({ plan: 'player', status: 'trialing', stripeConfigured: false }, helpers);
+  assert.match(demo, />Demo</);
+  assert.doesNotMatch(demo, /Free Trial/);
+
+  const trial = renderSubscriptionCard({ plan: 'player', status: 'trialing', stripeConfigured: true }, helpers);
+  assert.match(trial, /Free Trial/);
+  assert.doesNotMatch(trial, />Demo</);
+
+  const activeOffline = renderSubscriptionCard({ plan: 'player', status: 'active', stripeConfigured: false }, helpers);
+  assert.match(activeOffline, />Active</);
+  assert.doesNotMatch(activeOffline, /Free Trial/);
 });
 
 test('profile regenerate copy does not claim an AI plan', () => {
