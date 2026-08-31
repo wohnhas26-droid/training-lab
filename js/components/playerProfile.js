@@ -42,11 +42,19 @@ const STATUS_LABELS = {
   canceled: ['Canceled', 'badge-blue'],
 };
 
+export function subscriptionStatusBadge(sub) {
+  const status = sub?.status;
+  if (status === 'trialing' && sub?.stripeConfigured !== true) {
+    return ['Demo', 'badge-blue'];
+  }
+  return STATUS_LABELS[status] || ['Unknown', 'badge-blue'];
+}
+
 export function renderSubscriptionCard(sub, { planNames = PLAN_NAMES, weeklyPlan, escapeHtml } = {}) {
   const esc = escapeHtml || ((v) => String(v ?? ''));
   const plan = sub?.plan || 'player';
   const planLabel = planNames[plan] || plan;
-  const [statusLabel, statusCls] = STATUS_LABELS[sub?.status] || ['Unknown', 'badge-blue'];
+  const [statusLabel, statusCls] = subscriptionStatusBadge(sub);
   const periodEnd = sub?.currentPeriodEnd
     ? new Date(sub.currentPeriodEnd).toLocaleDateString()
     : null;
