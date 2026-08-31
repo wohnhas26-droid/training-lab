@@ -14,6 +14,7 @@ import {
 import { generatePersonalizedPlan, getTodaySession, generateEvaluation } from './services/trainingPlanner.js';
 import { checkAchievements, getProgressSummary as getLocalProgressSummary, getCoachTeamData } from './services/progressTracker.js';
 import { showToast } from './components/ui.js';
+import { onboardingNextStep } from './components/onboardingCheckout.js';
 import { TRAINING_CATEGORIES, EXERCISES } from './data/exercises.js';
 import { CHALLENGES } from './data/challenges.js';
 import { hydrateChallenges } from './components/challenges.js';
@@ -139,21 +140,28 @@ window.TrainingLab = {
       if (isApiMode()) {
         await register(formData);
 
+        let checkout = null;
+        let checkoutError = null;
         if (formData.plan) {
           try {
-            const checkout = await createCheckout(formData.plan);
-            if (checkout.url) {
-              await openUrl(checkout.url);
-              return;
-            }
+            checkout = await createCheckout(formData.plan);
           } catch (err) {
-            console.warn('Checkout redirect failed:', err.message);
+            checkoutError = err;
           }
         }
 
-        showToast('Welcome to Futbol Training Lab!');
-        const routes = { player: '/player/dashboard.html', coach: '/coach/dashboard.html', parent: '/parent/dashboard.html' };
-        setTimeout(() => window.location.href = routes[formData.role || 'player'] || routes.player, 800);
+        const next = onboardingNextStep({
+          plan: formData.plan,
+          checkout,
+          error: checkoutError,
+          role: formData.role,
+        });
+        if (next.redirect) {
+          await openUrl(next.redirect);
+          return;
+        }
+        showToast(next.toast);
+        setTimeout(() => { window.location.href = next.href; }, 1200);
         return;
       }
 
