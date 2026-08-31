@@ -59,9 +59,12 @@ export async function applyCheckoutReturn(parsed, deps = {}) {
       }
     }
     deps.showToast?.('Subscription active!');
-    const plan = parsed.plan ? encodeURIComponent(parsed.plan) : '';
-    const successPath = plan
-      ? `/subscription/success.html?plan=${plan}`
+    const qs = new URLSearchParams();
+    if (parsed.plan) qs.set('plan', parsed.plan);
+    if (parsed.demo) qs.set('demo', 'true');
+    const query = qs.toString();
+    const successPath = query
+      ? `/subscription/success.html?${query}`
       : '/subscription/success.html';
     deps.navigate?.(successPath);
     return { handled: true, type: 'success' };

@@ -17,7 +17,7 @@
     <h1>Train Smarter.<br>Play Faster.</h1>
     <p>Personalized development plans, structured daily training, progress tracking, and accountability for players, parents, coaches, and clubs.</p>
     <div class="hero-actions">
-      <a href="/onboarding.html" class="btn btn-primary btn-lg">Start Free Trial</a>
+      <a href="/onboarding.html" class="btn btn-primary btn-lg" id="hero-cta">Get Started</a>
       <a href="/pricing.html" class="btn btn-secondary btn-lg">View Plans</a>
     </div>
   </section>
@@ -90,6 +90,7 @@
   <script type="module">
     import { renderNav, escapeHtml } from '/js/components/ui.js';
     import { renderHomeCategoryCards } from '/js/components/homeCategories.js';
+    import { heroCtaCopy } from '/js/components/billingCopy.js';
     import '/js/app.js';
 
     document.getElementById('nav').innerHTML = renderNav('home');
@@ -97,6 +98,8 @@
     await TrainingLab.ready();
     const catalog = await TrainingLab.getCatalog();
     document.getElementById('categories-grid').innerHTML = renderHomeCategoryCards(catalog.categories, { escapeHtml });
+    const stripeConfig = await TrainingLab.getStripeConfig();
+    document.getElementById('hero-cta').textContent = heroCtaCopy(Boolean(stripeConfig.configured));
   </script>
 </body>
 </html>

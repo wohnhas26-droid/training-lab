@@ -17,7 +17,7 @@
 
   <section class="section container" id="canceled-banner" style="display: none;">
     <div class="card" style="border-color: var(--gold); text-align: center;">
-      <p style="color: var(--slate-300);">Checkout was canceled. Pick a plan when you're ready — your 7-day trial starts at signup.</p>
+      <p id="canceled-copy" style="color: var(--slate-300);">Checkout was canceled. Pick a plan when you're ready — your 7-day trial starts at signup.</p>
     </div>
   </section>
 
@@ -26,7 +26,7 @@
   </section>
 
   <footer class="footer">
-    <p>&copy; 2026 Futbol Training Lab. All plans include a 7-day free trial.</p>
+    <p id="pricing-footer-note">&copy; 2026 Futbol Training Lab. All plans include a 7-day free trial.</p>
     <p class="footer-links">
       <a href="/privacy.html">Privacy Policy</a>
       <span aria-hidden="true"> · </span>
@@ -36,6 +36,7 @@
 
   <script type="module">
     import { renderNav, formatPrice, hasSavedUser } from '/js/components/ui.js';
+    import { pricingFooterCopy, pricingCanceledCopy } from '/js/components/billingCopy.js';
     import { SUBSCRIPTION_PLANS } from '/js/data/subscriptions.js';
     import { setToken } from '/js/services/api.js';
     import { openUrl } from '/js/utils/openUrl.js';
@@ -113,7 +114,10 @@
 
     await TrainingLab.ready();
     const stripeConfig = await TrainingLab.getStripeConfig();
-    if (!stripeConfig.configured) {
+    const configured = Boolean(stripeConfig.configured);
+    document.getElementById('pricing-footer-note').textContent = pricingFooterCopy(configured);
+    document.getElementById('canceled-copy').textContent = pricingCanceledCopy(configured);
+    if (!configured) {
       const notice = document.getElementById('stripe-notice');
       notice.textContent = 'Demo mode — Stripe not configured. Subscriptions will simulate locally.';
       notice.style.display = 'block';

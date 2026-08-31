@@ -32,6 +32,7 @@
 
   <script type="module">
     import { renderNav } from '/js/components/ui.js';
+    import { checkoutSuccessCopy, isDemoCheckout } from '/js/components/billingCopy.js';
     import '/js/app.js';
     import { SUBSCRIPTION_PLANS } from '/js/data/subscriptions.js';
 
@@ -74,10 +75,15 @@
         document.getElementById('plan-badge').style.display = 'inline-flex';
       }
 
-      document.getElementById('status-text').textContent =
-        plan
-          ? `Your ${plan.name} is active. Your 7-day free trial has started.`
-          : 'Your subscription is active. Start training today!';
+      const stripeConfig = await TrainingLab.getStripeConfig();
+      const demo = isDemoCheckout({
+        demoParam: params.get('demo'),
+        stripeConfigured: Boolean(stripeConfig.configured),
+      });
+      document.getElementById('status-text').textContent = checkoutSuccessCopy({
+        planName: plan?.name,
+        demo,
+      });
       document.getElementById('continue-btn').style.display = 'block';
     }
 
