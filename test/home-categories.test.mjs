@@ -53,7 +53,8 @@ test('home category cards title-case drill previews to match library names', () 
     },
   }, { escapeHtml });
   assert.match(html, /Toe Taps · Pull-Push · V-Cuts · L-Turns/);
-  assert.match(html, /1v1 Moves · Change Of Direction/);
+  assert.match(html, /1v1 Moves · Change of Direction/);
+  assert.doesNotMatch(html, /Change Of Direction/);
   assert.doesNotMatch(html, /Toe taps/);
   assert.doesNotMatch(html, /Pull-push/);
   assert.doesNotMatch(html, /1v1 moves/);
