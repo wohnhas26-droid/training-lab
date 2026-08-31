@@ -90,3 +90,12 @@ test('training page loads category names from TrainingLab.getCatalog', () => {
   assert.doesNotMatch(html, /getCategoryName/);
   assert.doesNotMatch(html, /from '\/js\/data\/exercises\.js'/);
 });
+
+test('training page toasts complete-session failures instead of swallowing them', () => {
+  const html = readFileSync(new URL('../player/training.html', import.meta.url), 'utf8');
+  const handler = html.slice(html.indexOf("complete-session-btn').addEventListener"));
+  assert.match(handler, /btn\.disabled = true/);
+  assert.match(handler, /Could not complete session/);
+  assert.match(handler, /btn\.disabled = false/);
+  assert.match(handler, /catch \(err\)/);
+});

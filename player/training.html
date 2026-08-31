@@ -143,23 +143,30 @@
     loadAssignments();
 
     document.getElementById('complete-session-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('complete-session-btn');
       const exerciseIds = session.exercises.map(e => e.id);
       const totalXp = session.exercises.reduce((s, e) => s + e.xp, 0);
       const minutes = session.exercises.reduce((s, e) => s + e.duration, 0);
 
-      await TrainingLab.ready();
-      await TrainingLab.completeSession(`session-${Date.now()}`, exerciseIds, totalXp, minutes);
-      const newState = TrainingLab.loadState();
-      const unlocked = await TrainingLab.checkAchievements(newState);
+      btn.disabled = true;
+      try {
+        await TrainingLab.ready();
+        await TrainingLab.completeSession(`session-${Date.now()}`, exerciseIds, totalXp, minutes);
+        const newState = TrainingLab.loadState();
+        const unlocked = await TrainingLab.checkAchievements(newState);
 
-      clearInterval(timerInterval);
-      TrainingLab.showToast(`Session complete! +${totalXp} XP earned`);
+        clearInterval(timerInterval);
+        TrainingLab.showToast(`Session complete! +${totalXp} XP earned`);
 
-      if (unlocked.length) {
-        setTimeout(() => TrainingLab.showToast(`Achievement unlocked: ${unlocked[0].name}!`), 1500);
+        if (unlocked.length) {
+          setTimeout(() => TrainingLab.showToast(`Achievement unlocked: ${unlocked[0].name}!`), 1500);
+        }
+
+        setTimeout(() => window.location.href = '/player/dashboard.html', 2000);
+      } catch (err) {
+        TrainingLab.showToast(err.message || 'Could not complete session');
+        btn.disabled = false;
       }
-
-      setTimeout(() => window.location.href = '/player/dashboard.html', 2000);
     });
   </script>
 </body>
