@@ -7,6 +7,7 @@ import {
   pricingFooterCopy,
   pricingCanceledCopy,
   heroCtaCopy,
+  closingCtaCopy,
   checkoutSuccessCopy,
   isDemoCheckout,
 } from '../js/components/billingCopy.js';
@@ -31,6 +32,11 @@ test('hero CTA says Start Free Trial only when Stripe is configured', () => {
   assert.equal(heroCtaCopy(false), 'Get Started');
 });
 
+test('closing CTA shows the player price only when Stripe is configured', () => {
+  assert.equal(closingCtaCopy(true), 'Get Started — $29.99/mo');
+  assert.equal(closingCtaCopy(false), 'Get Started');
+});
+
 test('checkout success does not claim a trial in demo mode', () => {
   assert.match(
     checkoutSuccessCopy({ planName: 'Player Membership', demo: false }),
@@ -52,9 +58,12 @@ test('isDemoCheckout treats demo=true and unconfigured Stripe as demo', () => {
 test('homepage default CTA is Get Started and wires Stripe-aware copy', () => {
   const html = read('index.html');
   assert.match(html, /id="hero-cta"/);
+  assert.match(html, /id="closing-cta"/);
   assert.match(html, />Get Started</);
   assert.doesNotMatch(html, />Start Free Trial</);
+  assert.doesNotMatch(html, /Get Started — \$29\.99\/mo/);
   assert.match(html, /heroCtaCopy/);
+  assert.match(html, /closingCtaCopy/);
 });
 
 test('pricing page rewrites footer and canceled copy from billing helpers', () => {

@@ -14,6 +14,10 @@ export function heroCtaCopy(configured) {
   return configured ? 'Start Free Trial' : 'Get Started';
 }
 
+export function closingCtaCopy(configured) {
+  return configured ? 'Get Started — $29.99/mo' : 'Get Started';
+}
+
 export function checkoutSuccessCopy({ planName, demo } = {}) {
   if (demo) {
     return planName
