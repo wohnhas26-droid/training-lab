@@ -113,6 +113,10 @@ function titleCaseChunk(part) {
   return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
 }
 
+const TITLE_CASE_SMALL_WORDS = new Set([
+  'a', 'an', 'and', 'at', 'for', 'in', 'of', 'on', 'or', 'the', 'to',
+]);
+
 /** Title-case a stored profile token (position, skill level). */
 export function formatProfileLabel(raw) {
   const text = String(raw ?? '').trim();
@@ -132,7 +136,12 @@ export function titleCasePhrase(raw) {
   return text
     .split(/\s+/)
     .filter(Boolean)
-    .map((word) => word.replace(/[^\s/-]+/g, titleCaseChunk))
+    .map((word, i) => {
+      if (i > 0 && TITLE_CASE_SMALL_WORDS.has(word.toLowerCase())) {
+        return word.toLowerCase();
+      }
+      return word.replace(/[^\s/-]+/g, titleCaseChunk);
+    })
     .join(' ');
 }
 
