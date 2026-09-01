@@ -140,12 +140,33 @@ test('billingPortalHref returns a trimmed url and rejects missing ones', () => {
 
 test('profile toasts Manage Billing when the portal has no url', () => {
   const html = readFileSync(new URL('../player/profile.html', import.meta.url), 'utf8');
-  const handler = html.slice(html.indexOf("manage-billing-btn')?.addEventListener"));
-  assert.match(html, /billingPortalHref/);
-  assert.match(handler, /btn\.disabled = true/);
-  assert.match(handler, /billingPortalHref\(portal\)/);
-  assert.match(handler, /Could not open billing portal/);
-  assert.match(handler, /btn\.disabled = false/);
-  assert.match(handler, /catch \(err\)/);
-  assert.doesNotMatch(handler, /if \(portal\.url\) await openUrl\(portal\.url\)/);
+  const src = readFileSync(new URL('../js/components/playerProfile.js', import.meta.url), 'utf8');
+  assert.match(html, /bindManageBillingButton/);
+  assert.match(src, /Could not open billing portal/);
+  assert.match(src, /btn\.disabled = true/);
+  assert.match(src, /billingPortalHref\(portal\)/);
+  assert.match(src, /btn\.disabled = false/);
+});
+
+test('subscription card can hide the weekly plan line', () => {
+  const withPlan = renderSubscriptionCard({ plan: 'team', status: 'active' }, helpers);
+  assert.match(withPlan, /Weekly plan generated/);
+  assert.match(withPlan, /Change Plan/);
+
+  const withoutPlan = renderSubscriptionCard({ plan: 'team', status: 'active' }, { ...helpers, showWeeklyPlan: false });
+  assert.match(withoutPlan, /Team Membership/);
+  assert.match(withoutPlan, /Change Plan/);
+  assert.doesNotMatch(withoutPlan, /Weekly plan generated/);
+});
+
+test('coach and parent dashboards show a subscription card without a weekly plan', () => {
+  const coach = readFileSync(new URL('../coach/dashboard.html', import.meta.url), 'utf8');
+  const parent = readFileSync(new URL('../parent/dashboard.html', import.meta.url), 'utf8');
+  for (const html of [coach, parent]) {
+    assert.match(html, /id="subscription-card"/);
+    assert.match(html, /renderSubscriptionCard/);
+    assert.match(html, /showWeeklyPlan: false/);
+    assert.match(html, /bindManageBillingButton/);
+    assert.match(html, /TrainingLab\.getSubscriptionStatus/);
+  }
 });

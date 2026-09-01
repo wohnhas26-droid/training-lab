@@ -58,7 +58,7 @@ export function subscriptionStatusBadge(sub) {
   return STATUS_LABELS[status] || ['Unknown', 'badge-blue'];
 }
 
-export function renderSubscriptionCard(sub, { planNames = PLAN_NAMES, weeklyPlan, escapeHtml } = {}) {
+export function renderSubscriptionCard(sub, { planNames = PLAN_NAMES, weeklyPlan, escapeHtml, showWeeklyPlan = true } = {}) {
   const esc = escapeHtml || ((v) => String(v ?? ''));
   const plan = sub?.plan || 'player';
   const planLabel = planNames[plan] || plan;
@@ -77,9 +77,9 @@ export function renderSubscriptionCard(sub, { planNames = PLAN_NAMES, weeklyPlan
           ${plan === 'elite' ? '<span class="badge badge-gold">Monthly Evaluations</span>' : ''}
         </div>
         ${periodEnd ? `<p style="color: var(--slate-400); font-size: 0.9rem;">Current period ends: ${esc(periodEnd)}</p>` : ''}
-        <p style="color: var(--slate-400); margin-top: 1rem; font-size: 0.9rem;" id="plan-generated">
+        ${showWeeklyPlan ? `<p style="color: var(--slate-400); margin-top: 1rem; font-size: 0.9rem;" id="plan-generated">
           Weekly plan generated: ${esc(generated)}
-        </p>
+        </p>` : ''}
         <div style="display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap;">
           <a href="/pricing.html" class="btn btn-secondary btn-sm">Change Plan</a>
           ${sub?.hasBillingAccount && sub?.stripeConfigured
@@ -87,4 +87,19 @@ export function renderSubscriptionCard(sub, { planNames = PLAN_NAMES, weeklyPlan
             : ''}
         </div>
       `;
+}
+
+export function bindManageBillingButton({ openBillingPortal, openUrl, showToast } = {}) {
+  const btn = document.getElementById('manage-billing-btn');
+  if (!btn) return;
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    try {
+      const portal = await openBillingPortal();
+      await openUrl(billingPortalHref(portal));
+    } catch (err) {
+      showToast?.(err.message || 'Could not open billing portal');
+      btn.disabled = false;
+    }
+  });
 }

@@ -29,6 +29,10 @@ test('privacy and terms pages exist and describe Stripe billing', () => {
   assert.match(terms, /Terms of Service/);
   assert.match(terms, /7-day trial/);
   assert.match(terms, /Stripe/);
+  assert.match(terms, /Manage Billing on your dashboard or Profile/);
+  assert.match(privacy, /Manage Billing on your dashboard or Profile/);
+  assert.doesNotMatch(privacy, /from your Profile page \(Manage Billing\)/);
+  assert.doesNotMatch(terms, /from Profile → Manage Billing/);
 });
 
 test('public pages link to privacy and terms', () => {

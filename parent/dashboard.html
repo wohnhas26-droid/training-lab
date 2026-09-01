@@ -15,6 +15,7 @@
         <h1>Parent Dashboard</h1>
         <p id="page-subtitle">Monitor your player's training progress and development</p>
       </div>
+      <div class="card" id="subscription-card" style="margin-bottom: 1.5rem;"></div>
       <div id="parent-content"></div>
     </main>
   </div>
@@ -22,6 +23,8 @@
   <script type="module">
     import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
     import { bindLinkPlayerForm, renderLinkPlayerCard, renderAchievementBadges, skillProgressionLabel } from '/js/components/parentChild.js';
+    import { renderSubscriptionCard, bindManageBillingButton } from '/js/components/playerProfile.js';
+    import { openUrl } from '/js/utils/openUrl.js';
     import '/js/app.js';
 
     const state = TrainingLab.requireAuth('parent');
@@ -133,6 +136,21 @@
       renderReport(child, childReport, catalog, levels);
     }
 
+    async function renderSubscription() {
+      await TrainingLab.ready();
+      const sub = await TrainingLab.getSubscriptionStatus();
+      document.getElementById('subscription-card').innerHTML = renderSubscriptionCard(sub, {
+        escapeHtml,
+        showWeeklyPlan: false,
+      });
+      bindManageBillingButton({
+        openBillingPortal: TrainingLab.openBillingPortal,
+        openUrl,
+        showToast: TrainingLab.showToast,
+      });
+    }
+
+    renderSubscription();
     load();
   </script>
 </body>

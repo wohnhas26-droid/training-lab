@@ -16,6 +16,8 @@
         <p>Manage your team, assign training, and track player development</p>
       </div>
 
+      <div class="card" id="subscription-card" style="margin-bottom: 2rem;"></div>
+
       <div class="grid grid-4" style="margin-bottom: 2rem;" id="coach-stats"></div>
 
       <div class="grid grid-2" style="margin-bottom: 2rem;">
@@ -54,6 +56,8 @@
       renderCoachLeaderboardRows,
       renderCoachActivity,
     } from '/js/components/coachDashboard.js';
+    import { renderSubscriptionCard, bindManageBillingButton } from '/js/components/playerProfile.js';
+    import { openUrl } from '/js/utils/openUrl.js';
     import '/js/app.js';
 
     TrainingLab.requireAuth('coach');
@@ -68,6 +72,17 @@
     document.getElementById('coach-stats').innerHTML = renderCoachStats(stats);
     document.querySelector('#leaderboard-table tbody').innerHTML = renderCoachLeaderboardRows(players, { escapeHtml });
     document.getElementById('recent-activity').innerHTML = renderCoachActivity(snapshot.activity, { escapeHtml });
+
+    const sub = await TrainingLab.getSubscriptionStatus();
+    document.getElementById('subscription-card').innerHTML = renderSubscriptionCard(sub, {
+      escapeHtml,
+      showWeeklyPlan: false,
+    });
+    bindManageBillingButton({
+      openBillingPortal: TrainingLab.openBillingPortal,
+      openUrl,
+      showToast: TrainingLab.showToast,
+    });
   </script>
 </body>
 </html>
