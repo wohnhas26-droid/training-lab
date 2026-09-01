@@ -1,3 +1,5 @@
+import { CHECKOUT_VERIFY_FAILED } from '../components/billingCopy.js';
+
 function pathFromUrl(parsed) {
   const host = parsed.hostname || '';
   const pathname = (parsed.pathname || '').replace(/\/+$/, '');
@@ -51,17 +53,21 @@ export async function applyCheckoutReturn(parsed, deps = {}) {
   if (!parsed) return { handled: false };
 
   if (parsed.type === 'success') {
+    const qs = new URLSearchParams();
+    if (parsed.plan) qs.set('plan', parsed.plan);
+    if (parsed.demo) qs.set('demo', 'true');
     if (parsed.sessionId && deps.verifyCheckoutSession) {
       try {
         await deps.verifyCheckoutSession(parsed.sessionId);
       } catch {
-        // Webhook may still activate the plan; continue to the success page.
+        deps.showToast?.(CHECKOUT_VERIFY_FAILED);
+        qs.set('confirm', 'failed');
+        const query = qs.toString();
+        deps.navigate?.(`/subscription/success.html?${query}`);
+        return { handled: true, type: 'success', confirmed: false };
       }
     }
     deps.showToast?.('Subscription active!');
-    const qs = new URLSearchParams();
-    if (parsed.plan) qs.set('plan', parsed.plan);
-    if (parsed.demo) qs.set('demo', 'true');
     const query = qs.toString();
     const successPath = query
       ? `/subscription/success.html?${query}`

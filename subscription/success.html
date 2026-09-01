@@ -11,8 +11,8 @@
 
   <section class="section container" style="max-width: 560px; text-align: center;">
     <div class="card" id="success-card">
-      <div style="font-size: 3rem; margin-bottom: 1rem;">🎉</div>
-      <h1 style="font-size: 1.75rem; margin-bottom: 0.5rem;">Welcome to Futbol Training Lab!</h1>
+      <div id="success-emoji" style="font-size: 3rem; margin-bottom: 1rem;">🎉</div>
+      <h1 id="success-title" style="font-size: 1.75rem; margin-bottom: 0.5rem;">Welcome to Futbol Training Lab!</h1>
       <p id="status-text" style="color: var(--slate-400); margin-bottom: 1.5rem;">Confirming your subscription...</p>
       <div id="plan-badge" class="level-badge" style="margin-bottom: 1.5rem; display: none;"></div>
       <a href="/player/dashboard.html" class="btn btn-primary btn-lg btn-block" id="continue-btn" style="display: none;">
@@ -32,7 +32,7 @@
 
   <script type="module">
     import { renderNav } from '/js/components/ui.js';
-    import { checkoutSuccessCopy, isDemoCheckout } from '/js/components/billingCopy.js';
+    import { checkoutSuccessView, isDemoCheckout } from '/js/components/billingCopy.js';
     import '/js/app.js';
     import { SUBSCRIPTION_PLANS } from '/js/data/subscriptions.js';
 
@@ -62,17 +62,14 @@
       };
       document.getElementById('continue-btn').href = roleRoutes[state.user.role] || roleRoutes.player;
 
-      if (sessionId && TrainingLab.isApiMode()) {
+      let verifyFailed = params.get('confirm') === 'failed';
+      if (!verifyFailed && sessionId && TrainingLab.isApiMode()) {
         try {
           await TrainingLab.verifyCheckoutSession(sessionId);
         } catch (err) {
-          console.warn('Session verify:', err.message);
+          verifyFailed = true;
+          TrainingLab.showToast(err.message || 'Could not confirm this checkout');
         }
-      }
-
-      if (plan) {
-        document.getElementById('plan-badge').textContent = plan.name;
-        document.getElementById('plan-badge').style.display = 'inline-flex';
       }
 
       const stripeConfig = await TrainingLab.getStripeConfig();
@@ -80,10 +77,21 @@
         demoParam: params.get('demo'),
         stripeConfigured: Boolean(stripeConfig.configured),
       });
-      document.getElementById('status-text').textContent = checkoutSuccessCopy({
+      const view = checkoutSuccessView({
         planName: plan?.name,
         demo,
+        verifyFailed,
       });
+
+      document.getElementById('success-title').textContent = view.title;
+      document.getElementById('status-text').textContent = view.status;
+      document.getElementById('continue-btn').textContent = view.button;
+      if (view.href) document.getElementById('continue-btn').href = view.href;
+      if (verifyFailed) document.getElementById('success-emoji').textContent = '⚠️';
+      if (view.showPlan && plan) {
+        document.getElementById('plan-badge').textContent = plan.name;
+        document.getElementById('plan-badge').style.display = 'inline-flex';
+      }
       document.getElementById('continue-btn').style.display = 'block';
     }
 

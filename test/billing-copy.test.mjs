@@ -9,6 +9,8 @@ import {
   heroCtaCopy,
   closingCtaCopy,
   checkoutSuccessCopy,
+  checkoutSuccessView,
+  CHECKOUT_VERIFY_FAILED,
   isDemoCheckout,
 } from '../js/components/billingCopy.js';
 
@@ -76,9 +78,27 @@ test('pricing page rewrites footer and canceled copy from billing helpers', () =
 
 test('success page uses demo checkout copy instead of claiming a trial', () => {
   const html = read('subscription/success.html');
-  assert.match(html, /checkoutSuccessCopy/);
+  assert.match(html, /checkoutSuccessView/);
   assert.match(html, /isDemoCheckout/);
+  assert.match(html, /verifyFailed/);
   assert.doesNotMatch(html, /Your 7-day free trial has started/);
+  assert.doesNotMatch(html, /console\.warn\('Session verify:/);
+});
+
+test('checkoutSuccessView does not claim a trial when verify failed', () => {
+  const failed = checkoutSuccessView({ planName: 'Elite Membership', demo: false, verifyFailed: true });
+  assert.equal(failed.title, 'Checkout not confirmed');
+  assert.equal(failed.status, CHECKOUT_VERIFY_FAILED);
+  assert.equal(failed.href, '/pricing.html');
+  assert.equal(failed.button, 'Go to Pricing');
+  assert.equal(failed.showPlan, false);
+  assert.doesNotMatch(failed.status, /trial has started/);
+
+  const ok = checkoutSuccessView({ planName: 'Player Membership', demo: true, verifyFailed: false });
+  assert.equal(ok.title, 'Welcome to Futbol Training Lab!');
+  assert.match(ok.status, /demo mode/);
+  assert.equal(ok.button, 'Go to Dashboard');
+  assert.equal(ok.showPlan, true);
 });
 
 test('offline checkout URL marks demo mode', () => {

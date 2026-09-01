@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { applyCheckoutReturn, parseCheckoutDeepLink } from '../js/utils/checkoutReturn.js';
+import { CHECKOUT_VERIFY_FAILED } from '../js/components/billingCopy.js';
 
 test('parseCheckoutDeepLink maps native success and cancel URLs', () => {
   assert.deepEqual(
@@ -65,4 +66,19 @@ test('applyCheckoutReturn cancel goes to pricing', async () => {
   );
   assert.deepEqual(result, { handled: true, type: 'cancel' });
   assert.deepEqual(calls, ['Checkout canceled', '/pricing.html?canceled=true']);
+});
+
+test('applyCheckoutReturn does not claim a subscription when verify fails', async () => {
+  const calls = [];
+  const result = await applyCheckoutReturn(
+    { type: 'success', plan: 'elite', sessionId: 'cs_bad', demo: false },
+    {
+      verifyCheckoutSession: async () => { throw new Error('Session does not belong to this user'); },
+      showToast: (msg) => { calls.push(msg); },
+      navigate: (path) => { calls.push(path); },
+    },
+  );
+  assert.deepEqual(result, { handled: true, type: 'success', confirmed: false });
+  assert.deepEqual(calls, [CHECKOUT_VERIFY_FAILED, '/subscription/success.html?plan=elite&confirm=failed']);
+  assert.equal(calls.includes('Subscription active!'), false);
 });
