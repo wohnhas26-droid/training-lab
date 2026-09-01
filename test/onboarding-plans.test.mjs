@@ -7,6 +7,8 @@ import {
   roleForPlan,
   selectedPlanForRole,
   planOptionLabel,
+  pricingPlansForUser,
+  planAllowedForRole,
   SUBSCRIPTION_PLANS,
 } from '../js/data/subscriptions.js';
 
@@ -48,4 +50,16 @@ test('onboarding rewrites plan options from role', () => {
   assert.match(html, /selectedPlanForRole/);
   assert.match(html, /roleForPlan/);
   assert.match(html, /applyRoleAndPlans/);
+});
+
+test('logged-out pricing shows every plan and logged-in pricing follows role', () => {
+  assert.deepEqual(pricingPlansForUser(null).map((p) => p.id), ['player', 'elite', 'team']);
+  assert.deepEqual(pricingPlansForUser('coach').map((p) => p.id), ['team']);
+  assert.deepEqual(pricingPlansForUser('player').map((p) => p.id), ['player', 'elite']);
+  assert.deepEqual(pricingPlansForUser('parent').map((p) => p.id), ['player', 'elite']);
+  assert.equal(planAllowedForRole('coach', 'player'), false);
+  assert.equal(planAllowedForRole('coach', 'team'), true);
+  assert.equal(planAllowedForRole('parent', 'elite'), true);
+  assert.equal(planAllowedForRole('parent', 'team'), false);
+  assert.equal(planAllowedForRole(null, 'team'), false);
 });

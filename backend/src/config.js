@@ -38,6 +38,12 @@ export const PLAN_CONFIG = {
   },
 };
 
+export function planAllowedForRole(role, planId) {
+  if (role === 'coach') return planId === 'team';
+  if (role === 'player' || role === 'parent') return planId === 'player' || planId === 'elite';
+  return false;
+}
+
 export function isStripeConfigured() {
   const { secretKey, prices } = config.stripe;
   return Boolean(secretKey && secretKey.startsWith('sk_') && Object.values(prices).some(Boolean));

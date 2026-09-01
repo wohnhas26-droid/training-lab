@@ -35,9 +35,9 @@
   </footer>
 
   <script type="module">
-    import { renderNav, formatPrice, hasSavedUser } from '/js/components/ui.js';
+    import { renderNav, formatPrice, hasSavedUser, savedUserRole } from '/js/components/ui.js';
     import { pricingFooterCopy, pricingCanceledCopy } from '/js/components/billingCopy.js';
-    import { SUBSCRIPTION_PLANS } from '/js/data/subscriptions.js';
+    import { pricingPlansForUser, planAllowedForRole, PLAN_NOT_AVAILABLE } from '/js/data/subscriptions.js';
     import { setToken } from '/js/services/api.js';
     import { openUrl } from '/js/utils/openUrl.js';
     import '/js/app.js';
@@ -70,13 +70,18 @@
     }
 
     document.getElementById('pricing-grid').innerHTML =
-      SUBSCRIPTION_PLANS.map(renderPlan).join('');
+      pricingPlansForUser(savedUserRole()).map(renderPlan).join('');
 
     async function handleCheckout(plan) {
       await TrainingLab.ready();
 
       if (!hasSavedUser()) {
         window.location.href = `/onboarding.html?plan=${plan}`;
+        return;
+      }
+
+      if (!planAllowedForRole(savedUserRole(), plan)) {
+        TrainingLab.showToast(PLAN_NOT_AVAILABLE);
         return;
       }
 

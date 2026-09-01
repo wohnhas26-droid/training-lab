@@ -74,6 +74,18 @@ export function plansForRole(role) {
   return SUBSCRIPTION_PLANS.filter((p) => p.id !== 'team');
 }
 
+export function pricingPlansForUser(role) {
+  if (!role) return SUBSCRIPTION_PLANS;
+  return plansForRole(role);
+}
+
+export function planAllowedForRole(role, planId) {
+  if (!role) return false;
+  return plansForRole(role).some((p) => p.id === planId);
+}
+
+export const PLAN_NOT_AVAILABLE = 'That plan is not available for this account';
+
 export function defaultPlanForRole(role) {
   return role === 'coach' ? 'team' : 'player';
 }

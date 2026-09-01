@@ -17,6 +17,16 @@ export function hasSavedUser() {
   }
 }
 
+export function savedUserRole() {
+  try {
+    const state = JSON.parse(localStorage.getItem('training_lab_app') || '{}');
+    const role = state.user?.role;
+    return typeof role === 'string' && role ? role : null;
+  } catch {
+    return null;
+  }
+}
+
 export function showToast(message, duration = 3000) {
   const existing = document.querySelector('.toast');
   if (existing) existing.remove();
