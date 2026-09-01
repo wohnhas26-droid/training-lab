@@ -10,6 +10,6 @@ const setup = readFileSync(
 );
 
 test('stripe setup script does not describe Elite as AI plans', () => {
-  assert.match(setup, /Personalized training plans, video assessments, personalized feedback/);
+  assert.match(setup, /Everything in Player plus monthly player evaluations/);
   assert.doesNotMatch(setup, /AI plans/);
 });
