@@ -67,7 +67,7 @@
 
   <script type="module">
     import { renderNav, renderSidebar, escapeHtml, formatProfileLabel } from '/js/components/ui.js';
-    import { renderProfileCard, renderSubscriptionCard } from '/js/components/playerProfile.js';
+    import { renderProfileCard, renderSubscriptionCard, billingPortalHref } from '/js/components/playerProfile.js';
     import { focusListToCsv, csvToCategoryIds } from '/js/services/trainingPlanner.js';
     import { openUrl } from '/js/utils/openUrl.js';
     import '/js/app.js';
@@ -141,11 +141,14 @@
       });
 
       document.getElementById('manage-billing-btn')?.addEventListener('click', async () => {
+        const btn = document.getElementById('manage-billing-btn');
+        if (btn) btn.disabled = true;
         try {
           const portal = await TrainingLab.openBillingPortal();
-          if (portal.url) await openUrl(portal.url);
+          await openUrl(billingPortalHref(portal));
         } catch (err) {
           TrainingLab.showToast(err.message || 'Could not open billing portal');
+          if (btn) btn.disabled = false;
         }
       });
     }
