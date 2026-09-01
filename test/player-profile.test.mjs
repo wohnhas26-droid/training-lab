@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { escapeHtml } from '../js/components/ui.js';
-import { renderProfileCard, renderSubscriptionCard } from '../js/components/playerProfile.js';
+import { renderProfileCard, renderSubscriptionCard, billingPortalHref, BILLING_PORTAL_UNAVAILABLE } from '../js/components/playerProfile.js';
 
 const helpers = { escapeHtml };
 
@@ -128,4 +128,24 @@ test('profile edit form shows title-cased equipment, not leftover lowercase toke
   assert.doesNotMatch(html, /placeholder="ball, cones, wall"/);
   assert.match(html, /formatProfileLabel\(item\)/);
   assert.match(html, /csvToArr\(fd\.get\('equipment'\)\)\.map\(\(item\) => item\.toLowerCase\(\)\)/);
+});
+
+test('billingPortalHref returns a trimmed url and rejects missing ones', () => {
+  assert.equal(billingPortalHref({ url: ' https://billing.stripe.com/session ' }), 'https://billing.stripe.com/session');
+  assert.throws(() => billingPortalHref({}), { message: BILLING_PORTAL_UNAVAILABLE });
+  assert.throws(() => billingPortalHref({ url: '' }), { message: BILLING_PORTAL_UNAVAILABLE });
+  assert.throws(() => billingPortalHref({ url: null }), { message: BILLING_PORTAL_UNAVAILABLE });
+  assert.throws(() => billingPortalHref({ message: 'Portal not ready' }), { message: 'Portal not ready' });
+});
+
+test('profile toasts Manage Billing when the portal has no url', () => {
+  const html = readFileSync(new URL('../player/profile.html', import.meta.url), 'utf8');
+  const handler = html.slice(html.indexOf("manage-billing-btn')?.addEventListener"));
+  assert.match(html, /billingPortalHref/);
+  assert.match(handler, /btn\.disabled = true/);
+  assert.match(handler, /billingPortalHref\(portal\)/);
+  assert.match(handler, /Could not open billing portal/);
+  assert.match(handler, /btn\.disabled = false/);
+  assert.match(handler, /catch \(err\)/);
+  assert.doesNotMatch(handler, /if \(portal\.url\) await openUrl\(portal\.url\)/);
 });

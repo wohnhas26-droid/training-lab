@@ -42,6 +42,14 @@ const STATUS_LABELS = {
   canceled: ['Canceled', 'badge-blue'],
 };
 
+export const BILLING_PORTAL_UNAVAILABLE = 'Billing portal is unavailable';
+
+export function billingPortalHref(portal) {
+  const url = typeof portal?.url === 'string' ? portal.url.trim() : '';
+  if (url) return url;
+  throw new Error(portal?.message || BILLING_PORTAL_UNAVAILABLE);
+}
+
 export function subscriptionStatusBadge(sub) {
   const status = sub?.status;
   if (status === 'trialing' && sub?.stripeConfigured !== true) {
