@@ -4,8 +4,10 @@ import {
   buildCheckoutReturnUrls,
   normalizeCheckoutClient,
   normalizeDeepLinkScheme,
+  portalReturnPathForRole,
 } from '../src/services/checkoutUrls.js';
 import { createCheckoutSession } from '../src/services/stripe.js';
+import { readFileSync } from 'node:fs';
 
 test('normalizeCheckoutClient only accepts native', () => {
   assert.equal(normalizeCheckoutClient('native'), 'native');
@@ -39,6 +41,26 @@ test('web return URLs stay on FRONTEND_URL', () => {
   );
 });
 
+test('web portal return URL follows the account role', () => {
+  const base = { frontendUrl: 'https://www.futbol-training-lab.com', client: 'web' };
+  assert.equal(
+    buildCheckoutReturnUrls({ ...base, role: 'player' }).portalReturnUrl,
+    'https://www.futbol-training-lab.com/player/profile.html',
+  );
+  assert.equal(
+    buildCheckoutReturnUrls({ ...base, role: 'coach' }).portalReturnUrl,
+    'https://www.futbol-training-lab.com/coach/dashboard.html',
+  );
+  assert.equal(
+    buildCheckoutReturnUrls({ ...base, role: 'parent' }).portalReturnUrl,
+    'https://www.futbol-training-lab.com/parent/dashboard.html',
+  );
+  assert.equal(portalReturnPathForRole('coach'), '/coach/dashboard.html');
+  assert.equal(portalReturnPathForRole('parent'), '/parent/dashboard.html');
+  assert.equal(portalReturnPathForRole('player'), '/player/profile.html');
+  assert.equal(portalReturnPathForRole(undefined), '/player/profile.html');
+});
+
 test('native return URLs use the custom scheme', () => {
   const urls = buildCheckoutReturnUrls({
     frontendUrl: 'http://localhost:8080',
@@ -65,4 +87,9 @@ test('demo checkout session uses a deep link for native clients', async () => {
   const result = await createCheckoutSession('user-1', 'team', { client: 'native' });
   assert.equal(result.demo, true);
   assert.equal(result.url, 'traininglab://checkout/success?plan=team&demo=true');
+});
+
+test('createPortalSession passes the user role into return URLs', () => {
+  const src = readFileSync(new URL('../src/services/stripe.js', import.meta.url), 'utf8');
+  assert.match(src, /checkoutUrlsFor\('player',\s*options\.client,\s*user\.role\)/);
 });

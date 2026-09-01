@@ -1,5 +1,11 @@
 import { CHECKOUT_VERIFY_FAILED } from '../components/billingCopy.js';
 
+export function portalReturnPathForRole(role) {
+  if (role === 'coach') return '/coach/dashboard.html';
+  if (role === 'parent') return '/parent/dashboard.html';
+  return '/player/profile.html';
+}
+
 function pathFromUrl(parsed) {
   const host = parsed.hostname || '';
   const pathname = (parsed.pathname || '').replace(/\/+$/, '');
@@ -33,7 +39,12 @@ export function parseCheckoutDeepLink(url) {
     return { type: 'cancel' };
   }
 
-  if (path === 'portal' || path.endsWith('player/profile.html')) {
+  if (
+    path === 'portal'
+    || path.endsWith('player/profile.html')
+    || path.endsWith('coach/dashboard.html')
+    || path.endsWith('parent/dashboard.html')
+  ) {
     return { type: 'portal' };
   }
 
@@ -83,7 +94,7 @@ export async function applyCheckoutReturn(parsed, deps = {}) {
   }
 
   if (parsed.type === 'portal') {
-    deps.navigate?.('/player/profile.html');
+    deps.navigate?.(portalReturnPathForRole(deps.role));
     return { handled: true, type: 'portal' };
   }
 
