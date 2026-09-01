@@ -46,12 +46,13 @@ async function ensureCustomer(user) {
   return customer.id;
 }
 
-function checkoutUrlsFor(plan, client) {
+function checkoutUrlsFor(plan, client, role) {
   return buildCheckoutReturnUrls({
     frontendUrl: config.frontendUrl,
     scheme: config.appDeepLinkScheme,
     plan,
     client: normalizeCheckoutClient(client),
+    role,
   });
 }
 
@@ -119,7 +120,7 @@ export async function createPortalSession(userId, options = {}) {
   const customerId = user.subscription?.stripeCustomerId || await ensureCustomer(user);
   if (!customerId) throw new Error('No billing account found');
 
-  const urls = checkoutUrlsFor('player', options.client);
+  const urls = checkoutUrlsFor('player', options.client, user.role);
   const session = await s.billingPortal.sessions.create({
     customer: customerId,
     return_url: urls.portalReturnUrl,

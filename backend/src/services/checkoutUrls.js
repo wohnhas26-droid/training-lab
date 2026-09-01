@@ -12,11 +12,18 @@ export function normalizeCheckoutClient(client) {
   return client === 'native' ? 'native' : 'web';
 }
 
+export function portalReturnPathForRole(role) {
+  if (role === 'coach') return '/coach/dashboard.html';
+  if (role === 'parent') return '/parent/dashboard.html';
+  return '/player/profile.html';
+}
+
 export function buildCheckoutReturnUrls({
   frontendUrl = DEFAULT_FRONTEND,
   scheme = DEFAULT_SCHEME,
   plan = 'player',
   client = 'web',
+  role,
 } = {}) {
   const safePlan = encodeURIComponent(plan || 'player');
   const safeScheme = normalizeDeepLinkScheme(scheme);
@@ -35,7 +42,7 @@ export function buildCheckoutReturnUrls({
   return {
     successUrl: `${base}/subscription/success.html?plan=${safePlan}&session_id={CHECKOUT_SESSION_ID}`,
     cancelUrl: `${base}/pricing.html?canceled=true`,
-    portalReturnUrl: `${base}/player/profile.html`,
+    portalReturnUrl: `${base}${portalReturnPathForRole(role)}`,
     demoSuccessUrl: `${base}/subscription/success.html?plan=${safePlan}&demo=true`,
   };
 }

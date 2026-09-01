@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { applyCheckoutReturn, parseCheckoutDeepLink } from '../js/utils/checkoutReturn.js';
+import { applyCheckoutReturn, parseCheckoutDeepLink, portalReturnPathForRole } from '../js/utils/checkoutReturn.js';
 import { CHECKOUT_VERIFY_FAILED } from '../js/components/billingCopy.js';
+import { readFileSync } from 'node:fs';
 
 test('parseCheckoutDeepLink maps native success and cancel URLs', () => {
   assert.deepEqual(
@@ -25,6 +26,18 @@ test('parseCheckoutDeepLink maps existing web return URLs', () => {
     { type: 'cancel' },
   );
   assert.equal(parseCheckoutDeepLink('https://example.com/player/dashboard.html'), null);
+  assert.deepEqual(
+    parseCheckoutDeepLink('https://www.futbol-training-lab.com/player/profile.html'),
+    { type: 'portal' },
+  );
+  assert.deepEqual(
+    parseCheckoutDeepLink('https://www.futbol-training-lab.com/coach/dashboard.html'),
+    { type: 'portal' },
+  );
+  assert.deepEqual(
+    parseCheckoutDeepLink('https://www.futbol-training-lab.com/parent/dashboard.html'),
+    { type: 'portal' },
+  );
   assert.equal(parseCheckoutDeepLink('javascript:alert(1)'), null);
 });
 
@@ -81,4 +94,31 @@ test('applyCheckoutReturn does not claim a subscription when verify fails', asyn
   assert.deepEqual(result, { handled: true, type: 'success', confirmed: false });
   assert.deepEqual(calls, [CHECKOUT_VERIFY_FAILED, '/subscription/success.html?plan=elite&confirm=failed']);
   assert.equal(calls.includes('Subscription active!'), false);
+});
+
+test('portalReturnPathForRole maps coach and parent to their dashboards', () => {
+  assert.equal(portalReturnPathForRole('coach'), '/coach/dashboard.html');
+  assert.equal(portalReturnPathForRole('parent'), '/parent/dashboard.html');
+  assert.equal(portalReturnPathForRole('player'), '/player/profile.html');
+  assert.equal(portalReturnPathForRole(null), '/player/profile.html');
+});
+
+test('applyCheckoutReturn portal follows the account role', async () => {
+  const paths = [];
+  await applyCheckoutReturn({ type: 'portal' }, { role: 'coach', navigate: (path) => paths.push(path) });
+  await applyCheckoutReturn({ type: 'portal' }, { role: 'parent', navigate: (path) => paths.push(path) });
+  await applyCheckoutReturn({ type: 'portal' }, { role: 'player', navigate: (path) => paths.push(path) });
+  await applyCheckoutReturn({ type: 'portal' }, { navigate: (path) => paths.push(path) });
+  assert.deepEqual(paths, [
+    '/coach/dashboard.html',
+    '/parent/dashboard.html',
+    '/player/profile.html',
+    '/player/profile.html',
+  ]);
+});
+
+test('native portal listener reads the saved account role', () => {
+  const src = readFileSync(new URL('../js/utils/listenCheckoutReturn.native.js', import.meta.url), 'utf8');
+  assert.match(src, /savedUserRole/);
+  assert.match(src, /role:\s*savedUserRole\(\)/);
 });

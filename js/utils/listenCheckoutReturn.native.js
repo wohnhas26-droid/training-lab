@@ -1,5 +1,6 @@
 import { App } from '@capacitor/app';
 import { Browser } from '@capacitor/browser';
+import { savedUserRole } from '../components/ui.js';
 import { applyCheckoutReturn, parseCheckoutDeepLink } from './checkoutReturn.js';
 
 export async function startCheckoutReturnListener({ verifyCheckoutSession, showToast } = {}) {
@@ -14,6 +15,7 @@ export async function startCheckoutReturnListener({ verifyCheckoutSession, showT
     await applyCheckoutReturn(parsed, {
       verifyCheckoutSession,
       showToast,
+      role: savedUserRole(),
       navigate: (path) => {
         window.location.href = path;
       },
