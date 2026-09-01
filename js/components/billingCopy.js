@@ -29,6 +29,27 @@ export function checkoutSuccessCopy({ planName, demo } = {}) {
     : 'Your subscription is active. Start training today!';
 }
 
+export const CHECKOUT_VERIFY_FAILED =
+  'Could not confirm this checkout. Open Pricing if your plan did not update.';
+
+export function checkoutSuccessView({ planName, demo, verifyFailed } = {}) {
+  if (verifyFailed) {
+    return {
+      title: 'Checkout not confirmed',
+      status: CHECKOUT_VERIFY_FAILED,
+      href: '/pricing.html',
+      button: 'Go to Pricing',
+      showPlan: false,
+    };
+  }
+  return {
+    title: 'Welcome to Futbol Training Lab!',
+    status: checkoutSuccessCopy({ planName, demo }),
+    button: 'Go to Dashboard',
+    showPlan: Boolean(planName),
+  };
+}
+
 export function isDemoCheckout({ demoParam, stripeConfigured } = {}) {
   if (demoParam === true || demoParam === 'true') return true;
   return stripeConfigured === false;
