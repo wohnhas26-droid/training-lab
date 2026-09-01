@@ -66,12 +66,14 @@ test('empty profile lists show an em dash instead of leftover copy', () => {
 test('subscription card uses known plan names and escapes unknown plans', () => {
   const elite = renderSubscriptionCard({ plan: 'elite', status: 'active' }, helpers);
   assert.match(elite, /Elite Membership/);
-  assert.match(elite, /Personalized Training/);
+  assert.match(elite, /Monthly Evaluations/);
+  assert.doesNotMatch(elite, /Personalized Training/);
   assert.doesNotMatch(elite, /AI Personal Training/);
   assert.match(elite, />Active</);
 
   const player = renderSubscriptionCard({ plan: 'player', status: 'active' }, helpers);
   assert.match(player, /Player Membership/);
+  assert.doesNotMatch(player, /Monthly Evaluations/);
   assert.doesNotMatch(player, /Personalized Training/);
   assert.doesNotMatch(player, /AI Personal Training/);
 

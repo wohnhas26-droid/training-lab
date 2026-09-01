@@ -51,18 +51,34 @@ test('elite plan copy does not claim AI-generated plans', async () => {
   const { SUBSCRIPTION_PLANS } = await import('../js/data/subscriptions.js');
   const elite = SUBSCRIPTION_PLANS.find((p) => p.id === 'elite');
   assert.ok(elite);
-  assert.equal(elite.description, 'Personalized training for serious players.');
-  assert.ok(elite.features.includes('Personalized training plans from your profile'));
+  assert.equal(elite.description, 'Player membership plus monthly evaluations.');
+  assert.ok(elite.features.includes('Monthly player evaluations'));
   assert.doesNotMatch(elite.description, /AI-powered|AI-generated/i);
   assert.equal(elite.features.filter((f) => /AI-powered|AI-generated/i.test(f)).length, 0);
 });
 
-test('elite plan does not list features the app does not ship', async () => {
+test('player plan lists shipped personalized plans, videos, and coach feedback', async () => {
+  const { SUBSCRIPTION_PLANS } = await import('../js/data/subscriptions.js');
+  const player = SUBSCRIPTION_PLANS.find((p) => p.id === 'player');
+  const features = player.features.join('\n');
+  assert.match(features, /Personalized training plans from your profile/);
+  assert.match(features, /Video skill assessments/);
+  assert.match(features, /Personalized coach feedback/);
+});
+
+test('elite plan only adds monthly evaluations on top of player', async () => {
   const { SUBSCRIPTION_PLANS } = await import('../js/data/subscriptions.js');
   const elite = SUBSCRIPTION_PLANS.find((p) => p.id === 'elite');
   const features = elite.features.join('\n');
-  assert.match(features, /Video skill assessments/);
-  assert.match(features, /Monthly player evaluations/);
+  assert.deepEqual(elite.features, [
+    'Everything in Player Membership',
+    'Monthly player evaluations',
+  ]);
+  assert.doesNotMatch(features, /Personalized training plans from your profile/);
+  assert.doesNotMatch(features, /Video skill assessments/);
+  assert.doesNotMatch(features, /Personalized (coach )?feedback/);
+  assert.doesNotMatch(features, /Advanced position-specific training/);
+  assert.doesNotMatch(features, /Strength and conditioning programs/);
   assert.doesNotMatch(features, /Nutrition guidance/);
   assert.doesNotMatch(features, /Mental performance training/);
   assert.doesNotMatch(features, /Exclusive masterclasses/);
