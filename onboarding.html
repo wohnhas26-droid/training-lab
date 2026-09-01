@@ -104,11 +104,7 @@
 
       <div class="form-group">
         <label class="form-label">Subscription Plan</label>
-        <select class="form-select" name="plan" id="plan-select">
-          <option value="player">Player — $29.99/mo</option>
-          <option value="elite">Elite — $59.99/mo</option>
-          <option value="team">Team — $199/mo</option>
-        </select>
+        <select class="form-select" name="plan" id="plan-select"></select>
       </div>
 
       <button type="submit" class="btn btn-primary btn-block btn-lg">Create Account & Build My Plan</button>
@@ -131,7 +127,13 @@
   </footer>
 
   <script type="module">
-    import { renderNav } from '/js/components/ui.js';
+    import { renderNav, escapeHtml } from '/js/components/ui.js';
+    import {
+      plansForRole,
+      selectedPlanForRole,
+      roleForPlan,
+      planOptionLabel,
+    } from '/js/data/subscriptions.js';
     import '/js/app.js';
 
     document.getElementById('nav').innerHTML = renderNav();
@@ -173,19 +175,32 @@
       { value: 'foam roller', label: 'Foam Roller' },
     ], 'equipment', true);
 
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('plan')) {
-      document.getElementById('plan-select').value = params.get('plan');
-    }
-
     document.querySelectorAll('.checkbox-pill').forEach(pill => {
       pill.addEventListener('click', () => pill.classList.toggle('selected'));
     });
 
-    document.getElementById('role-select').addEventListener('change', (e) => {
-      const role = e.target.value;
+    const params = new URLSearchParams(window.location.search);
+    const requestedPlan = params.get('plan');
+    const roleSelect = document.getElementById('role-select');
+    const planSelect = document.getElementById('plan-select');
+
+    function applyRoleAndPlans(role, preferredPlan) {
       document.getElementById('player-fields').style.display = role === 'player' ? 'block' : 'none';
       document.getElementById('parent-fields').style.display = role === 'parent' ? 'block' : 'none';
+      const options = plansForRole(role);
+      const selected = selectedPlanForRole(role, preferredPlan);
+      planSelect.innerHTML = options.map((plan) =>
+        `<option value="${escapeHtml(plan.id)}">${escapeHtml(planOptionLabel(plan))}</option>`
+      ).join('');
+      planSelect.value = selected;
+    }
+
+    const roleFromPlan = roleForPlan(requestedPlan);
+    if (roleFromPlan) roleSelect.value = roleFromPlan;
+    applyRoleAndPlans(roleSelect.value, requestedPlan);
+
+    roleSelect.addEventListener('change', (e) => {
+      applyRoleAndPlans(e.target.value, planSelect.value);
     });
 
     function getSelectedValues(field) {
