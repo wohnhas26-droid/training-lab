@@ -10,6 +10,7 @@ import {
 } from '../services/stripe.js';
 import { prisma } from '../lib/prisma.js';
 import { getUserState } from '../lib/prisma.js';
+import { planAllowedForRole } from '../config.js';
 
 const router = Router();
 
@@ -37,6 +38,9 @@ router.post('/checkout', authRequired, async (req, res) => {
 
   try {
     const user = await prisma.user.findUnique({ where: { id: req.userId } });
+    if (!planAllowedForRole(user?.role, plan)) {
+      return res.status(400).json({ error: 'That plan is not available for this account' });
+    }
     const result = await createCheckoutSession(req.userId, plan, {
       role: user?.role,
       client,
