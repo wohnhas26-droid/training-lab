@@ -10,7 +10,7 @@ import {
 } from '../services/stripe.js';
 import { prisma } from '../lib/prisma.js';
 import { getUserState } from '../lib/prisma.js';
-import { planAllowedForRole, alreadyOnPlan } from '../config.js';
+import { planAllowedForRole, alreadyOnPlan, hasActiveOtherPlan } from '../config.js';
 
 const router = Router();
 
@@ -46,6 +46,9 @@ router.post('/checkout', authRequired, async (req, res) => {
     }
     if (alreadyOnPlan(user?.subscription, plan)) {
       return res.status(400).json({ error: 'You\'re already on this plan' });
+    }
+    if (hasActiveOtherPlan(user?.subscription, plan)) {
+      return res.status(400).json({ error: 'Use Manage Billing to switch plans' });
     }
     const result = await createCheckoutSession(req.userId, plan, {
       role: user?.role,

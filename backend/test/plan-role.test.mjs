@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { planAllowedForRole, alreadyOnPlan } from '../src/config.js';
+import { planAllowedForRole, alreadyOnPlan, hasActiveOtherPlan } from '../src/config.js';
 
 test('checkout plans match account roles', () => {
   assert.equal(planAllowedForRole('coach', 'team'), true);
@@ -35,4 +35,18 @@ test('checkout route rejects subscribing to the plan the account already has', (
   const src = readFileSync(new URL('../src/routes/subscriptions.js', import.meta.url), 'utf8');
   assert.match(src, /alreadyOnPlan\(user\?\.subscription, plan\)/);
   assert.match(src, /already on this plan/);
+});
+
+test('hasActiveOtherPlan is true for a different uncanceled plan', () => {
+  assert.equal(hasActiveOtherPlan({ plan: 'elite', status: 'active' }, 'player'), true);
+  assert.equal(hasActiveOtherPlan({ plan: 'elite', status: 'trialing' }, 'player'), true);
+  assert.equal(hasActiveOtherPlan({ plan: 'elite', status: 'active' }, 'elite'), false);
+  assert.equal(hasActiveOtherPlan({ plan: 'elite', status: 'canceled' }, 'player'), false);
+  assert.equal(hasActiveOtherPlan(null, 'player'), false);
+});
+
+test('checkout route rejects a second subscription instead of stacking plans', () => {
+  const src = readFileSync(new URL('../src/routes/subscriptions.js', import.meta.url), 'utf8');
+  assert.match(src, /hasActiveOtherPlan\(user\?\.subscription, plan\)/);
+  assert.match(src, /Use Manage Billing to switch plans/);
 });

@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { hasSavedUser, savedUserRole } from '../js/components/ui.js';
-import { pricingPlanAction, ALREADY_ON_PLAN } from '../js/data/subscriptions.js';
+import { pricingPlanAction, ALREADY_ON_PLAN, SWITCH_VIA_BILLING } from '../js/data/subscriptions.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -46,7 +46,9 @@ test('pricing checkout uses a saved user, not only a leftover token', () => {
   assert.match(html, /planAllowedForRole\(savedUserRole\(\), plan\)/);
   assert.match(html, /PLAN_NOT_AVAILABLE/);
   assert.match(html, /ALREADY_ON_PLAN/);
+  assert.match(html, /SWITCH_VIA_BILLING/);
   assert.match(html, /getSubscriptionStatus/);
+  assert.match(html, /switchPlan/);
 });
 
 test('pricingPlanAction labels the current plan and leaves guests on Get Started', () => {
@@ -57,7 +59,7 @@ test('pricingPlanAction labels the current plan and leaves guests on Get Started
   );
   assert.deepEqual(
     pricingPlanAction('player', { loggedIn: true, currentPlan: 'elite', status: 'active' }),
-    { label: 'Subscribe', disabled: false },
+    { label: 'Switch Plan', disabled: false, switchPlan: true },
   );
   assert.deepEqual(
     pricingPlanAction('elite', { loggedIn: true, currentPlan: 'elite', status: 'canceled' }),
@@ -68,4 +70,5 @@ test('pricingPlanAction labels the current plan and leaves guests on Get Started
     { label: 'Current Plan', disabled: true },
   );
   assert.equal(ALREADY_ON_PLAN, "You're already on this plan");
+  assert.equal(SWITCH_VIA_BILLING, 'Use Manage Billing to switch plans');
 });

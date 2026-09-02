@@ -86,13 +86,17 @@ export function planAllowedForRole(role, planId) {
 
 export const PLAN_NOT_AVAILABLE = 'That plan is not available for this account';
 export const ALREADY_ON_PLAN = "You're already on this plan";
+export const SWITCH_VIA_BILLING = 'Use Manage Billing to switch plans';
 
 export function pricingPlanAction(planId, { loggedIn, currentPlan, status } = {}) {
   if (!loggedIn) {
     return { label: 'Get Started', disabled: false };
   }
-  if (currentPlan && currentPlan === planId && status !== 'canceled') {
-    return { label: 'Current Plan', disabled: true };
+  if (currentPlan && status !== 'canceled') {
+    if (currentPlan === planId) {
+      return { label: 'Current Plan', disabled: true };
+    }
+    return { label: 'Switch Plan', disabled: false, switchPlan: true };
   }
   return { label: 'Subscribe', disabled: false };
 }

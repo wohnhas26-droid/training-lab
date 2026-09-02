@@ -50,6 +50,12 @@ export function alreadyOnPlan(subscription, planId) {
   return subscription.status !== 'canceled';
 }
 
+export function hasActiveOtherPlan(subscription, planId) {
+  if (!subscription?.plan || !planId) return false;
+  if (subscription.status === 'canceled') return false;
+  return subscription.plan !== planId;
+}
+
 export function isStripeConfigured() {
   const { secretKey, prices } = config.stripe;
   return Boolean(secretKey && secretKey.startsWith('sk_') && Object.values(prices).some(Boolean));
