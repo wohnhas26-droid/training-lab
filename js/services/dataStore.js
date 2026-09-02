@@ -17,7 +17,7 @@ export async function bootstrap() {
       cachedState = await api.me();
       syncToLocalStorage(cachedState);
     } catch {
-      setToken(null);
+      logout();
     }
   }
   return isApiMode();
@@ -44,6 +44,7 @@ function syncToLocalStorage(state) {
 }
 
 export function loadState() {
+  if (isApiMode() && !getToken()) cachedState = null;
   if (cachedState) return cachedState;
   return local.loadState();
 }

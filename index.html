@@ -96,6 +96,7 @@
     document.getElementById('nav').innerHTML = renderNav('home');
 
     await TrainingLab.ready();
+    document.getElementById('nav').innerHTML = renderNav('home');
     const catalog = await TrainingLab.getCatalog();
     document.getElementById('categories-grid').innerHTML = renderHomeCategoryCards(catalog.categories, { escapeHtml });
     const stripeConfig = await TrainingLab.getStripeConfig();
