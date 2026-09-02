@@ -49,6 +49,7 @@ test('pricing checkout uses a saved user, not only a leftover token', () => {
   assert.match(html, /SWITCH_VIA_BILLING/);
   assert.match(html, /getSubscriptionStatus/);
   assert.match(html, /switchPlan/);
+  assert.match(html, /window.location.href = '\/login.html'/);
 });
 
 test('pricingPlanAction labels the current plan and leaves guests on Get Started', () => {

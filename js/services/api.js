@@ -1,4 +1,5 @@
 import { resolveApiBase } from '../config/appConfig.js';
+import { logout as clearSavedSession } from './storage.js';
 
 const API_BASE = resolveApiBase();
 const TOKEN_KEY = 'training_lab_token';
@@ -35,13 +36,13 @@ async function request(path, options = {}) {
   if (token) headers.Authorization = `Bearer ${token}`;
 
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  const data = await res.json().catch(() => ({}));
 
-  if (res.status === 401) {
+  if (res.status === 401 && token) {
     setToken(null);
-    throw new Error('Session expired');
+    clearSavedSession();
   }
 
-  const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
   return data;
 }
@@ -108,6 +109,7 @@ export async function initApi() {
         return await api.me();
       } catch {
         setToken(null);
+        clearSavedSession();
       }
     }
   }

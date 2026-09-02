@@ -39,7 +39,6 @@
     import { pricingFooterCopy, pricingCanceledCopy } from '/js/components/billingCopy.js';
     import { pricingPlansForUser, planAllowedForRole, PLAN_NOT_AVAILABLE, ALREADY_ON_PLAN, SWITCH_VIA_BILLING, pricingPlanAction } from '/js/data/subscriptions.js';
     import { billingPortalHref } from '/js/components/playerProfile.js';
-    import { setToken } from '/js/services/api.js';
     import { openUrl } from '/js/utils/openUrl.js';
     import '/js/app.js';
 
@@ -148,8 +147,7 @@
         const message = err.message || 'Checkout failed';
         TrainingLab.showToast(message);
         if (/auth|session expired|invalid or expired token/i.test(message)) {
-          setToken(null);
-          window.location.href = `/onboarding.html?plan=${plan}`;
+          window.location.href = '/login.html';
           return;
         }
         if (btn) {
@@ -162,6 +160,7 @@
     renderGrid();
 
     await TrainingLab.ready();
+    document.getElementById('nav').innerHTML = renderNav('pricing');
     if (hasSavedUser()) {
       try {
         const sub = await TrainingLab.getSubscriptionStatus();
