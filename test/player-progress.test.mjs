@@ -9,6 +9,8 @@ import {
   renderLevelTrack,
   renderAchievements,
   renderEvaluation,
+  renderEvaluationLocked,
+  EVALUATION_LOCKED,
   isRestSession,
   renderSessionCta,
 } from '../js/components/playerProgress.js';
@@ -98,6 +100,21 @@ test('evaluation render escapes recommendation and list items', () => {
 
 test('missing evaluation renders nothing', () => {
   assert.equal(renderEvaluation(null, { escapeHtml }), '');
+});
+
+test('locked evaluation explains Elite and links to Pricing', () => {
+  const html = renderEvaluationLocked();
+  assert.match(html, /Monthly evaluations are included with Elite Membership/);
+  assert.match(html, /href="\/pricing.html"/);
+  assert.match(html, /View Plans/);
+  assert.equal(EVALUATION_LOCKED.includes('Elite Membership'), true);
+});
+
+test('progress page shows the evaluation card or an Elite upsell', () => {
+  const html = readFileSync(new URL('../player/progress.html', import.meta.url), 'utf8');
+  assert.match(html, /renderEvaluationLocked/);
+  assert.match(html, /fresh\.subscription !== 'elite'/);
+  assert.match(html, /id="evaluation-card"/);
 });
 
 test('progress page loads the level track from TrainingLab.getLevels', () => {
