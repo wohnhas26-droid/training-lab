@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { hasSavedUser, savedUserRole } from '../js/components/ui.js';
+import { pricingPlanAction, ALREADY_ON_PLAN } from '../js/data/subscriptions.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -36,7 +37,7 @@ test('savedUserRole returns the stored role or null', () => {
 
 test('pricing checkout uses a saved user, not only a leftover token', () => {
   const html = readFileSync(join(root, 'pricing.html'), 'utf8');
-  assert.match(html, /hasSavedUser\(\) \? 'Subscribe' : 'Get Started'/);
+  assert.match(html, /pricingPlanAction/);
   assert.match(html, /if \(!hasSavedUser\(\)\)/);
   assert.match(html, /onboarding\.html\?plan=/);
   assert.doesNotMatch(html, /getToken\(\) \? 'Subscribe'/);
@@ -44,4 +45,27 @@ test('pricing checkout uses a saved user, not only a leftover token', () => {
   assert.match(html, /pricingPlansForUser\(savedUserRole\(\)\)/);
   assert.match(html, /planAllowedForRole\(savedUserRole\(\), plan\)/);
   assert.match(html, /PLAN_NOT_AVAILABLE/);
+  assert.match(html, /ALREADY_ON_PLAN/);
+  assert.match(html, /getSubscriptionStatus/);
+});
+
+test('pricingPlanAction labels the current plan and leaves guests on Get Started', () => {
+  assert.deepEqual(pricingPlanAction('elite', {}), { label: 'Get Started', disabled: false });
+  assert.deepEqual(
+    pricingPlanAction('elite', { loggedIn: true, currentPlan: 'elite', status: 'active' }),
+    { label: 'Current Plan', disabled: true },
+  );
+  assert.deepEqual(
+    pricingPlanAction('player', { loggedIn: true, currentPlan: 'elite', status: 'active' }),
+    { label: 'Subscribe', disabled: false },
+  );
+  assert.deepEqual(
+    pricingPlanAction('elite', { loggedIn: true, currentPlan: 'elite', status: 'canceled' }),
+    { label: 'Subscribe', disabled: false },
+  );
+  assert.deepEqual(
+    pricingPlanAction('team', { loggedIn: true, currentPlan: 'team', status: 'trialing' }),
+    { label: 'Current Plan', disabled: true },
+  );
+  assert.equal(ALREADY_ON_PLAN, "You're already on this plan");
 });

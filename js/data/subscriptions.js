@@ -85,6 +85,17 @@ export function planAllowedForRole(role, planId) {
 }
 
 export const PLAN_NOT_AVAILABLE = 'That plan is not available for this account';
+export const ALREADY_ON_PLAN = "You're already on this plan";
+
+export function pricingPlanAction(planId, { loggedIn, currentPlan, status } = {}) {
+  if (!loggedIn) {
+    return { label: 'Get Started', disabled: false };
+  }
+  if (currentPlan && currentPlan === planId && status !== 'canceled') {
+    return { label: 'Current Plan', disabled: true };
+  }
+  return { label: 'Subscribe', disabled: false };
+}
 
 export function defaultPlanForRole(role) {
   return role === 'coach' ? 'team' : 'player';

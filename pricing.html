@@ -37,7 +37,7 @@
   <script type="module">
     import { renderNav, formatPrice, hasSavedUser, savedUserRole } from '/js/components/ui.js';
     import { pricingFooterCopy, pricingCanceledCopy } from '/js/components/billingCopy.js';
-    import { pricingPlansForUser, planAllowedForRole, PLAN_NOT_AVAILABLE } from '/js/data/subscriptions.js';
+    import { pricingPlansForUser, planAllowedForRole, PLAN_NOT_AVAILABLE, ALREADY_ON_PLAN, pricingPlanAction } from '/js/data/subscriptions.js';
     import { setToken } from '/js/services/api.js';
     import { openUrl } from '/js/utils/openUrl.js';
     import '/js/app.js';
@@ -48,10 +48,18 @@
       document.getElementById('canceled-banner').style.display = 'block';
     }
 
+    let currentSub = { plan: null, status: null };
+
     function renderPlan(plan) {
       const priceDisplay = plan.priceMax
         ? `$${plan.price}–$${plan.priceMax}`
         : formatPrice(plan.price);
+      const action = pricingPlanAction(plan.id, {
+        loggedIn: hasSavedUser(),
+        currentPlan: currentSub.plan,
+        status: currentSub.status,
+      });
+      const btnClass = action.disabled || !plan.featured ? 'btn-secondary' : 'btn-primary';
 
       return `
         <div class="pricing-card ${plan.featured ? 'featured' : ''}">
@@ -62,15 +70,20 @@
           <ul class="feature-list">
             ${plan.features.map(f => `<li>${f}</li>`).join('')}
           </ul>
-          <button type="button" class="btn ${plan.featured ? 'btn-primary' : 'btn-secondary'} btn-block checkout-btn" data-plan="${plan.id}">
-            ${hasSavedUser() ? 'Subscribe' : 'Get Started'}
+          <button type="button" class="btn ${btnClass} btn-block checkout-btn" data-plan="${plan.id}" ${action.disabled ? 'disabled' : ''}>
+            ${action.label}
           </button>
         </div>
       `;
     }
 
-    document.getElementById('pricing-grid').innerHTML =
-      pricingPlansForUser(savedUserRole()).map(renderPlan).join('');
+    function renderGrid() {
+      document.getElementById('pricing-grid').innerHTML =
+        pricingPlansForUser(savedUserRole()).map(renderPlan).join('');
+      document.querySelectorAll('.checkout-btn').forEach(btn => {
+        btn.addEventListener('click', () => handleCheckout(btn.dataset.plan));
+      });
+    }
 
     async function handleCheckout(plan) {
       await TrainingLab.ready();
@@ -82,6 +95,16 @@
 
       if (!planAllowedForRole(savedUserRole(), plan)) {
         TrainingLab.showToast(PLAN_NOT_AVAILABLE);
+        return;
+      }
+
+      const action = pricingPlanAction(plan, {
+        loggedIn: true,
+        currentPlan: currentSub.plan,
+        status: currentSub.status,
+      });
+      if (action.disabled) {
+        TrainingLab.showToast(ALREADY_ON_PLAN);
         return;
       }
 
@@ -113,11 +136,18 @@
       }
     }
 
-    document.querySelectorAll('.checkout-btn').forEach(btn => {
-      btn.addEventListener('click', () => handleCheckout(btn.dataset.plan));
-    });
+    renderGrid();
 
     await TrainingLab.ready();
+    if (hasSavedUser()) {
+      try {
+        const sub = await TrainingLab.getSubscriptionStatus();
+        currentSub = { plan: sub?.plan || null, status: sub?.status || null };
+        renderGrid();
+      } catch {
+        // Keep Subscribe until status loads.
+      }
+    }
     const stripeConfig = await TrainingLab.getStripeConfig();
     const configured = Boolean(stripeConfig.configured);
     document.getElementById('pricing-footer-note').textContent = pricingFooterCopy(configured);

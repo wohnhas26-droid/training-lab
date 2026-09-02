@@ -44,6 +44,12 @@ export function planAllowedForRole(role, planId) {
   return false;
 }
 
+export function alreadyOnPlan(subscription, planId) {
+  if (!subscription?.plan || !planId) return false;
+  if (subscription.plan !== planId) return false;
+  return subscription.status !== 'canceled';
+}
+
 export function isStripeConfigured() {
   const { secretKey, prices } = config.stripe;
   return Boolean(secretKey && secretKey.startsWith('sk_') && Object.values(prices).some(Boolean));
