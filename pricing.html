@@ -37,7 +37,8 @@
   <script type="module">
     import { renderNav, formatPrice, hasSavedUser, savedUserRole } from '/js/components/ui.js';
     import { pricingFooterCopy, pricingCanceledCopy } from '/js/components/billingCopy.js';
-    import { pricingPlansForUser, planAllowedForRole, PLAN_NOT_AVAILABLE, ALREADY_ON_PLAN, pricingPlanAction } from '/js/data/subscriptions.js';
+    import { pricingPlansForUser, planAllowedForRole, PLAN_NOT_AVAILABLE, ALREADY_ON_PLAN, SWITCH_VIA_BILLING, pricingPlanAction } from '/js/data/subscriptions.js';
+    import { billingPortalHref } from '/js/components/playerProfile.js';
     import { setToken } from '/js/services/api.js';
     import { openUrl } from '/js/utils/openUrl.js';
     import '/js/app.js';
@@ -48,7 +49,7 @@
       document.getElementById('canceled-banner').style.display = 'block';
     }
 
-    let currentSub = { plan: null, status: null };
+    let currentSub = { plan: null, status: null, hasBillingAccount: false, stripeConfigured: false };
 
     function renderPlan(plan) {
       const priceDisplay = plan.priceMax
@@ -109,6 +110,28 @@
       }
 
       const btn = document.querySelector(`.checkout-btn[data-plan="${plan}"]`);
+
+      if (action.switchPlan) {
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = 'Opening billing...';
+        }
+        try {
+          if (currentSub.hasBillingAccount && currentSub.stripeConfigured) {
+            const portal = await TrainingLab.openBillingPortal();
+            await openUrl(billingPortalHref(portal));
+            return;
+          }
+          throw new Error(SWITCH_VIA_BILLING);
+        } catch (err) {
+          TrainingLab.showToast(err.message || SWITCH_VIA_BILLING);
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = action.label;
+          }
+        }
+        return;
+      }
       if (btn) {
         btn.disabled = true;
         btn.textContent = 'Redirecting...';
@@ -131,7 +154,7 @@
         }
         if (btn) {
           btn.disabled = false;
-          btn.textContent = 'Subscribe';
+          btn.textContent = action.label;
         }
       }
     }
@@ -142,7 +165,12 @@
     if (hasSavedUser()) {
       try {
         const sub = await TrainingLab.getSubscriptionStatus();
-        currentSub = { plan: sub?.plan || null, status: sub?.status || null };
+        currentSub = {
+          plan: sub?.plan || null,
+          status: sub?.status || null,
+          hasBillingAccount: Boolean(sub?.hasBillingAccount),
+          stripeConfigured: Boolean(sub?.stripeConfigured),
+        };
         renderGrid();
       } catch {
         // Keep Subscribe until status loads.
