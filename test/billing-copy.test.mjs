@@ -8,6 +8,8 @@ import {
   pricingCanceledCopy,
   heroCtaCopy,
   closingCtaCopy,
+  homeCta,
+  HOME_DASHBOARD_CTA,
   checkoutSuccessCopy,
   checkoutSuccessView,
   CHECKOUT_VERIFY_FAILED,
@@ -57,6 +59,36 @@ test('isDemoCheckout treats demo=true and unconfigured Stripe as demo', () => {
   assert.equal(isDemoCheckout({ demoParam: null, stripeConfigured: true }), false);
 });
 
+test('logged-in home CTA goes to the role dashboard instead of signup', () => {
+  assert.deepEqual(
+    homeCta({ loggedIn: true, role: 'coach', stripeConfigured: true, variant: 'hero' }),
+    { label: HOME_DASHBOARD_CTA, href: '/coach/dashboard.html' },
+  );
+  assert.deepEqual(
+    homeCta({ loggedIn: true, role: 'parent', stripeConfigured: false, variant: 'closing' }),
+    { label: HOME_DASHBOARD_CTA, href: '/parent/dashboard.html' },
+  );
+  assert.deepEqual(
+    homeCta({ loggedIn: true, role: 'player' }),
+    { label: HOME_DASHBOARD_CTA, href: '/player/dashboard.html' },
+  );
+});
+
+test('guest home CTA keeps Stripe-aware signup copy', () => {
+  assert.deepEqual(
+    homeCta({ loggedIn: false, stripeConfigured: false, variant: 'hero' }),
+    { label: 'Get Started', href: '/onboarding.html' },
+  );
+  assert.deepEqual(
+    homeCta({ loggedIn: false, stripeConfigured: true, variant: 'hero' }),
+    { label: 'Start Free Trial', href: '/onboarding.html' },
+  );
+  assert.deepEqual(
+    homeCta({ loggedIn: false, stripeConfigured: true, variant: 'closing' }),
+    { label: 'Get Started — $29.99/mo', href: '/onboarding.html' },
+  );
+});
+
 test('homepage default CTA is Get Started and wires Stripe-aware copy', () => {
   const html = read('index.html');
   assert.match(html, /id="hero-cta"/);
@@ -64,8 +96,9 @@ test('homepage default CTA is Get Started and wires Stripe-aware copy', () => {
   assert.match(html, />Get Started</);
   assert.doesNotMatch(html, />Start Free Trial</);
   assert.doesNotMatch(html, /Get Started — \$29\.99\/mo/);
-  assert.match(html, /heroCtaCopy/);
-  assert.match(html, /closingCtaCopy/);
+  assert.match(html, /homeCta\(/);
+  assert.match(html, /hasSavedUser\(\)/);
+  assert.match(html, /savedUserRole\(\)/);
 });
 
 test('pricing page rewrites footer and canceled copy from billing helpers', () => {

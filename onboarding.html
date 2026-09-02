@@ -127,7 +127,8 @@
   </footer>
 
   <script type="module">
-    import { renderNav, escapeHtml } from '/js/components/ui.js';
+    import { renderNav, escapeHtml, hasSavedUser, savedUserRole } from '/js/components/ui.js';
+    import { dashboardForRole } from '/js/components/onboardingCheckout.js';
     import {
       plansForRole,
       selectedPlanForRole,
@@ -137,6 +138,10 @@
     import '/js/app.js';
 
     document.getElementById('nav').innerHTML = renderNav();
+
+    if (hasSavedUser()) {
+      window.location.replace(dashboardForRole(savedUserRole()));
+    }
 
     function renderPills(containerId, items, field, preselect = false) {
       document.getElementById(containerId).innerHTML = items.map(({ value, label }) =>
