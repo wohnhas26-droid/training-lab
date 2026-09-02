@@ -53,4 +53,5 @@ test('onboarding sends a logged-in user to their dashboard', () => {
   assert.match(html, /hasSavedUser\(\)/);
   assert.match(html, /dashboardForRole\(savedUserRole\(\)\)/);
   assert.match(html, /window\.location\.replace/);
+  assert.match(html, /await TrainingLab\.ready\(\);[\s\S]*if \(hasSavedUser\(\)\)/);
 });
