@@ -88,9 +88,9 @@
   </footer>
 
   <script type="module">
-    import { renderNav, escapeHtml } from '/js/components/ui.js';
+    import { renderNav, escapeHtml, hasSavedUser, savedUserRole } from '/js/components/ui.js';
     import { renderHomeCategoryCards } from '/js/components/homeCategories.js';
-    import { heroCtaCopy, closingCtaCopy } from '/js/components/billingCopy.js';
+    import { homeCta } from '/js/components/billingCopy.js';
     import '/js/app.js';
 
     document.getElementById('nav').innerHTML = renderNav('home');
@@ -99,8 +99,19 @@
     const catalog = await TrainingLab.getCatalog();
     document.getElementById('categories-grid').innerHTML = renderHomeCategoryCards(catalog.categories, { escapeHtml });
     const stripeConfig = await TrainingLab.getStripeConfig();
-    document.getElementById('hero-cta').textContent = heroCtaCopy(Boolean(stripeConfig.configured));
-    document.getElementById('closing-cta').textContent = closingCtaCopy(Boolean(stripeConfig.configured));
+    const ctaOpts = {
+      loggedIn: hasSavedUser(),
+      role: savedUserRole(),
+      stripeConfigured: Boolean(stripeConfig.configured),
+    };
+    const hero = homeCta({ ...ctaOpts, variant: 'hero' });
+    const closing = homeCta({ ...ctaOpts, variant: 'closing' });
+    const heroEl = document.getElementById('hero-cta');
+    heroEl.textContent = hero.label;
+    heroEl.href = hero.href;
+    const closingEl = document.getElementById('closing-cta');
+    closingEl.textContent = closing.label;
+    closingEl.href = closing.href;
   </script>
 </body>
 </html>

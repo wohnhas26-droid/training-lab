@@ -47,3 +47,10 @@ test('onboarding equipment pills use title-case labels and lowercase stored valu
   assert.doesNotMatch(equipment.slice(0, 700), /label: 'ball'/);
   assert.doesNotMatch(equipment.slice(0, 700), /label: 'agility ladder'/);
 });
+
+test('onboarding sends a logged-in user to their dashboard', () => {
+  const html = readFileSync(new URL('../onboarding.html', import.meta.url), 'utf8');
+  assert.match(html, /hasSavedUser\(\)/);
+  assert.match(html, /dashboardForRole\(savedUserRole\(\)\)/);
+  assert.match(html, /window\.location\.replace/);
+});

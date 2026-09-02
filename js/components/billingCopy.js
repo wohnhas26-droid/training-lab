@@ -1,3 +1,5 @@
+import { dashboardForRole } from './onboardingCheckout.js';
+
 export function pricingFooterCopy(configured) {
   return configured
     ? '© 2026 Futbol Training Lab. All plans include a 7-day free trial.'
@@ -16,6 +18,18 @@ export function heroCtaCopy(configured) {
 
 export function closingCtaCopy(configured) {
   return configured ? 'Get Started — $29.99/mo' : 'Get Started';
+}
+
+export const HOME_DASHBOARD_CTA = 'Go to Dashboard';
+
+export function homeCta({ loggedIn, role, stripeConfigured, variant = 'hero' } = {}) {
+  if (loggedIn) {
+    return { label: HOME_DASHBOARD_CTA, href: dashboardForRole(role) };
+  }
+  const label = variant === 'closing'
+    ? closingCtaCopy(stripeConfigured)
+    : heroCtaCopy(stripeConfigured);
+  return { label, href: '/onboarding.html' };
 }
 
 export function checkoutSuccessCopy({ planName, demo } = {}) {
