@@ -51,10 +51,15 @@
   </footer>
 
   <script type="module">
-    import { renderNav } from '/js/components/ui.js';
+    import { renderNav, hasSavedUser, savedUserRole } from '/js/components/ui.js';
+    import { dashboardForRole } from '/js/components/onboardingCheckout.js';
     import '/js/app.js';
 
     document.getElementById('nav').innerHTML = renderNav();
+
+    if (hasSavedUser()) {
+      window.location.replace(dashboardForRole(savedUserRole()));
+    }
 
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -64,8 +69,7 @@
       try {
         const state = await TrainingLab.loginWithCredentials(fd.get('email'), fd.get('password'));
         TrainingLab.showToast('Welcome back!');
-        const routes = { player: '/player/dashboard.html', coach: '/coach/dashboard.html', parent: '/parent/dashboard.html' };
-        setTimeout(() => window.location.href = routes[state.user.role] || routes.player, 500);
+        setTimeout(() => window.location.href = dashboardForRole(state.user.role), 500);
       } catch (err) {
         TrainingLab.showToast(err.message || 'Login failed');
       }
