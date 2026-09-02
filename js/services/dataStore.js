@@ -19,6 +19,8 @@ export async function bootstrap() {
     } catch {
       logout();
     }
+  } else if (isApiMode() && (cachedState?.user || local.loadState().user)) {
+    logout();
   }
   return isApiMode();
 }

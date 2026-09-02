@@ -22,6 +22,7 @@ import { ACHIEVEMENTS, PROGRESSION_LEVELS } from './data/levels.js';
 import { saveWeeklyPlan } from './services/storage.js';
 import { openUrl } from './utils/openUrl.js';
 import { startCheckoutReturnListener } from './utils/listenCheckoutReturn.js';
+import { isProtectedPath } from './utils/protectedPath.js';
 
 let apiReady = false;
 
@@ -31,6 +32,10 @@ async function init() {
     console.log('Connected to Futbol Training Lab API');
   } else {
     console.log('Running in offline/demo mode (localStorage)');
+  }
+  if (isProtectedPath(window.location.pathname) && !loadState().user) {
+    window.location.replace('/login.html');
+    return;
   }
   await startCheckoutReturnListener({
     verifyCheckoutSession,

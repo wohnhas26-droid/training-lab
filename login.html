@@ -57,6 +57,8 @@
 
     document.getElementById('nav').innerHTML = renderNav();
 
+    await TrainingLab.ready();
+    document.getElementById('nav').innerHTML = renderNav();
     if (hasSavedUser()) {
       window.location.replace(dashboardForRole(savedUserRole()));
     }
