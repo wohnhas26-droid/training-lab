@@ -46,6 +46,7 @@ test('pricing and checkout success import plans from the subscriptions data file
   assert.match(success, /from '\/js\/data\/subscriptions\.js'/);
   assert.match(pricing, /pricingPlansForUser\(savedUserRole\(\)\)\.map\(renderPlan\)/);
   assert.match(pricing, /planAllowedForRole/);
+  assert.match(pricing, /pricingPlanAction/);
 });
 
 test('elite plan copy does not claim AI-generated plans', async () => {
