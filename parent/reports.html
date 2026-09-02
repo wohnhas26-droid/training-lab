@@ -13,7 +13,8 @@
     <main class="main-content">
       <div class="page-header">
         <h1>Monthly Report Cards</h1>
-        <p id="page-subtitle">Detailed monthly evaluations of your player's development</p>
+        <p id="page-subtitle">Monthly training summaries scored from session activity.</p>
+        <p id="report-note" style="color: var(--slate-400); margin-top: 0.5rem;">These scores reflect training volume and consistency. They are not Elite monthly evaluations.</p>
       </div>
       <div id="report-cards" class="grid grid-2"></div>
     </main>
@@ -21,25 +22,21 @@
   <script type="module">
     import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
     import { bindLinkPlayerForm, renderLinkPlayerCard } from '/js/components/parentChild.js';
+    import {
+      REPORTS_INTRO,
+      REPORTS_NOTE,
+      reportsSubtitleForChild,
+      reportsFailedSubtitle,
+      renderReportsFailed,
+      renderParentReportCard,
+    } from '/js/components/parentReports.js';
     import '/js/app.js';
 
     TrainingLab.requireAuth('parent');
     document.getElementById('nav').innerHTML = renderNav();
     document.getElementById('sidebar').innerHTML = renderSidebar('parent', 'reports');
-
-    function cardHtml(r) {
-      return `
-      <div class="card"${r.sessions === 0 ? ' style="opacity: 0.7;"' : ''}>
-        <h3 class="card-title">${escapeHtml(r.label)} Report Card</h3>
-        <p style="font-size: 2rem; font-weight: 800; color: var(--green-400); margin: 1rem 0;">${Number(r.score)}/10</p>
-        <ul style="color: var(--slate-400); font-size: 0.9rem; padding-left: 1.25rem;">
-          <li>Training consistency: ${escapeHtml(r.consistency)}</li>
-          <li>Sessions completed: ${Number(r.sessions)}</li>
-          <li>Minutes trained: ${Number(r.minutes)}</li>
-          <li>Skills practiced: ${Number(r.skills)}</li>
-        </ul>
-      </div>`;
-    }
+    document.getElementById('page-subtitle').textContent = REPORTS_INTRO;
+    document.getElementById('report-note').textContent = REPORTS_NOTE;
 
     function renderEmpty() {
       document.getElementById('page-subtitle').textContent = 'Link a player to see real report cards — we never invent scores.';
@@ -57,15 +54,21 @@
         return;
       }
       const reports = await TrainingLab.getChildReports(child.id).catch(() => null);
-      if (!reports || !reports.length) {
+      if (!reports) {
+        document.getElementById('page-subtitle').textContent = reportsFailedSubtitle(child.name);
+        document.getElementById('report-cards').className = '';
+        document.getElementById('report-cards').innerHTML = renderReportsFailed();
+        return;
+      }
+      if (!reports.length) {
         document.getElementById('page-subtitle').textContent = `No monthly reports yet for ${child.name}`;
         document.getElementById('report-cards').className = '';
         document.getElementById('report-cards').innerHTML = '<div class="card"><p style="color: var(--slate-500);">No training months to score yet.</p></div>';
         return;
       }
-      document.getElementById('page-subtitle').textContent = `Monthly evaluations for ${child.name}`;
+      document.getElementById('page-subtitle').textContent = reportsSubtitleForChild(child.name);
       document.getElementById('report-cards').className = 'grid grid-2';
-      document.getElementById('report-cards').innerHTML = reports.map(cardHtml).join('');
+      document.getElementById('report-cards').innerHTML = reports.map((r) => renderParentReportCard(r, { escapeHtml })).join('');
     }
 
     load();
