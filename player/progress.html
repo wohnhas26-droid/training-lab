@@ -62,7 +62,7 @@
     import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
     import { videoPreviewHtml } from '/js/utils/videoEmbed.js';
     import { renderSkillVideoList, renderVideoSkillOptions } from '/js/components/skillVideos.js';
-    import { renderProgressStats, renderLevelTrack, renderAchievements, renderEvaluation } from '/js/components/playerProgress.js';
+    import { renderProgressStats, renderLevelTrack, renderAchievements, renderEvaluation, renderEvaluationLocked } from '/js/components/playerProgress.js';
     import '/js/app.js';
 
     const state = TrainingLab.requireAuth('player');
@@ -160,9 +160,14 @@
     renderCoachFeedback(fresh.coachFeedback);
 
     const evaluation = await TrainingLab.getEvaluation();
+    const evaluationCard = document.getElementById('evaluation-card');
+    const evaluationContent = document.getElementById('evaluation-content');
     if (evaluation) {
-      document.getElementById('evaluation-card').style.display = 'block';
-      document.getElementById('evaluation-content').innerHTML = renderEvaluation(evaluation, { escapeHtml });
+      evaluationCard.style.display = 'block';
+      evaluationContent.innerHTML = renderEvaluation(evaluation, { escapeHtml });
+    } else if (fresh.subscription !== 'elite') {
+      evaluationCard.style.display = 'block';
+      evaluationContent.innerHTML = renderEvaluationLocked();
     }
   </script>
 </body>

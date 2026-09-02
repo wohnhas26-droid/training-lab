@@ -81,6 +81,16 @@ export function renderSessionCta(session) {
   return `<a href="/player/training.html" class="btn btn-primary btn-block" id="start-session-btn" style="margin-top: 1rem;">Start Session</a>`;
 }
 
+export const EVALUATION_LOCKED =
+  'Monthly evaluations are included with Elite Membership. Your current plan does not include them.';
+
+export function renderEvaluationLocked() {
+  return `
+    <p style="color: var(--slate-300);">${EVALUATION_LOCKED}</p>
+    <a href="/pricing.html" class="btn btn-primary" style="margin-top: 1rem;">View Plans</a>
+  `;
+}
+
 export function renderEvaluation(evaluation, { escapeHtml } = {}) {
   if (!evaluation) return '';
   const esc = escapeHtml || ((v) => String(v ?? ''));
