@@ -2,9 +2,17 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { escapeHtml } from '../js/components/ui.js';
-import { renderCoachAssignmentList, renderPlayerAssignmentList, renderAssignPlayerOptions, renderAssignCategoryOptions } from '../js/components/assignments.js';
+import { renderCoachAssignmentList, renderPlayerAssignmentList, renderAssignPlayerOptions, renderAssignCategoryOptions, ASSIGNMENTS_LOAD_FAILED } from '../js/components/assignments.js';
 
 const names = { escapeHtml };
+
+test('assignment lists distinguish a failed load from an empty list', () => {
+  assert.match(renderPlayerAssignmentList(null, names), /Could not load assignments right now/);
+  assert.match(renderCoachAssignmentList(undefined, { ...names, assignToLabel: () => 'Entire Team' }), /Could not load assignments right now/);
+  assert.match(renderPlayerAssignmentList([], names), /No coach assignments yet/);
+  assert.match(renderCoachAssignmentList([], { ...names, assignToLabel: () => 'Entire Team' }), /No assignments yet/);
+  assert.equal(ASSIGNMENTS_LOAD_FAILED.includes('Try again in a moment'), true);
+});
 
 test('player list shows Mark complete until finished', () => {
   const html = renderPlayerAssignmentList([
@@ -143,6 +151,21 @@ test('training page wires assignment labels through catalog categories', () => {
   assert.match(html, /TrainingLab\.getCatalog\(\)/);
   assert.match(html, /renderPlayerAssignmentList\(items, \{ categories, escapeHtml \}\)/);
   assert.doesNotMatch(html, /getCategoryName/);
+});
+
+test('assignment remotes return null when the API request fails', () => {
+  const src = readFileSync(new URL('../js/services/dataStore.js', import.meta.url), 'utf8');
+  const coach = src.slice(src.indexOf('export async function getAssignmentsRemote'));
+  const player = src.slice(src.indexOf('export async function getMyAssignmentsRemote'));
+  assert.match(coach.slice(0, 280), /return null;/);
+  assert.match(player.slice(0, 280), /return null;/);
+  assert.doesNotMatch(coach.slice(0, 220), /return \[\];/);
+});
+
+test('assign page does not paint an empty list before the fetch', () => {
+  const html = readFileSync(new URL('../coach/assign.html', import.meta.url), 'utf8');
+  assert.match(html, /assignments = await TrainingLab\.getAssignments\(\);\s*renderAssignments\(\);/);
+  assert.doesNotMatch(html, /renderAssignments\(\);\s*await TrainingLab\.ready\(\)/);
 });
 
 test('assignment lists label categories through categoryLabel, not getCategoryName', () => {

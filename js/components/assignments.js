@@ -1,6 +1,16 @@
 import { categoryLabel } from './library.js';
 
+export const ASSIGNMENTS_LOAD_FAILED =
+  'Could not load assignments right now. Try again in a moment.';
+
+export function renderAssignmentsLoadFailed() {
+  return `<p style="color: var(--slate-500);">${ASSIGNMENTS_LOAD_FAILED}</p>`;
+}
+
 export function renderPlayerAssignmentList(assignments, { categories, escapeHtml }) {
+  if (!Array.isArray(assignments)) {
+    return renderAssignmentsLoadFailed();
+  }
   if (!assignments.length) {
     return '<p style="color: var(--slate-500);">No coach assignments yet.</p>';
   }
@@ -31,6 +41,9 @@ export function renderPlayerAssignmentList(assignments, { categories, escapeHtml
 }
 
 export function renderCoachAssignmentList(assignments, { categories, escapeHtml, assignToLabel }) {
+  if (!Array.isArray(assignments)) {
+    return renderAssignmentsLoadFailed();
+  }
   if (!assignments.length) {
     return '<p style="color: var(--slate-500);">No assignments yet.</p>';
   }

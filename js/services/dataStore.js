@@ -307,7 +307,7 @@ export async function getAssignmentsRemote() {
     try {
       return await api.getAssignments();
     } catch {
-      return [];
+      return null;
     }
   }
   return loadLocalAssignments().map((a) => decorateLocalAssignment(a));
@@ -318,7 +318,7 @@ export async function getMyAssignmentsRemote() {
     try {
       return await api.getMyAssignments();
     } catch {
-      return [];
+      return null;
     }
   }
   const user = local.getCurrentUser();
