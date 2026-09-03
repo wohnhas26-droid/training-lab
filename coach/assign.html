@@ -92,6 +92,7 @@
           notes: fd.get('notes'),
           assignTo: fd.get('assignTo'),
         });
+        if (!Array.isArray(assignments)) assignments = [];
         assignments.unshift(created);
         TrainingLab.showToast('Training assigned!');
         e.target.reset();
@@ -103,8 +104,6 @@
         if (btn) btn.disabled = false;
       }
     });
-
-    renderAssignments();
 
     await TrainingLab.ready();
     players = await TrainingLab.getCoachTeamData();
