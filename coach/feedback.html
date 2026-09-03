@@ -124,8 +124,14 @@
 
     await TrainingLab.ready();
     players = await TrainingLab.getCoachTeamData();
-    document.getElementById('feedback-player').innerHTML =
-      players.map(p => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.name)}</option>`).join('');
+    if (!Array.isArray(players)) {
+      document.getElementById('feedback-player').innerHTML =
+        '<option value="" disabled selected>Could not load roster</option>';
+      players = [];
+    } else {
+      document.getElementById('feedback-player').innerHTML =
+        players.map(p => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.name)}</option>`).join('');
+    }
 
     videos = await TrainingLab.getCoachVideos();
     renderVideoQueue(videos);

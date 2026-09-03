@@ -9,6 +9,7 @@ import {
   renderCoachLeaderboardRows,
   renderCoachActivity,
   renderCoachLeaderboardPage,
+  COACH_TEAM_LOAD_FAILED,
 } from '../js/components/coachDashboard.js';
 
 test('offline roster is empty and does not invent teammates', () => {
@@ -24,6 +25,18 @@ test('empty stats render 0% instead of NaN', () => {
   const html = renderCoachStats(stats);
   assert.match(html, />0%<\/div>/);
   assert.doesNotMatch(html, /NaN/);
+});
+
+test('a failed roster load is not an empty team', () => {
+  const board = renderCoachLeaderboardRows(null, { escapeHtml });
+  const activity = renderCoachActivity(undefined, { escapeHtml });
+  const page = renderCoachLeaderboardPage(null, { escapeHtml });
+  assert.match(board, /Could not load your roster/);
+  assert.match(activity, /Could not load your roster/);
+  assert.match(page, /Could not load your roster/);
+  assert.doesNotMatch(board, /No players on your roster yet/);
+  assert.doesNotMatch(page, /No players on your roster yet/);
+  assert.equal(COACH_TEAM_LOAD_FAILED.includes('Try again in a moment'), true);
 });
 
 test('empty leaderboard and activity do not invent completed training', () => {
@@ -63,6 +76,24 @@ test('leaderboard title-cases stored position tokens', () => {
   ], { escapeHtml });
   assert.match(page, /Attacking Midfielder/);
   assert.doesNotMatch(page, /attacking_midfielder/);
+});
+
+test('coach team helpers return null when the API is up and the roster fetch fails', () => {
+  const src = readFileSync(new URL('../js/app.js', import.meta.url), 'utf8');
+  assert.match(src, /return isApiMode\(\) \? null : emptyCoachTeamSnapshot\(\)/);
+  assert.match(src, /return isApiMode\(\) \? null : getCoachTeamData\(\)/);
+});
+
+test('coach pages distinguish a failed roster load from no players', () => {
+  const dashboard = readFileSync(new URL('../coach/dashboard.html', import.meta.url), 'utf8');
+  const roster = readFileSync(new URL('../coach/players.html', import.meta.url), 'utf8');
+  const assign = readFileSync(new URL('../coach/assign.html', import.meta.url), 'utf8');
+  const feedback = readFileSync(new URL('../coach/feedback.html', import.meta.url), 'utf8');
+  assert.match(dashboard, /if \(!snapshot\)/);
+  assert.match(dashboard, /renderCoachTeamLoadFailed/);
+  assert.match(roster, /if \(!Array\.isArray\(players\)\)/);
+  assert.match(assign, /Could not load roster/);
+  assert.match(feedback, /Could not load roster/);
 });
 
 test('coach roster and report pages format profile labels', () => {

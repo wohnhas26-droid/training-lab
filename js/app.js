@@ -74,12 +74,13 @@ window.TrainingLab = {
   },
   getCoachTeam: async () => {
     const remote = await getCoachTeamRemote();
-    return remote || emptyCoachTeamSnapshot();
+    if (remote) return remote;
+    return isApiMode() ? null : emptyCoachTeamSnapshot();
   },
   getCoachTeamData: async () => {
     const remote = await getCoachTeamRemote();
     if (remote) return remote.players;
-    return getCoachTeamData();
+    return isApiMode() ? null : getCoachTeamData();
   },
   addTeamPlayer: addTeamPlayerRemote,
   removeTeamPlayer: removeTeamPlayerRemote,

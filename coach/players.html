@@ -40,6 +40,7 @@
   </div>
   <script type="module">
     import { renderNav, renderSidebar, escapeHtml, formatProfileLabel } from '/js/components/ui.js';
+    import { renderCoachTeamLoadFailedRow } from '/js/components/coachDashboard.js';
     import '/js/app.js';
     TrainingLab.requireAuth('coach');
     document.getElementById('nav').innerHTML = renderNav();
@@ -47,6 +48,10 @@
 
     function renderRoster(players) {
       const tbody = document.getElementById('players-table');
+      if (!Array.isArray(players)) {
+        tbody.innerHTML = renderCoachTeamLoadFailedRow(7);
+        return;
+      }
       if (!players.length) {
         tbody.innerHTML = '<tr><td colspan="7" style="color: var(--slate-500);">No players yet. Add one above.</td></tr>';
         return;

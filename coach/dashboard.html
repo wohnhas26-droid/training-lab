@@ -55,6 +55,8 @@
       renderCoachStats,
       renderCoachLeaderboardRows,
       renderCoachActivity,
+      renderCoachTeamLoadFailed,
+      renderCoachTeamLoadFailedRow,
     } from '/js/components/coachDashboard.js';
     import { renderSubscriptionCard, bindManageBillingButton } from '/js/components/playerProfile.js';
     import { openUrl } from '/js/utils/openUrl.js';
@@ -66,12 +68,18 @@
 
     await TrainingLab.ready();
     const snapshot = await TrainingLab.getCoachTeam();
-    const players = snapshot.players || [];
-    const stats = coachTeamStats(players, snapshot.stats);
-
-    document.getElementById('coach-stats').innerHTML = renderCoachStats(stats);
-    document.querySelector('#leaderboard-table tbody').innerHTML = renderCoachLeaderboardRows(players, { escapeHtml });
-    document.getElementById('recent-activity').innerHTML = renderCoachActivity(snapshot.activity, { escapeHtml });
+    if (!snapshot) {
+      document.getElementById('coach-stats').innerHTML =
+        `<div class="card" style="grid-column: 1 / -1;">${renderCoachTeamLoadFailed()}</div>`;
+      document.querySelector('#leaderboard-table tbody').innerHTML = renderCoachTeamLoadFailedRow(5);
+      document.getElementById('recent-activity').innerHTML = renderCoachTeamLoadFailed();
+    } else {
+      const players = snapshot.players || [];
+      const stats = coachTeamStats(players, snapshot.stats);
+      document.getElementById('coach-stats').innerHTML = renderCoachStats(stats);
+      document.querySelector('#leaderboard-table tbody').innerHTML = renderCoachLeaderboardRows(players, { escapeHtml });
+      document.getElementById('recent-activity').innerHTML = renderCoachActivity(snapshot.activity, { escapeHtml });
+    }
 
     const sub = await TrainingLab.getSubscriptionStatus();
     document.getElementById('subscription-card').innerHTML = renderSubscriptionCard(sub, {
