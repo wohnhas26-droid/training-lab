@@ -13,6 +13,8 @@ import {
   EVALUATION_LOCKED,
   isRestSession,
   renderSessionCta,
+  renderProgressSummaryLoadFailed,
+  PROGRESS_SUMMARY_LOAD_FAILED,
 } from '../js/components/playerProgress.js';
 
 const apiSummary = {
@@ -35,6 +37,13 @@ test('dashboard stats use the API summary instead of leftover zeros', () => {
   assert.match(html, />340<\/div>/);
   assert.match(html, />2\/10<\/div>/);
   assert.doesNotMatch(html, />0<\/div><div class="stat-label">Total XP/);
+});
+
+test('a failed progress summary is not leftover zeros or stale XP', () => {
+  const html = renderProgressSummaryLoadFailed();
+  assert.match(html, /Could not load your progress stats/);
+  assert.doesNotMatch(html, /Total XP/);
+  assert.equal(PROGRESS_SUMMARY_LOAD_FAILED.includes('Try again in a moment'), true);
 });
 
 test('empty summary is zeros, not NaN', () => {
@@ -146,6 +155,17 @@ test('dashboard CTA is secondary View rest day on rest, primary Start Session ot
 
   const missing = renderSessionCta(null);
   assert.match(missing, /Start Session/);
+});
+
+test('player pages show a load error instead of falling back to local stats', () => {
+  const dashboard = readFileSync(new URL('../player/dashboard.html', import.meta.url), 'utf8');
+  const progress = readFileSync(new URL('../player/progress.html', import.meta.url), 'utf8');
+  const app = readFileSync(new URL('../js/app.js', import.meta.url), 'utf8');
+  assert.match(app, /return isApiMode\(\) \? null : getLocalProgressSummary\(\)/);
+  assert.match(dashboard, /if \(!summary\)/);
+  assert.match(dashboard, /renderProgressSummaryLoadFailed/);
+  assert.match(progress, /if \(!summary\)/);
+  assert.match(progress, /renderProgressSummaryLoadFailed/);
 });
 
 test('dashboard wires Today\'s Training CTA through renderSessionCta', () => {
