@@ -3,9 +3,16 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { escapeHtml } from '../js/components/ui.js';
 import { videoPreviewHtml } from '../js/utils/videoEmbed.js';
-import { renderSkillVideoList, renderVideoSkillOptions } from '../js/components/skillVideos.js';
+import { renderSkillVideoList, renderVideoSkillOptions, VIDEOS_LOAD_FAILED } from '../js/components/skillVideos.js';
 
 const helpers = { escapeHtml, videoPreviewHtml };
+
+test('a failed video load is not an empty submission list', () => {
+  const html = renderSkillVideoList(null, helpers);
+  assert.match(html, /Could not load videos right now/);
+  assert.doesNotMatch(html, /No submissions yet/);
+  assert.equal(VIDEOS_LOAD_FAILED.includes('Try again in a moment'), true);
+});
 
 test('empty list uses the provided empty copy', () => {
   const html = renderSkillVideoList([], { ...helpers, emptyText: 'No skill videos submitted.' });
@@ -46,6 +53,23 @@ test('video skill options use catalog names and escape labels', () => {
   assert.match(html, />First &lt;Touch&gt;</);
   assert.match(html, /value="Passing"/);
   assert.doesNotMatch(html, /First <Touch>/);
+});
+
+test('video remotes return null when the API request fails', () => {
+  const src = readFileSync(new URL('../js/services/dataStore.js', import.meta.url), 'utf8');
+  const coach = src.slice(src.indexOf('export async function getCoachVideosRemote'), src.indexOf('export async function addChildRemote'));
+  const player = src.slice(src.indexOf('export async function getMyVideosRemote'), src.indexOf('export async function submitVideoRemote'));
+  assert.match(coach, /return null;/);
+  assert.match(player, /return null;/);
+  assert.doesNotMatch(coach, /catch \{\s*return \[\];/);
+  assert.doesNotMatch(player, /catch \{\s*return \[\];/);
+});
+
+test('coach feedback distinguishes a failed video load from no submissions', () => {
+  const html = readFileSync(new URL('../coach/feedback.html', import.meta.url), 'utf8');
+  assert.match(html, /VIDEOS_LOAD_FAILED/);
+  assert.match(html, /if \(videos === null\)/);
+  assert.match(html, /No video submissions yet/);
 });
 
 test('progress page loads video skill options from TrainingLab.getCatalog', () => {

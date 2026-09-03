@@ -371,7 +371,7 @@ export async function getCoachVideosRemote() {
     try {
       return await api.getCoachVideos();
     } catch {
-      return [];
+      return null;
     }
   }
   // Offline coaches have no team submissions. Do not invent teammates.
@@ -505,7 +505,7 @@ export async function getMyVideosRemote() {
     try {
       return await api.getMyVideos();
     } catch {
-      return [];
+      return null;
     }
   }
   return loadLocalVideos();

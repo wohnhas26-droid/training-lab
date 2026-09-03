@@ -39,6 +39,7 @@
   <script type="module">
     import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
     import { videoPreviewHtml } from '/js/utils/videoEmbed.js';
+    import { VIDEOS_LOAD_FAILED } from '/js/components/skillVideos.js';
     import '/js/app.js';
 
     TrainingLab.requireAuth('coach');
@@ -61,6 +62,10 @@
 
     function renderVideoQueue(videos) {
       const queue = document.getElementById('video-queue');
+      if (videos === null) {
+        queue.innerHTML = `<div class="card"><p style="color: var(--slate-400);">${escapeHtml(VIDEOS_LOAD_FAILED)}</p></div>`;
+        return;
+      }
       if (!videos.length) {
         queue.innerHTML = '<div class="card"><p style="color: var(--slate-400);">No video submissions yet.</p></div>';
         return;
