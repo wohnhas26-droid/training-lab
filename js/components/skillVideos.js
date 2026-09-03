@@ -1,3 +1,6 @@
+export const VIDEOS_LOAD_FAILED =
+  'Could not load videos right now. Try again in a moment.';
+
 export function renderVideoSkillOptions(categories, { escapeHtml } = {}) {
   const esc = escapeHtml || ((v) => String(v ?? ''));
   const list = Array.isArray(categories) ? categories : Object.values(categories || {});
@@ -15,6 +18,9 @@ export function renderSkillVideoList(videos, {
   pendingLabel = 'Pending Review',
   reviewedLabel = 'Reviewed',
 } = {}) {
+  if (videos === null) {
+    return `<p style="color: var(--slate-500);">${escapeHtml(VIDEOS_LOAD_FAILED)}</p>`;
+  }
   const list = Array.isArray(videos) ? videos : [];
   if (!list.length) {
     return `<p style="color: var(--slate-500);">${escapeHtml(emptyText)}</p>`;

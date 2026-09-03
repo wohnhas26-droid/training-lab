@@ -107,6 +107,7 @@
       try {
         await TrainingLab.ready();
         const created = await TrainingLab.submitVideo({ skill: fd.get('skill'), url: fd.get('url') });
+        if (!Array.isArray(myVideos)) myVideos = [];
         myVideos.unshift(created);
         TrainingLab.showToast('Video submitted for review!');
         e.target.reset();
