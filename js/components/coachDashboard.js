@@ -1,5 +1,16 @@
 import { formatProfileLabel } from './ui.js';
 
+export const COACH_TEAM_LOAD_FAILED =
+  'Could not load your roster right now. Try again in a moment.';
+
+export function renderCoachTeamLoadFailed() {
+  return `<p style="color: var(--slate-500);">${COACH_TEAM_LOAD_FAILED}</p>`;
+}
+
+export function renderCoachTeamLoadFailedRow(colspan = 5) {
+  return `<tr><td colspan="${colspan}" style="color: var(--slate-500);">${COACH_TEAM_LOAD_FAILED}</td></tr>`;
+}
+
 export function emptyCoachTeamSnapshot() {
   return {
     players: [],
@@ -46,11 +57,13 @@ function playerHref(id) {
 }
 
 export function renderCoachLeaderboardRows(players, { escapeHtml }) {
-  const list = Array.isArray(players) ? players : [];
-  if (!list.length) {
+  if (!Array.isArray(players)) {
+    return renderCoachTeamLoadFailedRow(5);
+  }
+  if (!players.length) {
     return '<tr><td colspan="5" style="color: var(--slate-500);">No players on your roster yet.</td></tr>';
   }
-  return list.slice(0, 5).map((p, i) => `
+  return players.slice(0, 5).map((p, i) => `
       <tr>
         <td><span class="leaderboard-rank rank-${i < 3 ? i + 1 : 'other'}">${i + 1}</span></td>
         <td>
@@ -65,11 +78,13 @@ export function renderCoachLeaderboardRows(players, { escapeHtml }) {
 }
 
 export function renderCoachActivity(activity, { escapeHtml }) {
-  const list = Array.isArray(activity) ? activity : [];
-  if (!list.length) {
+  if (!Array.isArray(activity)) {
+    return renderCoachTeamLoadFailed();
+  }
+  if (!activity.length) {
     return '<p style="color: var(--slate-500);">No recent team activity yet.</p>';
   }
-  return list.map((item) => {
+  return activity.map((item) => {
     const name = escapeHtml(item.playerName || 'Player');
     const label = escapeHtml(item.text || '');
     const when = escapeHtml(item.when || '');
@@ -86,11 +101,13 @@ export function renderCoachActivity(activity, { escapeHtml }) {
 }
 
 export function renderCoachLeaderboardPage(players, { escapeHtml }) {
-  const list = Array.isArray(players) ? players : [];
-  if (!list.length) {
+  if (!Array.isArray(players)) {
+    return `<p style="color: var(--slate-500); padding: 1rem;">${COACH_TEAM_LOAD_FAILED}</p>`;
+  }
+  if (!players.length) {
     return '<p style="color: var(--slate-500); padding: 1rem;">No players on your roster yet.</p>';
   }
-  return list.map((p, i) => `
+  return players.map((p, i) => `
       <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--slate-800);">
         <span class="leaderboard-rank rank-${i < 3 ? i + 1 : 'other'}">${i + 1}</span>
         <div style="flex: 1;">

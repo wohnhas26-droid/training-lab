@@ -107,7 +107,13 @@
 
     await TrainingLab.ready();
     players = await TrainingLab.getCoachTeamData();
-    document.getElementById('player-select').innerHTML = renderAssignPlayerOptions(players, { escapeHtml });
+    if (!Array.isArray(players)) {
+      document.getElementById('player-select').innerHTML =
+        '<option value="" disabled selected>Could not load roster</option>';
+      players = [];
+    } else {
+      document.getElementById('player-select').innerHTML = renderAssignPlayerOptions(players, { escapeHtml });
+    }
     const catalog = await TrainingLab.getCatalog();
     categories = catalog.categories;
     document.getElementById('category-select').innerHTML =
