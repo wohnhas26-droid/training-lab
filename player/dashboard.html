@@ -45,7 +45,7 @@
   <script type="module">
     import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
     import { renderPlayerAssignmentList } from '/js/components/assignments.js';
-    import { renderDashboardStats, renderLevelInfo, renderSessionCta, renderProgressSummaryLoadFailed } from '/js/components/playerProgress.js';
+    import { renderDashboardStats, renderLevelInfo, renderSessionCta, renderProgressSummaryLoadFailed, renderTodayTrainingLoadFailed } from '/js/components/playerProgress.js';
     import '/js/app.js';
     import { getDayName } from '/js/services/storage.js';
     import { daysFromWeeklyPlan, renderWeeklySchedule } from '/js/utils/weeklySchedule.js';
@@ -60,6 +60,13 @@
     const today = getDayName();
 
     function renderSession(session) {
+      if (!session) {
+        document.getElementById('today-focus').textContent = '';
+        document.getElementById('today-session').innerHTML = renderTodayTrainingLoadFailed();
+        document.getElementById('session-cta').innerHTML = '';
+        return;
+      }
+
       document.getElementById('today-focus').textContent =
         session.rest || !session.focus?.length
           ? 'Rest day — focus on recovery'

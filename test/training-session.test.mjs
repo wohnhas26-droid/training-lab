@@ -99,3 +99,11 @@ test('training page toasts complete-session failures instead of swallowing them'
   assert.match(handler, /btn\.disabled = false/);
   assert.match(handler, /catch \(err\)/);
 });
+
+test('training page hides the session UI when today training fails to fetch', () => {
+  const html = readFileSync(new URL('../player/training.html', import.meta.url), 'utf8');
+  assert.match(html, /id="session-progress-card"/);
+  assert.match(html, /session-progress-card'\)\.style\.display = 'none'/);
+  assert.match(html, /if \(!session\) return/);
+  assert.match(html, /if \(session\) document\.getElementById\('complete-session-btn'\)/);
+});

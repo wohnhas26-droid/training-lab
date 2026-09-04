@@ -75,6 +75,13 @@ export function renderAchievements(achievements, unlockedIds, { escapeHtml } = {
   }).join('');
 }
 
+export const TODAY_TRAINING_LOAD_FAILED =
+  "Could not load today's training right now. Try again in a moment.";
+
+export function renderTodayTrainingLoadFailed() {
+  return `<p style="color: var(--slate-500);">${TODAY_TRAINING_LOAD_FAILED}</p>`;
+}
+
 export function isRestSession(session) {
   if (!session) return false;
   if (session.rest) return true;

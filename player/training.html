@@ -21,7 +21,7 @@
         <div id="assignments-list" style="margin-top: 1rem;"></div>
       </div>
 
-      <div class="card" style="margin-bottom: 1.5rem;">
+      <div class="card" id="session-progress-card" style="margin-bottom: 1.5rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
           <div>
             <span class="badge badge-green" id="session-progress-badge">0% Complete</span>
@@ -43,6 +43,7 @@
     import { renderNav, renderSidebar, difficultyBadge, escapeHtml } from '/js/components/ui.js';
     import { renderPlayerAssignmentList } from '/js/components/assignments.js';
     import { renderSessionExercises } from '/js/components/trainingSession.js';
+    import { renderTodayTrainingLoadFailed } from '/js/components/playerProgress.js';
     import '/js/app.js';
 
     const state = TrainingLab.requireAuth('player');
@@ -63,14 +64,21 @@
     );
 
     let doneCount = 0;
-    const totalExercises = session.exercises?.length || 0;
+    const totalExercises = session?.exercises?.length || 0;
     let timerSeconds = 0;
     let timerInterval = null;
 
-    document.getElementById('session-meta').textContent =
-      session.rest || !session.focus?.length
-        ? 'Recovery day'
-        : `${session.focus.join(' · ')} — ~${session.estimatedMinutes || 0} minutes`;
+    if (!session) {
+      document.getElementById('session-meta').textContent = '';
+      document.getElementById('session-progress-card').style.display = 'none';
+      document.getElementById('exercise-list').innerHTML =
+        `<div class="card">${renderTodayTrainingLoadFailed()}</div>`;
+    } else {
+      document.getElementById('session-meta').textContent =
+        session.rest || !session.focus?.length
+          ? 'Recovery day'
+          : `${session.focus.join(' · ')} — ~${session.estimatedMinutes || 0} minutes`;
+    }
 
     function updateProgress() {
       const pct = totalExercises ? Math.round((doneCount / totalExercises) * 100) : 0;
@@ -85,6 +93,7 @@
     }
 
     function renderExercises() {
+      if (!session) return;
       const list = document.getElementById('exercise-list');
       const items = session.exercises || [];
       doneCount = items.filter((ex) => completed.has(ex.id)).length;
@@ -142,7 +151,7 @@
 
     loadAssignments();
 
-    document.getElementById('complete-session-btn').addEventListener('click', async () => {
+    if (session) document.getElementById('complete-session-btn').addEventListener('click', async () => {
       const btn = document.getElementById('complete-session-btn');
       const exerciseIds = session.exercises.map(e => e.id);
       const totalXp = session.exercises.reduce((s, e) => s + e.xp, 0);
