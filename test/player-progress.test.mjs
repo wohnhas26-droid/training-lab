@@ -15,6 +15,8 @@ import {
   renderSessionCta,
   renderProgressSummaryLoadFailed,
   PROGRESS_SUMMARY_LOAD_FAILED,
+  renderTodayTrainingLoadFailed,
+  TODAY_TRAINING_LOAD_FAILED,
 } from '../js/components/playerProgress.js';
 
 const apiSummary = {
@@ -173,4 +175,28 @@ test('dashboard wires Today\'s Training CTA through renderSessionCta', () => {
   assert.match(html, /id="session-cta"/);
   assert.match(html, /renderSessionCta\(session\)/);
   assert.doesNotMatch(html, />Start Session<\/a>/);
+});
+
+test('a failed today training load is not a Start Session plan', () => {
+  const html = renderTodayTrainingLoadFailed();
+  assert.match(html, /Could not load today's training right now/);
+  assert.doesNotMatch(html, /Start Session/);
+  assert.doesNotMatch(html, /Rest and recovery day/);
+  assert.equal(TODAY_TRAINING_LOAD_FAILED.includes('Try again in a moment'), true);
+});
+
+test('player pages show a load error when today training fails to fetch', () => {
+  const dashboard = readFileSync(new URL('../player/dashboard.html', import.meta.url), 'utf8');
+  const training = readFileSync(new URL('../player/training.html', import.meta.url), 'utf8');
+  const store = readFileSync(new URL('../js/services/dataStore.js', import.meta.url), 'utf8');
+  const todayFn = store.slice(
+    store.indexOf('export async function getTodayTrainingRemote'),
+    store.indexOf('export async function addTeamPlayerRemote'),
+  );
+  assert.match(todayFn, /return null;/);
+  assert.doesNotMatch(todayFn, /Fall through to the cached weekly plan/);
+  assert.match(dashboard, /if \(!session\)/);
+  assert.match(dashboard, /renderTodayTrainingLoadFailed/);
+  assert.match(training, /if \(!session\)/);
+  assert.match(training, /renderTodayTrainingLoadFailed/);
 });

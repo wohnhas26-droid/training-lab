@@ -193,7 +193,7 @@ export async function getTodayTrainingRemote() {
     try {
       return await api.getTodayTraining();
     } catch {
-      // Fall through to the cached weekly plan.
+      return null;
     }
   }
   const { getTodaySession } = await import('../services/trainingPlanner.js');
