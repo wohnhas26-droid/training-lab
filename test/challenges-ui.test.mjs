@@ -1,10 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { escapeHtml } from '../js/components/ui.js';
+import { readFileSync } from 'node:fs';
 import {
   challengeCardStatus,
   hydrateChallenges,
   renderChallengeCards,
+  renderChallengesLoadFailed,
+  CHALLENGES_LOAD_FAILED,
 } from '../js/components/challenges.js';
 
 const helpers = { escapeHtml };
@@ -69,6 +72,23 @@ test('empty challenge list shows an empty state instead of leftover cards', () =
   const html = renderChallengeCards([], helpers);
   assert.match(html, /No challenges available/);
   assert.doesNotMatch(html, /Join Challenge/);
+});
+
+test('a failed challenge load is not an empty list or bundled leftover cards', () => {
+  const html = renderChallengeCards(null, helpers);
+  assert.match(html, /Could not load challenges right now/);
+  assert.doesNotMatch(html, /No challenges available/);
+  assert.doesNotMatch(html, /Join Challenge/);
+  assert.equal(CHALLENGES_LOAD_FAILED.includes('Try again in a moment'), true);
+  assert.match(renderChallengesLoadFailed(), /Could not load challenges right now/);
+});
+
+test('challenges page shows a load error when challenges fail to fetch', () => {
+  const html = readFileSync(new URL('../player/challenges.html', import.meta.url), 'utf8');
+  const app = readFileSync(new URL('../js/app.js', import.meta.url), 'utf8');
+  const fn = app.slice(app.indexOf('getChallenges: async'), app.indexOf('getEvaluation: async'));
+  assert.match(fn, /return isApiMode\(\) \? null : hydrateChallenges\(CHALLENGES, loadState\(\)\);/);
+  assert.match(html, /renderChallengeCards\(challenges/);
 });
 
 test('completed cards hide Join and Log Progress', () => {

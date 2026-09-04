@@ -23,8 +23,9 @@ test('getCatalog still falls back to bundled exercises and categories', () => {
   assert.match(app, /return \{ exercises: EXERCISES, categories: TRAINING_CATEGORIES \}/);
 });
 
-test('getChallenges still falls back to bundled CHALLENGES', () => {
-  assert.match(app, /return hydrateChallenges\(CHALLENGES, loadState\(\)\);/);
+test('getChallenges falls back to bundled CHALLENGES only when offline', () => {
+  const fn = app.slice(app.indexOf('getChallenges: async'), app.indexOf('getEvaluation: async'));
+  assert.match(fn, /return isApiMode\(\) \? null : hydrateChallenges\(CHALLENGES, loadState\(\)\);/);
 });
 
 test('getAchievements still falls back to bundled ACHIEVEMENTS', () => {

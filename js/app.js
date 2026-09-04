@@ -106,7 +106,7 @@ window.TrainingLab = {
   getChallenges: async () => {
     const remote = await getChallengesRemote();
     if (remote) return hydrateChallenges(remote);
-    return hydrateChallenges(CHALLENGES, loadState());
+    return isApiMode() ? null : hydrateChallenges(CHALLENGES, loadState());
   },
   getEvaluation: async () => {
     const remote = await getEvaluationRemote();
