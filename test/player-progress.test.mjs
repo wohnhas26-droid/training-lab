@@ -10,7 +10,9 @@ import {
   renderAchievements,
   renderEvaluation,
   renderEvaluationLocked,
+  renderEvaluationLoadFailed,
   EVALUATION_LOCKED,
+  EVALUATION_LOAD_FAILED,
   isRestSession,
   renderSessionCta,
   renderProgressSummaryLoadFailed,
@@ -126,6 +128,23 @@ test('progress page shows the evaluation card or an Elite upsell', () => {
   assert.match(html, /renderEvaluationLocked/);
   assert.match(html, /fresh\.subscription !== 'elite'/);
   assert.match(html, /id="evaluation-card"/);
+});
+
+test('a failed evaluation load is not a fabricated Elite score or upsell', () => {
+  const html = renderEvaluationLoadFailed();
+  assert.match(html, /Could not load your monthly evaluation right now/);
+  assert.doesNotMatch(html, /\/10/);
+  assert.doesNotMatch(html, /View Plans/);
+  assert.equal(EVALUATION_LOAD_FAILED.includes('Try again in a moment'), true);
+});
+
+test('progress page shows a load error when elite evaluation fails to fetch', () => {
+  const html = readFileSync(new URL('../player/progress.html', import.meta.url), 'utf8');
+  const app = readFileSync(new URL('../js/app.js', import.meta.url), 'utf8');
+  const fn = app.slice(app.indexOf('getEvaluation: async'), app.indexOf('getAchievements: async'));
+  assert.match(fn, /if \(isApiMode\(\)\) return null;/);
+  assert.match(html, /renderEvaluationLoadFailed/);
+  assert.match(html, /else \{\s*evaluationCard\.style\.display = 'block';\s*evaluationContent\.innerHTML = renderEvaluationLoadFailed\(\);/s);
 });
 
 test('progress page loads the level track from TrainingLab.getLevels', () => {

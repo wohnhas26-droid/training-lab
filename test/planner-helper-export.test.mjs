@@ -19,8 +19,10 @@ function htmlFiles(dir = root, acc = []) {
   return acc;
 }
 
-test('getEvaluation still falls back to generateEvaluation when elite and offline', () => {
-  assert.match(app, /return generateEvaluation\(state\.profile \|\| \{\}, state\.progress \|\| \{\}\);/);
+test('getEvaluation falls back to generateEvaluation only when elite and offline', () => {
+  const fn = app.slice(app.indexOf('getEvaluation: async'), app.indexOf('getAchievements: async'));
+  assert.match(fn, /if \(isApiMode\(\)\) return null;/);
+  assert.match(fn, /return generateEvaluation\(state\.profile \|\| \{\}, state\.progress \|\| \{\}\);/);
 });
 
 test('offline onboarding still writes profile, plan, and subscription locally', () => {
