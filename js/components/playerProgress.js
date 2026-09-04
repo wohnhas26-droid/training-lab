@@ -105,6 +105,13 @@ export function renderEvaluationLocked() {
   `;
 }
 
+export const EVALUATION_LOAD_FAILED =
+  'Could not load your monthly evaluation right now. Try again in a moment.';
+
+export function renderEvaluationLoadFailed() {
+  return `<p style="color: var(--slate-500);">${EVALUATION_LOAD_FAILED}</p>`;
+}
+
 export function renderEvaluation(evaluation, { escapeHtml } = {}) {
   if (!evaluation) return '';
   const esc = escapeHtml || ((v) => String(v ?? ''));

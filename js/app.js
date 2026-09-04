@@ -111,6 +111,7 @@ window.TrainingLab = {
   getEvaluation: async () => {
     const remote = await getEvaluationRemote();
     if (remote) return remote;
+    if (isApiMode()) return null;
     const state = loadState();
     if (state.subscription === 'elite') {
       return generateEvaluation(state.profile || {}, state.progress || {});
