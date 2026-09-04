@@ -22,8 +22,18 @@ export function hydrateChallenges(catalog, state = null) {
   });
 }
 
+export const CHALLENGES_LOAD_FAILED =
+  'Could not load challenges right now. Try again in a moment.';
+
+export function renderChallengesLoadFailed() {
+  return `<p style="color: var(--slate-500);">${CHALLENGES_LOAD_FAILED}</p>`;
+}
+
 export function renderChallengeCards(challenges, { escapeHtml } = {}) {
-  const list = Array.isArray(challenges) ? challenges : [];
+  if (!Array.isArray(challenges)) {
+    return renderChallengesLoadFailed();
+  }
+  const list = challenges;
   if (!list.length) {
     return '<p style="color: var(--slate-500);">No challenges available.</p>';
   }
