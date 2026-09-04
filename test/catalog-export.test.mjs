@@ -28,8 +28,13 @@ test('getChallenges falls back to bundled CHALLENGES only when offline', () => {
   assert.match(fn, /return isApiMode\(\) \? null : hydrateChallenges\(CHALLENGES, loadState\(\)\);/);
 });
 
-test('getAchievements still falls back to bundled ACHIEVEMENTS', () => {
-  assert.match(app, /all: ACHIEVEMENTS/);
+test('getAchievements falls back to bundled ACHIEVEMENTS only when offline', () => {
+  const fn = app.slice(app.indexOf('getAchievements: async'), app.indexOf('getLevels: async'));
+  assert.match(fn, /if \(isApiMode\(\)\) return null;/);
+  assert.match(fn, /all: ACHIEVEMENTS/);
+});
+
+test('getCatalogAchievements still falls back to bundled ACHIEVEMENTS', () => {
   assert.match(app, /return ACHIEVEMENTS;/);
 });
 
