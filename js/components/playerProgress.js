@@ -1,3 +1,10 @@
+export const PROGRESS_SUMMARY_LOAD_FAILED =
+  'Could not load your progress stats right now. Try again in a moment.';
+
+export function renderProgressSummaryLoadFailed() {
+  return `<p style="color: var(--slate-500);">${PROGRESS_SUMMARY_LOAD_FAILED}</p>`;
+}
+
 export function renderDashboardStats(summary) {
   const s = summary || {};
   return `

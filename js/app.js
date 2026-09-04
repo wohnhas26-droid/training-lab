@@ -70,7 +70,8 @@ window.TrainingLab = {
   checkAchievements: checkAchievementsRemote,
   getProgressSummary: async () => {
     const remote = await getProgressSummaryRemote();
-    return remote || getLocalProgressSummary();
+    if (remote) return remote;
+    return isApiMode() ? null : getLocalProgressSummary();
   },
   getCoachTeam: async () => {
     const remote = await getCoachTeamRemote();
