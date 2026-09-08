@@ -115,9 +115,9 @@
       document.getElementById('player-select').innerHTML = renderAssignPlayerOptions(players, { escapeHtml });
     }
     const catalog = await TrainingLab.getCatalog();
-    categories = catalog.categories;
+    categories = catalog && catalog.categories;
     document.getElementById('category-select').innerHTML =
-      renderAssignCategoryOptions(catalog.categories, { escapeHtml });
+      renderAssignCategoryOptions(catalog && catalog.categories, { escapeHtml });
     assignments = await TrainingLab.getAssignments();
     renderAssignments();
   </script>

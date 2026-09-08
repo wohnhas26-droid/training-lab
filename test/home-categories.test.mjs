@@ -66,11 +66,21 @@ test('empty catalog shows a loading empty state instead of leftover cards', () =
   assert.doesNotMatch(html, /Ball Mastery/);
 });
 
+test('a failed catalog load is not leftover bundled category cards', () => {
+  const html = renderHomeCategoryCards(null, { escapeHtml });
+  assert.match(html, /Could not load the training catalog right now/);
+  assert.doesNotMatch(html, /Ball Mastery/);
+  assert.doesNotMatch(html, /Training categories will appear/);
+});
+
 test('homepage loads categories from TrainingLab.getCatalog', () => {
   const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  const app = readFileSync(new URL('../js/app.js', import.meta.url), 'utf8');
+  const fn = app.slice(app.indexOf('getCatalog: async'), app.indexOf('getChallenges: async'));
   assert.match(html, /TrainingLab\.getCatalog\(\)/);
-  assert.match(html, /renderHomeCategoryCards\(catalog\.categories/);
+  assert.match(html, /renderHomeCategoryCards\(catalog && catalog\.categories/);
   assert.doesNotMatch(html, /from '\/js\/data\/exercises\.js'/);
+  assert.match(fn, /if \(isApiMode\(\)\) return null;/);
 });
 
 test('homepage How It Works copy does not claim an AI plan', () => {

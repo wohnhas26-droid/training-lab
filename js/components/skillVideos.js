@@ -2,6 +2,9 @@ export const VIDEOS_LOAD_FAILED =
   'Could not load videos right now. Try again in a moment.';
 
 export function renderVideoSkillOptions(categories, { escapeHtml } = {}) {
+  if (categories == null) {
+    return '<option value="" disabled selected>Could not load skills right now</option>';
+  }
   const esc = escapeHtml || ((v) => String(v ?? ''));
   const list = Array.isArray(categories) ? categories : Object.values(categories || {});
   return list.map((c) => {

@@ -54,7 +54,7 @@
 
     await TrainingLab.ready();
     const catalog = await TrainingLab.getCatalog();
-    const categories = catalog.categories;
+    const categories = catalog && catalog.categories;
     const current = TrainingLab.loadState();
     const session = await TrainingLab.getTodayTraining();
     const completed = new Set(

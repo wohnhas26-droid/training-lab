@@ -101,6 +101,7 @@ window.TrainingLab = {
   getCatalog: async () => {
     const remote = await getCatalogRemote();
     if (remote) return remote;
+    if (isApiMode()) return null;
     return { exercises: EXERCISES, categories: TRAINING_CATEGORIES };
   },
   getChallenges: async () => {

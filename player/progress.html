@@ -94,7 +94,7 @@
 
     // Skill video submissions
     const videoSkill = document.getElementById('video-skill');
-    videoSkill.innerHTML = renderVideoSkillOptions(catalog.categories, { escapeHtml });
+    videoSkill.innerHTML = renderVideoSkillOptions(catalog && catalog.categories, { escapeHtml });
 
     function renderMyVideos(videos) {
       document.getElementById('my-videos').innerHTML = renderSkillVideoList(videos, {

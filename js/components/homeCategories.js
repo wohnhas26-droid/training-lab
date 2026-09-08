@@ -1,4 +1,5 @@
 import { titleCasePhrase } from './ui.js';
+import { renderCatalogLoadFailed } from './library.js';
 
 export function listHomeCategories(raw) {
   const list = Array.isArray(raw) ? raw : Object.values(raw || {});
@@ -12,6 +13,9 @@ export function subcategoryPreview(cat, limit = 4) {
 }
 
 export function renderHomeCategoryCards(categories, { escapeHtml } = {}) {
+  if (categories == null) {
+    return renderCatalogLoadFailed();
+  }
   const esc = escapeHtml || ((v) => String(v ?? ''));
   const list = listHomeCategories(categories);
   if (!list.length) {

@@ -78,10 +78,17 @@ test('assign category options accept an API category map', () => {
   assert.match(html, /value="passing"/);
 });
 
+test('a failed catalog load is not leftover bundled assign categories', () => {
+  const html = renderAssignCategoryOptions(null, { escapeHtml });
+  assert.match(html, /Could not load categories right now/);
+  assert.doesNotMatch(html, /Ball Mastery/);
+  assert.doesNotMatch(html, /Passing/);
+});
+
 test('assign page loads categories from TrainingLab.getCatalog', () => {
   const html = readFileSync(new URL('../coach/assign.html', import.meta.url), 'utf8');
   assert.match(html, /TrainingLab\.getCatalog\(\)/);
-  assert.match(html, /renderAssignCategoryOptions\(catalog\.categories/);
+  assert.match(html, /renderAssignCategoryOptions\(catalog && catalog\.categories/);
   assert.doesNotMatch(html, /from '\/js\/data\/exercises\.js'/);
 });
 
@@ -108,7 +115,7 @@ test('coach assignment list uses catalog names, not the shortened map', () => {
 
 test('assign page wires assigned-session labels through catalog categories', () => {
   const html = readFileSync(new URL('../coach/assign.html', import.meta.url), 'utf8');
-  assert.match(html, /categories = catalog\.categories/);
+  assert.match(html, /categories = catalog && catalog\.categories/);
   assert.match(html, /renderCoachAssignmentList\(assignments, \{/);
   assert.match(html, /categories,/);
   assert.doesNotMatch(html, /getCategoryName/);
@@ -138,7 +145,7 @@ test('player assignment list uses catalog names, not the shortened map', () => {
 test('dashboard wires assignment labels through catalog categories and getCatalog', () => {
   const html = readFileSync(new URL('../player/dashboard.html', import.meta.url), 'utf8');
   assert.match(html, /TrainingLab\.getCatalog\(\)/);
-  assert.match(html, /categories = catalog\.categories/);
+  assert.match(html, /categories = catalog && catalog\.categories/);
   assert.match(html, /renderPlayerAssignmentList\(items, \{ categories, escapeHtml \}\)/);
   assert.match(html, /import \{ renderNav, renderSidebar, escapeHtml \}/);
   assert.doesNotMatch(html, /getCategoryName/);

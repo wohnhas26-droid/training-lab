@@ -34,6 +34,8 @@
       filterExercises,
       renderCategoryOptions,
       renderLibraryCards,
+      renderCatalogLoadFailed,
+      CATALOG_LOAD_FAILED,
     } from '/js/components/library.js';
     import '/js/app.js';
 
@@ -57,12 +59,17 @@
 
     await TrainingLab.ready();
     const catalog = await TrainingLab.getCatalog();
-    exercises = Array.isArray(catalog.exercises) ? catalog.exercises : [];
-    categories = catalog.categories;
-    completedIds = completedExerciseIds(TrainingLab.loadState());
-    filter.innerHTML = renderCategoryOptions(normalizeCategories(catalog.categories), { escapeHtml });
-    document.getElementById('exercise-count').textContent = String(exercises.length);
-    renderLibrary();
+    if (!catalog) {
+      document.querySelector('.page-header p').textContent = CATALOG_LOAD_FAILED;
+      document.getElementById('library-grid').innerHTML = renderCatalogLoadFailed();
+    } else {
+      exercises = Array.isArray(catalog.exercises) ? catalog.exercises : [];
+      categories = catalog.categories;
+      completedIds = completedExerciseIds(TrainingLab.loadState());
+      filter.innerHTML = renderCategoryOptions(normalizeCategories(catalog.categories), { escapeHtml });
+      document.getElementById('exercise-count').textContent = String(exercises.length);
+      renderLibrary();
+    }
   </script>
 </body>
 </html>
