@@ -34,6 +34,12 @@ test('getAchievements falls back to bundled ACHIEVEMENTS only when offline', () 
   assert.match(fn, /all: ACHIEVEMENTS/);
 });
 
+test('getLevels falls back to bundled PROGRESSION_LEVELS only when offline', () => {
+  const fn = app.slice(app.indexOf('getLevels: async'), app.indexOf('getCatalogAchievements: async'));
+  assert.match(fn, /if \(isApiMode\(\)\) return null;/);
+  assert.match(fn, /return PROGRESSION_LEVELS;/);
+});
+
 test('getCatalogAchievements still falls back to bundled ACHIEVEMENTS', () => {
   assert.match(app, /return ACHIEVEMENTS;/);
 });

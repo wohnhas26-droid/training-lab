@@ -133,6 +133,7 @@ window.TrainingLab = {
   getLevels: async () => {
     const remote = await getLevelsRemote();
     if (Array.isArray(remote) && remote.length) return remote;
+    if (isApiMode()) return null;
     return PROGRESSION_LEVELS;
   },
   getCatalogAchievements: async () => {

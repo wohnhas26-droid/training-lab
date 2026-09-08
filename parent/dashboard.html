@@ -22,7 +22,7 @@
 
   <script type="module">
     import { renderNav, renderSidebar, escapeHtml } from '/js/components/ui.js';
-    import { bindLinkPlayerForm, renderLinkPlayerCard, renderAchievementBadges, skillProgressionLabel } from '/js/components/parentChild.js';
+    import { bindLinkPlayerForm, renderLinkPlayerCard, renderAchievementBadges, renderSkillProgression } from '/js/components/parentChild.js';
     import { renderSubscriptionCard, bindManageBillingButton } from '/js/components/playerProfile.js';
     import { openUrl } from '/js/utils/openUrl.js';
     import '/js/app.js';
@@ -49,7 +49,6 @@
         consistency: childReport.consistency,
         goalsAchieved: childReport.goalsAchieved,
         minutesThisWeek: childReport.minutesThisWeek,
-        skillProgression: skillProgressionLabel(levels, xp),
       };
       const achievements = childReport.player.achievements || [];
       const feedback = childReport.player.coachFeedback || [];
@@ -75,8 +74,7 @@
           <div class="card">
             <h3 class="card-title">Skill Progression</h3>
             <div style="margin-top: 1rem;">
-              <div class="level-badge" style="margin-bottom: 1rem;">${escapeHtml(report.skillProgression)}</div>
-              <p style="color: var(--slate-400); font-size: 0.9rem;">Keep encouraging daily training.</p>
+              ${renderSkillProgression(levels, xp, { escapeHtml })}
             </div>
           </div>
         </div>

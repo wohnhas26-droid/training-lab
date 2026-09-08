@@ -55,6 +55,21 @@ export function skillProgressionLabel(levels, xp) {
   return `${level.name || 'Rookie'} (${Number(xp) || 0} XP)`;
 }
 
+export const SKILL_PROGRESSION_LOAD_FAILED =
+  'Could not load progression levels right now. Try again in a moment.';
+
+export function renderSkillProgression(levels, xp, { escapeHtml } = {}) {
+  if (!Array.isArray(levels)) {
+    return `<p style="color: var(--slate-500);">${SKILL_PROGRESSION_LOAD_FAILED}</p>`;
+  }
+  const label = skillProgressionLabel(levels, xp);
+  const text = escapeHtml ? escapeHtml(label) : label;
+  return `
+              <div class="level-badge" style="margin-bottom: 1rem;">${text}</div>
+              <p style="color: var(--slate-400); font-size: 0.9rem;">Keep encouraging daily training.</p>
+            `;
+}
+
 export function renderAchievementBadges(unlockedIds, catalog, { escapeHtml } = {}) {
   const esc = escapeHtml || ((v) => String(v ?? ''));
   const ids = Array.isArray(unlockedIds) ? unlockedIds : [];
