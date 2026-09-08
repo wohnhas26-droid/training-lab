@@ -40,8 +40,11 @@ test('getLevels falls back to bundled PROGRESSION_LEVELS only when offline', () 
   assert.match(fn, /return PROGRESSION_LEVELS;/);
 });
 
-test('getCatalogAchievements still falls back to bundled ACHIEVEMENTS', () => {
-  assert.match(app, /return ACHIEVEMENTS;/);
+test('getCatalogAchievements falls back to bundled ACHIEVEMENTS only when offline', () => {
+  const start = app.indexOf('getCatalogAchievements: async');
+  const fn = app.slice(start, app.indexOf('async initOnboarding', start));
+  assert.match(fn, /if \(isApiMode\(\)\) return null;/);
+  assert.match(fn, /return ACHIEVEMENTS;/);
 });
 
 test('window.TrainingLab does not re-export bundled catalogs', () => {

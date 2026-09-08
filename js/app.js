@@ -139,6 +139,7 @@ window.TrainingLab = {
   getCatalogAchievements: async () => {
     const remote = await getCatalogAchievementsRemote();
     if (Array.isArray(remote) && remote.length) return remote;
+    if (isApiMode()) return null;
     return ACHIEVEMENTS;
   },
   showToast,
