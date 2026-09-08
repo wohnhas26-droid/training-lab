@@ -58,8 +58,18 @@ export function renderLevelTrack(levels, xp, { escapeHtml } = {}) {
   }).join('');
 }
 
+export const ACHIEVEMENTS_LOAD_FAILED =
+  'Could not load achievements right now. Try again in a moment.';
+
+export function renderAchievementsLoadFailed() {
+  return `<p style="color: var(--slate-500);">${ACHIEVEMENTS_LOAD_FAILED}</p>`;
+}
+
 export function renderAchievements(achievements, unlockedIds, { escapeHtml } = {}) {
-  const list = Array.isArray(achievements) ? achievements : [];
+  if (!Array.isArray(achievements)) {
+    return renderAchievementsLoadFailed();
+  }
+  const list = achievements;
   const unlocked = new Set(unlockedIds || []);
   return list.map((a) => {
     const on = unlocked.has(a.id);

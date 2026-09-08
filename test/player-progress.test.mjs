@@ -8,6 +8,8 @@ import {
   renderProgressStats,
   renderLevelTrack,
   renderAchievements,
+  renderAchievementsLoadFailed,
+  ACHIEVEMENTS_LOAD_FAILED,
   renderEvaluation,
   renderEvaluationLocked,
   renderEvaluationLoadFailed,
@@ -86,6 +88,23 @@ test('achievements mark only unlocked ids', () => {
   assert.match(html, /achievement unlocked/);
   assert.match(html, /First Steps/);
   assert.match(html, /Speed Demon/);
+});
+
+test('a failed achievements load is not leftover bundled badges', () => {
+  const html = renderAchievements(null, ['first_session'], { escapeHtml });
+  assert.match(html, /Could not load achievements right now/);
+  assert.doesNotMatch(html, /First Steps/);
+  assert.doesNotMatch(html, /achievement unlocked/);
+  assert.equal(ACHIEVEMENTS_LOAD_FAILED.includes('Try again in a moment'), true);
+  assert.match(renderAchievementsLoadFailed(), /Could not load achievements right now/);
+});
+
+test('progress page shows a load error when achievements fail to fetch', () => {
+  const html = readFileSync(new URL('../player/progress.html', import.meta.url), 'utf8');
+  const app = readFileSync(new URL('../js/app.js', import.meta.url), 'utf8');
+  const fn = app.slice(app.indexOf('getAchievements: async'), app.indexOf('getLevels: async'));
+  assert.match(fn, /if \(isApiMode\(\)\) return null;/);
+  assert.match(html, /badges\?\.all/);
 });
 
 test('achievements from the API catalog still escape names', () => {

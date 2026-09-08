@@ -126,6 +126,7 @@ window.TrainingLab = {
         unlocked: Array.isArray(remote.unlocked) ? remote.unlocked : [],
       };
     }
+    if (isApiMode()) return null;
     const state = loadState();
     return { all: ACHIEVEMENTS, unlocked: state.achievements || [] };
   },
