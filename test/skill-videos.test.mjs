@@ -75,6 +75,13 @@ test('coach feedback distinguishes a failed video load from no submissions', () 
 test('progress page loads video skill options from TrainingLab.getCatalog', () => {
   const html = readFileSync(new URL('../player/progress.html', import.meta.url), 'utf8');
   assert.match(html, /TrainingLab\.getCatalog\(\)/);
-  assert.match(html, /renderVideoSkillOptions\(catalog\.categories/);
+  assert.match(html, /renderVideoSkillOptions\(catalog && catalog\.categories/);
   assert.doesNotMatch(html, /TRAINING_CATEGORIES/);
+});
+
+test('a failed catalog load is not leftover bundled skill options', () => {
+  const html = renderVideoSkillOptions(null, { escapeHtml });
+  assert.match(html, /Could not load skills right now/);
+  assert.doesNotMatch(html, /Passing/);
+  assert.doesNotMatch(html, /Ball Mastery/);
 });

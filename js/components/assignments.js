@@ -82,6 +82,9 @@ export function renderAssignPlayerOptions(players, { escapeHtml } = {}) {
 }
 
 export function renderAssignCategoryOptions(categories, { escapeHtml } = {}) {
+  if (categories == null) {
+    return '<option value="" disabled selected>Could not load categories right now</option>';
+  }
   const esc = escapeHtml || ((v) => String(v ?? ''));
   const list = Array.isArray(categories) ? categories : Object.values(categories || {});
   return list.map((c) => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');

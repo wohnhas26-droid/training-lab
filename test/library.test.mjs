@@ -9,6 +9,7 @@ import {
   filterExercises,
   renderCategoryOptions,
   renderLibraryCards,
+  CATALOG_LOAD_FAILED,
 } from '../js/components/library.js';
 
 const helpers = { escapeHtml, difficultyBadge };
@@ -154,5 +155,8 @@ test('library page passes catalog categories into drill cards', () => {
   assert.match(html, /TrainingLab\.getCatalog\(\)/);
   assert.match(html, /categories = catalog\.categories/);
   assert.match(html, /completedIds, categories/);
+  assert.match(html, /if \(!catalog\)/);
+  assert.match(html, /renderCatalogLoadFailed/);
   assert.doesNotMatch(html, /getCategoryName/);
+  assert.equal(CATALOG_LOAD_FAILED.includes('Try again in a moment'), true);
 });

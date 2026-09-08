@@ -19,8 +19,10 @@ function htmlFiles(dir = root, acc = []) {
   return acc;
 }
 
-test('getCatalog still falls back to bundled exercises and categories', () => {
-  assert.match(app, /return \{ exercises: EXERCISES, categories: TRAINING_CATEGORIES \}/);
+test('getCatalog falls back to bundled exercises and categories only when offline', () => {
+  const fn = app.slice(app.indexOf('getCatalog: async'), app.indexOf('getChallenges: async'));
+  assert.match(fn, /if \(isApiMode\(\)\) return null;/);
+  assert.match(fn, /return \{ exercises: EXERCISES, categories: TRAINING_CATEGORIES \}/);
 });
 
 test('getChallenges falls back to bundled CHALLENGES only when offline', () => {

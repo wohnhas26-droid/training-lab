@@ -1,5 +1,12 @@
 import { formatProfileLabel } from './ui.js';
 
+export const CATALOG_LOAD_FAILED =
+  'Could not load the training catalog right now. Try again in a moment.';
+
+export function renderCatalogLoadFailed() {
+  return `<p style="color: var(--slate-500);">${CATALOG_LOAD_FAILED}</p>`;
+}
+
 export function normalizeCategories(raw) {
   if (Array.isArray(raw)) {
     return raw
