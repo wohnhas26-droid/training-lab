@@ -70,10 +70,16 @@ export function renderSkillProgression(levels, xp, { escapeHtml } = {}) {
             `;
 }
 
+export const CATALOG_ACHIEVEMENTS_LOAD_FAILED =
+  'Could not load achievements right now. Try again in a moment.';
+
 export function renderAchievementBadges(unlockedIds, catalog, { escapeHtml } = {}) {
+  if (!Array.isArray(catalog)) {
+    return `<p style="color: var(--slate-500);">${CATALOG_ACHIEVEMENTS_LOAD_FAILED}</p>`;
+  }
   const esc = escapeHtml || ((v) => String(v ?? ''));
   const ids = Array.isArray(unlockedIds) ? unlockedIds : [];
-  const list = Array.isArray(catalog) ? catalog : [];
+  const list = catalog;
   const byId = new Map(list.filter((a) => a && a.id).map((a) => [a.id, a]));
   const badges = ids.map((id) => {
     const a = byId.get(id);

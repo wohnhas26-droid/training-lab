@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { escapeHtml } from '../js/components/ui.js';
-import { renderLinkPlayerCard, renderAchievementBadges, levelForXp, skillProgressionLabel, renderSkillProgression, SKILL_PROGRESSION_LOAD_FAILED } from '../js/components/parentChild.js';
+import { renderLinkPlayerCard, renderAchievementBadges, levelForXp, skillProgressionLabel, renderSkillProgression, SKILL_PROGRESSION_LOAD_FAILED, CATALOG_ACHIEVEMENTS_LOAD_FAILED } from '../js/components/parentChild.js';
 
 test('empty parent state asks to link a player and does not invent stats', () => {
   const html = renderLinkPlayerCard({ escapeHtml });
@@ -30,9 +30,22 @@ test('parent achievement badges show an empty state when none are unlocked', () 
 
 test('parent dashboard loads achievement names from TrainingLab.getCatalogAchievements', () => {
   const html = readFileSync(new URL('../parent/dashboard.html', import.meta.url), 'utf8');
+  const app = readFileSync(new URL('../js/app.js', import.meta.url), 'utf8');
+  const start = app.indexOf('getCatalogAchievements: async');
+  const fn = app.slice(start, app.indexOf('async initOnboarding', start));
   assert.match(html, /TrainingLab\.getCatalogAchievements\(\)/);
   assert.match(html, /renderAchievementBadges/);
   assert.doesNotMatch(html, /ACHIEVEMENTS\.find/);
+  assert.match(fn, /if \(isApiMode\(\)\) return null;/);
+});
+
+test('a failed catalog achievements load is not leftover bundled badges', () => {
+  const html = renderAchievementBadges(['first_session'], null, { escapeHtml });
+  assert.match(html, /Could not load achievements right now/);
+  assert.doesNotMatch(html, /First Steps/);
+  assert.doesNotMatch(html, /badge-green/);
+  assert.doesNotMatch(html, /No achievements yet/);
+  assert.equal(CATALOG_ACHIEVEMENTS_LOAD_FAILED.includes('Try again in a moment'), true);
 });
 
 const catalogLevels = [
