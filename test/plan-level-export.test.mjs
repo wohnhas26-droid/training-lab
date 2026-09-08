@@ -19,8 +19,10 @@ function htmlFiles(dir = root, acc = []) {
   return acc;
 }
 
-test('getLevels still falls back to bundled PROGRESSION_LEVELS', () => {
-  assert.match(app, /return PROGRESSION_LEVELS;/);
+test('getLevels falls back to bundled PROGRESSION_LEVELS only when offline', () => {
+  const fn = app.slice(app.indexOf('getLevels: async'), app.indexOf('getCatalogAchievements: async'));
+  assert.match(fn, /if \(isApiMode\(\)\) return null;/);
+  assert.match(fn, /return PROGRESSION_LEVELS;/);
 });
 
 test('window.TrainingLab does not re-export SUBSCRIPTION_PLANS or getLevelForXp', () => {

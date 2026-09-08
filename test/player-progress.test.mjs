@@ -7,6 +7,8 @@ import {
   renderLevelInfo,
   renderProgressStats,
   renderLevelTrack,
+  renderLevelsLoadFailed,
+  LEVELS_LOAD_FAILED,
   renderAchievements,
   renderAchievementsLoadFailed,
   ACHIEVEMENTS_LOAD_FAILED,
@@ -78,6 +80,16 @@ test('level track unlocks from API xp and escapes names', () => {
   assert.match(html, /Rookie &lt;1&gt;/);
   assert.match(html, /Unlocked/);
   assert.match(html, /Elite/);
+});
+
+test('a failed levels load is not leftover bundled progression names', () => {
+  const html = renderLevelTrack(null, 1600, { escapeHtml });
+  assert.match(html, /Could not load progression levels right now/);
+  assert.doesNotMatch(html, /Rookie/);
+  assert.doesNotMatch(html, /Unlocked/);
+  assert.doesNotMatch(html, /XP required/);
+  assert.equal(LEVELS_LOAD_FAILED.includes('Try again in a moment'), true);
+  assert.match(renderLevelsLoadFailed(), /Could not load progression levels right now/);
 });
 
 test('achievements mark only unlocked ids', () => {
@@ -171,6 +183,14 @@ test('progress page loads the level track from TrainingLab.getLevels', () => {
   assert.match(html, /TrainingLab\.getLevels\(\)/);
   assert.match(html, /renderLevelTrack\(levels,/);
   assert.doesNotMatch(html, /from '\/js\/data\/levels\.js'/);
+});
+
+test('progress page shows a load error when levels fail to fetch', () => {
+  const html = readFileSync(new URL('../player/progress.html', import.meta.url), 'utf8');
+  const app = readFileSync(new URL('../js/app.js', import.meta.url), 'utf8');
+  const fn = app.slice(app.indexOf('getLevels: async'), app.indexOf('getCatalogAchievements: async'));
+  assert.match(fn, /if \(isApiMode\(\)\) return null;/);
+  assert.match(html, /renderLevelTrack\(levels,/);
 });
 
 test('rest sessions include planner rest days even when recovery drills exist', () => {

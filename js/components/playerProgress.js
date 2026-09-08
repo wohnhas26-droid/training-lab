@@ -39,8 +39,18 @@ export function renderProgressStats(summary) {
     `;
 }
 
+export const LEVELS_LOAD_FAILED =
+  'Could not load progression levels right now. Try again in a moment.';
+
+export function renderLevelsLoadFailed() {
+  return `<p style="color: var(--slate-500);">${LEVELS_LOAD_FAILED}</p>`;
+}
+
 export function renderLevelTrack(levels, xp, { escapeHtml } = {}) {
-  const list = Array.isArray(levels) ? levels : [];
+  if (!Array.isArray(levels)) {
+    return renderLevelsLoadFailed();
+  }
+  const list = levels;
   const currentXp = Number(xp) || 0;
   return list.map((level) => {
     const reached = currentXp >= (Number(level.minXp) || 0);
